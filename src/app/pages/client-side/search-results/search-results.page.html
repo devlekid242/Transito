@@ -1,0 +1,318 @@
+<ion-header class="ion-no-border">
+  <div
+    class="bg-surface-container-lowest px-5 py-3.5 shadow-sm max-w-[480px] mx-auto sticky top-0 z-40 border-b border-outline-variant/20"
+  >
+    <div class="flex items-center justify-between mb-4">
+      <button
+        (click)="goBack()"
+        aria-label="Retour"
+        class="text-primary active:scale-95 transition-transform flex items-center justify-center hover:bg-surface-container-low rounded-xl p-2.5 bg-surface-container-low/50 border border-outline-variant/10"
+      >
+        <i class="fa-solid fa-arrow-left text-sm"></i>
+      </button>
+
+      <div class="flex-1 px-4 text-center">
+        <div class="flex items-center justify-center gap-2.5">
+          <span class="text-sm font-bold text-on-surface tracking-tight"
+            >{{ searchSummary.origin }}</span
+          >
+          <i class="fa-solid fa-arrow-right-long text-xs text-primary"></i>
+          <span class="text-sm font-bold text-on-surface tracking-tight"
+            >{{ searchSummary.destination }}</span
+          >
+        </div>
+        <div
+          class="flex items-center justify-center gap-2 mt-1 text-on-surface-variant/70 text-[11px] font-semibold"
+        >
+          <span
+            ><i
+              class="fa-solid fa-calendar-day text-[10px] mr-1 text-on-surface-variant/50"
+            ></i
+            >{{ searchSummary.date }}</span
+          >
+          <span class="w-1 h-1 rounded-full bg-outline-variant/60"></span>
+          <span
+            ><i
+              class="fa-solid fa-user text-[10px] mr-1 text-on-surface-variant/50"
+            ></i
+            >{{ searchSummary.passengersCount }} Passager</span
+          >
+        </div>
+      </div>
+
+      <button
+        (click)="modifySearch()"
+        aria-label="Modifier"
+        class="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors text-primary active:scale-95 border border-outline-variant/10"
+      >
+        <i class="fa-solid fa-sliders text-sm"></i>
+      </button>
+    </div>
+
+    <div class="flex overflow-x-auto no-scrollbar gap-2.5 pb-1">
+      <button
+        (click)="applyFilter('earliest')"
+        [ngClass]="activeFilter === 'earliest' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
+        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
+      >
+        <i class="fa-solid fa-clock text-[11px]"></i>
+        <span>Départ le plus tôt</span>
+      </button>
+      <button
+        (click)="applyFilter('cheapest')"
+        [ngClass]="activeFilter === 'cheapest' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
+        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
+      >
+        <i class="fa-solid fa-arrow-down-1-9 text-[11px]"></i>
+        <span>Moins cher</span>
+      </button>
+      <button
+        (click)="applyFilter('vip')"
+        [ngClass]="activeFilter === 'vip' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
+        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
+      >
+        <i class="fa-solid fa-crown text-[11px]"></i>
+        <span>Agences VIP</span>
+      </button>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-background">
+  <main class="px-5 py-6 max-w-[480px] mx-auto flex flex-col gap-4 pb-28">
+    <div
+      *ngIf="!isLoading || currentPage > 1"
+      class="text-xs text-on-surface-variant/70 font-bold px-1 flex items-center gap-1.5"
+    >
+      <i class="fa-solid fa-route text-primary/70"></i>
+      <span>{{ totalResults }} trajets disponibles correspondants</span>
+    </div>
+
+    <div *ngIf="isLoading && currentPage === 1" class="space-y-4">
+      <div
+        *ngFor="let item of [1, 2, 3]"
+        class="bg-surface-container-lowest rounded-[2rem] p-5 space-y-4 shadow-sm border border-outline-variant/10"
+      >
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-11 h-11 bg-surface-container-low rounded-xl animate-pulse"
+            ></div>
+            <div class="space-y-2">
+              <div
+                class="h-4 bg-surface-container rounded w-28 animate-pulse"
+              ></div>
+              <div
+                class="h-3 bg-surface-container rounded w-16 animate-pulse"
+              ></div>
+            </div>
+          </div>
+          <div
+            class="h-6 bg-surface-container rounded-lg w-12 animate-pulse"
+          ></div>
+        </div>
+        <div
+          class="py-3 bg-surface-container-low/40 rounded-xl px-4 flex justify-between items-center"
+        >
+          <div class="space-y-1">
+            <div
+              class="h-4 bg-surface-container rounded w-8 animate-pulse"
+            ></div>
+            <div
+              class="h-3 bg-surface-container rounded w-12 animate-pulse"
+            ></div>
+          </div>
+          <div
+            class="w-1/3 h-0.5 bg-surface-container rounded animate-pulse"
+          ></div>
+          <div class="space-y-1 text-right">
+            <div
+              class="h-4 bg-surface-container rounded w-8 animate-pulse"
+            ></div>
+            <div
+              class="h-3 bg-surface-container rounded w-12 animate-pulse"
+            ></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+          <div class="space-y-1">
+            <div
+              class="h-4 bg-surface-container rounded w-16 animate-pulse"
+            ></div>
+          </div>
+          <div
+            class="h-9 bg-surface-container rounded-xl w-24 animate-pulse"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="!isLoading && noResults"
+      class="flex flex-col items-center justify-center py-14 text-center bg-surface-container-lowest rounded-[2rem] p-6 border border-dashed border-outline-variant/60 shadow-sm mt-2"
+    >
+      <div
+        class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant/40 mb-4 shadow-inner"
+      >
+        <i class="fa-solid fa-bus-slash text-2xl"></i>
+      </div>
+      <h3 class="text-on-surface font-black text-sm tracking-tight">
+        Aucun trajet trouvé
+      </h3>
+      <p
+        class="text-on-surface-variant/60 text-xs mt-1.5 max-w-[290px] leading-relaxed"
+      >
+        Aucune compagnie ne dessert cette ligne à la date demandée. Essayez de
+        modifier vos filtres ou d'avancer votre voyage.
+      </p>
+      <button
+        (click)="resetFilters()"
+        class="mt-5 bg-primary/10 text-primary font-bold text-xs px-5 py-2.5 rounded-xl transition-all active:scale-95"
+      >
+        Réinitialiser les filtres
+      </button>
+    </div>
+
+    <div *ngIf="!noResults" class="space-y-4">
+      <article
+        *ngFor="let trip of displayedTrips"
+        (click)="bookTrip(trip)"
+        class="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] p-5 soft-shadow hover:border-primary/20 active:scale-[0.99] transition-all relative overflow-hidden group cursor-pointer"
+      >
+        <div class="flex justify-between items-start mb-3">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-secondary font-display-lg font-bold text-sm uppercase shadow-inner border border-outline-variant/10"
+            >
+              <img
+                *ngIf="trip.agencyLogo"
+                [src]="trip.agencyLogo"
+                alt="Logo"
+                class="w-full h-full object-cover rounded-xl"
+              />
+              <span *ngIf="!trip.agencyLogo"
+                >{{ trip.agencyName | slice:0:2 }}</span
+              >
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-on-surface tracking-tight">
+                {{ trip.agencyName }}
+              </h3>
+              <div
+                class="flex items-center gap-1.5 text-[11px] text-on-surface-variant/70 font-medium"
+              >
+                <i class="fa-solid fa-circle-dot text-[8px] text-primary"></i>
+                <span class="truncate max-w-[180px]"
+                  >Gare : {{ trip.boardingPoint }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <span
+            [ngClass]="trip.busType === 'VIP' ? 'bg-amber-500/10 text-amber-700 border-amber-500/20' : 'bg-secondary-container text-on-secondary-container border-outline-variant/30'"
+            class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border tracking-wider"
+          >
+            <i
+              class="fa-solid"
+              [ngClass]="trip.busType === 'VIP' ? 'fa-crown mr-1' : 'fa-bus mr-1'"
+            ></i>
+            {{ trip.busType }}
+          </span>
+        </div>
+
+        <div class="w-full text-center">
+          <span class="font-title-lg text-base font-black text-on-surface">
+            Date : {{ trip.departureDate }}</span
+          >
+        </div>
+
+        <div
+          class="my-3.5 py-3 bg-surface-container-low/60 rounded-2xl px-4 flex justify-between items-center relative"
+        >
+          <div class="flex flex-col">
+            <span class="text-[11px] font-semibold text-on-surface-variant/70"
+              >Départ</span
+            >
+            <span class="font-title-lg text-base font-black text-on-surface"
+              >{{ trip.departureTimeOfDay }}</span
+            >
+            <span class="text-[11px] font-semibold text-on-surface-variant/70"
+              >{{ trip.departureCity }}</span
+            >
+          </div>
+
+          <div
+            class="flex-1 px-4 flex flex-col items-center justify-center relative mx-2"
+          >
+            <div
+              class="w-full border-t-2 border-dashed border-outline-variant/60 relative top-[1px]"
+            ></div>
+            <div
+              class="absolute bg-surface-container-lowest px-2.5 py-0.5 rounded-full border border-outline-variant/30 text-[10px] font-bold text-on-surface-variant/80 -mt-[1px] shadow-sm flex items-center gap-1"
+            >
+              <i class="fa-solid fa-clock text-[9px] text-primary"></i>
+              <span
+                >{{ formatDuration(trip.departureTimeOfDay,
+                trip.arrivalTimeOfDay) }}</span
+              >
+            </div>
+          </div>
+
+          <div class="flex flex-col text-right">
+            <span class="text-[11px] font-semibold text-on-surface-variant/70"
+              >Arrivée</span
+            >
+            <span class="font-title-lg text-base font-black text-on-surface"
+              >{{ trip.arrivalTimeOfDay }}</span
+            >
+            <span class="text-[11px] font-semibold text-on-surface-variant/70"
+              >{{ trip.arrivalCity }}</span
+            >
+          </div>
+        </div>
+
+        <div
+          class="flex justify-between items-center mt-3 pt-1 border-t border-outline-variant/10"
+        >
+          <div class="flex flex-col">
+            <span class="font-price-lg text-lg font-black text-primary">
+              {{ trip.pricePerSeat | number:'1.0-0' }}
+              <span class="text-xs font-bold">FCFA</span>
+            </span>
+            <span
+              class="text-[10px] font-bold"
+              [ngClass]="trip.availableSeats < 10 ? 'text-rose-500' : 'text-on-surface-variant/60'"
+            >
+              <i class="fa-solid fa-couch text-[9px] mr-1"></i>
+              {{ trip.availableSeats }} places restantes
+            </span>
+          </div>
+
+          <button
+            (click)="bookTrip(trip); $event.stopPropagation()"
+            class="bg-primary text-on-primary font-bold text-xs px-5 py-2.5 rounded-xl uppercase tracking-wider shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5"
+          >
+            <span>Réserver</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <ion-infinite-scroll
+      (ionInfinite)="onIonInfinite($event)"
+      threshold="120px"
+      *ngIf="!isLoading && displayedTrips.length < totalResults"
+    >
+      <div
+        class="infinite-loading-container py-4 flex items-center justify-center gap-2.5 text-xs text-on-surface-variant/70 font-bold"
+      >
+        <span
+          class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"
+        ></span>
+        <span>Recherche de lignes supplémentaires...</span>
+      </div>
+    </ion-infinite-scroll>
+  </main>
+</ion-content>

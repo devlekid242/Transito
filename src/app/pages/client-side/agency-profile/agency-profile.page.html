@@ -1,0 +1,368 @@
+<ion-header class="ion-no-border">
+  <div
+    class="bg-surface-container-lowest/95 backdrop-blur-md flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-outline-variant/20 shadow-sm"
+  >
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 text-secondary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1.5 rounded-lg active-scale"
+    >
+      <i class="fa-solid fa-arrow-left"></i>
+      <span class="text-body-md font-semibold">Retour</span>
+    </button>
+    <span class="font-headline-sm font-extrabold text-sm text-on-surface tracking-tight">Profil Agence</span>
+    <button
+      (click)="openMenu()"
+      aria-label="Plus d'options"
+      class="w-10 h-10 rounded-xl flex items-center justify-center text-on-surface hover:bg-surface-container-low transition-colors active:scale-95"
+    >
+      <i class="fa-solid fa-ellipsis-vertical text-base"></i>
+    </button>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="bg-background">
+  <div class="w-full max-w-[480px] mx-auto bg-surface flex flex-col min-h-full pb-28 relative">
+
+    <!-- ===================== SKELETON LOADER ===================== -->
+    <div *ngIf="isLoading" class="flex flex-col">
+      <div class="relative h-64 w-full bg-surface-container animate-pulse flex-shrink-0"></div>
+      <div class="px-5 pt-10 flex flex-col gap-stack-lg">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="h-20 bg-surface-container rounded-2xl animate-pulse"></div>
+          <div class="h-20 bg-surface-container rounded-2xl animate-pulse"></div>
+          <div class="h-20 bg-surface-container rounded-2xl animate-pulse"></div>
+        </div>
+        <div class="h-12 bg-surface-container rounded-2xl w-full animate-pulse"></div>
+        <div class="flex flex-col gap-4">
+          <div class="h-40 bg-surface-container rounded-[2rem] w-full animate-pulse"></div>
+          <div class="h-40 bg-surface-container rounded-[2rem] w-full animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== CONTENU ===================== -->
+    <ng-container *ngIf="!isLoading">
+
+      <!-- Cover / identité de l'agence -->
+      <section class="relative h-64 w-full flex-shrink-0 overflow-hidden">
+        <img
+          alt="Photo de couverture de l'agence"
+          class="w-full h-full object-cover"
+          [src]="agency?.coverImage || 'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&w=1200&q=80'" />
+        <div class="absolute inset-0 bg-gradient-to-t from-secondary/95 via-secondary/40 to-transparent"></div>
+        <div class="absolute -right-10 -top-10 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+
+        <div class="absolute bottom-0 left-0 w-full p-5 flex items-end gap-4 z-10">
+          <div class="w-20 h-20 rounded-2xl bg-surface-container-lowest p-1.5 shadow-lg flex-shrink-0 relative -bottom-6 border border-outline-variant/20">
+            <img
+              alt="Logo de l'agence"
+              class="w-full h-full object-contain rounded-xl"
+              [src]="agency?.logo || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=120&q=80'" />
+            <div
+              *ngIf="agency?.isVerified"
+              class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-primary flex items-center justify-center border-2 border-surface-container-lowest shadow-sm"
+            >
+              <i class="fa-solid fa-check text-on-primary text-[10px]"></i>
+            </div>
+          </div>
+          <div class="mb-2 flex-1 min-w-0">
+            <h2 class="text-xl font-black text-white tracking-tight truncate drop-shadow-sm">
+              {{ agency?.name || 'Agence' }}
+            </h2>
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+              <span class="text-xs font-semibold text-white/90">
+                {{ agency?.rating ?? '0' }} <span class="text-white/60 font-medium">({{ agency?.totalReviews ?? 0 }} avis)</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main class="px-5 pt-10 flex flex-col gap-stack-lg relative z-20">
+
+        <!-- Statistiques -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-surface-container-lowest rounded-2xl p-4 flex flex-col items-center justify-center gap-1 soft-shadow border border-outline-variant/10">
+            <i class="fa-solid fa-location-dot text-primary text-base"></i>
+            <span class="text-base font-black text-on-surface">{{ points.length }}</span>
+            <span class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider">Points</span>
+          </div>
+          <div class="bg-surface-container-lowest rounded-2xl p-4 flex flex-col items-center justify-center gap-1 soft-shadow border border-outline-variant/10">
+            <i class="fa-solid fa-city text-primary text-base"></i>
+            <span class="text-base font-black text-on-surface truncate max-w-full">{{ agency?.city || '—' }}</span>
+            <span class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider">Ville</span>
+          </div>
+          <div class="bg-surface-container-lowest rounded-2xl p-4 flex flex-col items-center justify-center gap-1 soft-shadow border border-outline-variant/10">
+            <i class="fa-solid fa-shield-halved text-primary text-base"></i>
+            <span class="text-base font-black text-on-surface">{{ agency?.isVerified ? 'Oui' : 'Non' }}</span>
+            <span class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider">Vérifié</span>
+          </div>
+        </div>
+
+        <!-- Onglets segmentés -->
+        <div class="bg-surface-container-low/60 p-1.5 rounded-2xl flex gap-1 sticky top-1 z-30 backdrop-blur-sm">
+          <button
+            (click)="selectTab('trips')"
+            [ngClass]="activeTab === 'trips' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant/60 hover:text-on-surface-variant'"
+            class="flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+          >
+            <i class="fa-solid fa-route text-[11px]"></i>
+            Trajets
+          </button>
+          <button
+            (click)="selectTab('points')"
+            [ngClass]="activeTab === 'points' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant/60 hover:text-on-surface-variant'"
+            class="flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+          >
+            <i class="fa-solid fa-map-pin text-[11px]"></i>
+            Embarquement
+          </button>
+        </div>
+
+        <div [ngSwitch]="activeTab" class="flex flex-col gap-4">
+
+          <!-- ===== Trajets prévus (design identique à la page d'accueil) ===== -->
+          <div *ngSwitchCase="'trips'" class="flex flex-col gap-4">
+
+            <div *ngIf="displayedTrips.length === 0" class="flex flex-col items-center justify-center py-12 text-center bg-surface-container-lowest rounded-[2rem] p-6 border border-dashed border-outline-variant">
+              <div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant/40 mb-3 shadow-inner">
+                <i class="fa-solid fa-route text-2xl"></i>
+              </div>
+              <p class="text-on-surface font-bold text-sm">Aucun trajet planifié</p>
+              <p class="text-on-surface-variant/60 text-xs mt-1 max-w-[280px]">Cette agence n'a pas encore publié de trajets à venir.</p>
+            </div>
+
+            <article
+              *ngFor="let trip of displayedTrips"
+              (click)="bookTrip(trip)"
+              class="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] p-5 soft-shadow hover:border-primary/20 active:scale-[0.99] transition-all relative overflow-hidden group cursor-pointer"
+            >
+              <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-secondary font-title-lg font-bold text-sm uppercase shadow-inner border border-outline-variant/10 overflow-hidden">
+                    <img *ngIf="agency?.logo" [src]="agency?.logo" alt="Logo" class="w-full h-full object-cover" />
+                    <i *ngIf="!agency?.logo" class="fa-solid fa-bus"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-sm text-on-surface tracking-tight">{{ agency?.name }}</h3>
+                    <div class="flex items-center gap-1.5 text-[11px] text-on-surface-variant/70 font-medium">
+                      <i class="fa-solid fa-star text-[9px] text-amber-500"></i>
+                      <span>{{ agency?.rating ?? '0' }} ({{ agency?.totalReviews ?? 0 }} avis)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <span
+                  [ngClass]="trip.type === 'VIP' ? 'bg-amber-500/10 text-amber-700 border-amber-500/20' : 'bg-secondary-container text-on-secondary-container border-outline-variant/30'"
+                  class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border tracking-wider shrink-0"
+                >
+                  <i class="fa-solid" [ngClass]="trip.type === 'VIP' ? 'fa-crown mr-1' : 'fa-bus mr-1'"></i>
+                  {{ trip.type }}
+                </span>
+              </div>
+
+              <div class="w-full text-center">
+                <span class="font-title-lg text-base font-black text-on-surface">{{ trip.dateLabel }}</span>
+              </div>
+
+              <div class="my-3.5 py-3 bg-surface-container-low/60 rounded-2xl px-4 flex justify-between items-center relative">
+                <div class="flex flex-col">
+                  <span class="text-[11px] font-semibold text-on-surface-variant/70">Départ</span>
+                  <span class="font-title-lg text-base font-black text-on-surface">{{ trip.departureTime }}</span>
+                  <span class="text-[11px] font-semibold text-on-surface-variant/70">{{ trip.origin }}</span>
+                </div>
+
+                <div class="flex-1 px-4 flex flex-col items-center justify-center relative mx-2">
+                  <div class="w-full border-t-2 border-dashed border-outline-variant/60 relative top-[1px]"></div>
+                  <div class="absolute bg-surface-container-lowest px-2.5 py-0.5 rounded-full border border-outline-variant/30 text-[10px] font-bold text-on-surface-variant/80 -mt-[1px] shadow-sm flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-[9px] text-primary"></i>
+                    <span>{{ trip.durationLabel || '—' }}</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-col text-right">
+                  <span class="text-[11px] font-semibold text-on-surface-variant/70">Arrivée</span>
+                  <span class="font-title-lg text-base font-black text-on-surface">{{ trip.arrivalTime }}</span>
+                  <span class="text-[11px] font-semibold text-on-surface-variant/70">{{ trip.destination }}</span>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center mt-3 pt-1 border-t border-outline-variant/10">
+                <div class="flex flex-col">
+                  <span class="font-price-lg text-lg font-black text-primary">
+                    {{ trip.price | number:'1.0-0' }} <span class="text-xs font-bold">FCFA</span>
+                  </span>
+                  <span class="text-[10px] font-bold" [ngClass]="trip.remainingSeats < 10 ? 'text-rose-500' : 'text-on-surface-variant/60'">
+                    <i class="fa-solid fa-couch text-[9px] mr-1"></i>
+                    {{ trip.remainingSeats }} places restantes
+                  </span>
+                </div>
+
+                <button
+                  (click)="bookTrip(trip); $event.stopPropagation()"
+                  class="bg-primary text-on-primary font-bold text-xs px-5 py-2.5 rounded-xl uppercase tracking-wider shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5"
+                >
+                  <span>Réserver</span>
+                  <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </div>
+            </article>
+
+            <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMoreTrips($event)">
+              <ion-infinite-scroll-content
+                loadingSpinner="bubbles"
+                loadingText="Chargement des trajets suivants...">
+              </ion-infinite-scroll-content>
+            </ion-infinite-scroll>
+          </div>
+
+          <!-- ===== Points d'embarquement ===== -->
+          <div *ngSwitchCase="'points'" class="flex flex-col gap-4">
+            <ng-container *ngIf="points.length; else emptyPoints">
+              <article
+                *ngFor="let point of points"
+                class="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] p-5 soft-shadow flex flex-col gap-4"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-11 h-11 rounded-xl bg-primary-container/40 flex items-center justify-center text-primary shrink-0">
+                      <i class="fa-solid fa-location-dot text-base"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <h3 class="font-bold text-sm text-on-surface tracking-tight truncate">{{ point.city }}</h3>
+                      <p class="text-xs text-on-surface-variant/70 truncate">{{ point.address }}</p>
+                    </div>
+                  </div>
+                  <span
+                    [ngClass]="point.isActive ? 'bg-primary-container/40 text-primary' : 'bg-surface-container-low text-on-surface-variant/60'"
+                    class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg tracking-wider shrink-0"
+                  >
+                    {{ point.isActive ? 'Actif' : 'Inactif' }}
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs font-semibold text-on-surface-variant/70">
+                  <i class="fa-solid fa-phone text-[11px] text-on-surface-variant/50"></i>
+                  <span>{{ point.phoneNumber || 'Pas de téléphone' }}</span>
+                </div>
+
+                <div class="h-[1px] bg-surface-container-low w-full"></div>
+
+                <button
+                  (click)="showLocation(point)"
+                  class="w-full bg-surface-container-low/60 border border-outline-variant/20 text-primary font-bold text-xs py-3 rounded-xl hover:bg-primary-container/20 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <i class="fa-solid fa-map-location-dot text-sm"></i>
+                  Voir la localisation
+                </button>
+              </article>
+            </ng-container>
+
+            <ng-template #emptyPoints>
+              <div class="flex flex-col items-center justify-center py-12 text-center bg-surface-container-lowest rounded-[2rem] p-6 border border-dashed border-outline-variant">
+                <div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant/40 mb-3 shadow-inner">
+                  <i class="fa-solid fa-map-pin text-2xl"></i>
+                </div>
+                <p class="text-on-surface font-bold text-sm">Aucun point d'embarquement</p>
+                <p class="text-on-surface-variant/60 text-xs mt-1 max-w-[280px]">Cette agence n'a pas encore renseigné de point d'embarquement.</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </main>
+    </ng-container>
+  </div>
+
+  <!-- Bottom sheet : contacter l'agence -->
+  <div *ngIf="isContactMenuOpen" class="fixed inset-0 z-50 flex items-end justify-center">
+    <div class="absolute inset-0 bg-secondary/30 backdrop-blur-sm" (click)="toggleContactMenu(false)"></div>
+
+    <div class="bg-surface-container-lowest rounded-t-[2rem] shadow-2xl w-full max-w-[480px] relative z-10 p-6 flex flex-col gap-4 animate-[slideUp_0.2s_ease-out] border border-outline-variant/20">
+      <div class="w-10 h-1 bg-outline-variant/40 rounded-full mx-auto -mt-2 mb-1"></div>
+
+      <div class="flex items-center justify-between">
+        <h3 class="font-headline-sm font-extrabold text-base text-on-surface tracking-tight">Contacter l'agence</h3>
+        <button
+          (click)="toggleContactMenu(false)"
+          class="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95"
+        >
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <button
+        (click)="callAgency()"
+        [disabled]="!agency?.phoneNumber"
+        class="w-full flex items-center gap-3 bg-surface-container-low/60 border border-outline-variant/10 rounded-2xl p-4 hover:bg-primary-container/20 transition-colors active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <div class="w-10 h-10 rounded-xl bg-primary-container/40 flex items-center justify-center text-primary shrink-0">
+          <i class="fa-solid fa-phone text-sm"></i>
+        </div>
+        <div class="text-left min-w-0">
+          <p class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider">Téléphone</p>
+          <p class="font-bold text-sm text-on-surface truncate">{{ agency?.phoneNumber || 'Non renseigné' }}</p>
+        </div>
+      </button>
+
+      <button
+        (click)="emailAgency()"
+        [disabled]="!agency?.email"
+        class="w-full flex items-center gap-3 bg-surface-container-low/60 border border-outline-variant/10 rounded-2xl p-4 hover:bg-primary-container/20 transition-colors active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <div class="w-10 h-10 rounded-xl bg-primary-container/40 flex items-center justify-center text-primary shrink-0">
+          <i class="fa-solid fa-envelope text-sm"></i>
+        </div>
+        <div class="text-left min-w-0">
+          <p class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider">Email</p>
+          <p class="font-bold text-sm text-on-surface truncate">{{ agency?.email || 'Non renseigné' }}</p>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal : localisation du point d'embarquement -->
+  <div *ngIf="isMapModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-secondary/30 backdrop-blur-sm" (click)="closeMapModal()"></div>
+
+    <div class="bg-surface-container-lowest rounded-[2rem] shadow-2xl w-full max-w-sm relative z-10 flex flex-col overflow-hidden animate-[slideUp_0.2s_ease-out] border border-outline-variant/20">
+      <div class="p-5 border-b border-surface-variant/40 flex justify-between items-center gap-3">
+        <div class="min-w-0">
+          <h3 class="font-headline-sm font-extrabold text-sm text-on-surface tracking-tight truncate">{{ selectedPoint?.city }}</h3>
+          <p class="text-[11px] text-on-surface-variant/60 truncate">{{ selectedPoint?.address }}</p>
+        </div>
+        <button
+          (click)="closeMapModal()"
+          class="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95 shrink-0"
+        >
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <div class="relative w-full h-64 bg-surface-container-low">
+        <iframe
+          *ngIf="mapUrl"
+          [src]="mapUrl"
+          class="w-full h-full border-0"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        <div *ngIf="!mapUrl" class="w-full h-full flex flex-col items-center justify-center gap-2 text-on-surface-variant/50 text-center px-6">
+          <i class="fa-solid fa-map-location-dot text-3xl"></i>
+          <p class="text-xs font-medium">Localisation non disponible pour ce point</p>
+        </div>
+      </div>
+
+      <div class="p-5">
+        <button
+          (click)="openInMaps()"
+          [disabled]="!mapUrl"
+          class="w-full bg-primary text-on-primary font-bold text-sm py-3.5 rounded-2xl shadow-md hover:brightness-95 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-diamond-turn-right text-sm"></i>
+          Ouvrir dans Maps
+        </button>
+      </div>
+    </div>
+  </div>
+</ion-content>

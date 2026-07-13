@@ -1,0 +1,58 @@
+// Style pour la page des tickets support
+ion-content {
+  --background: var(--color-background);
+}
+
+ion-header {
+  --background: var(--color-surface-container-lowest);
+}
+
+// Hover sur les tickets
+.bg-surface-container-lowest {
+  &:hover {
+    box-shadow: 0 4px 12px rgba(30, 41, 59, 0.1);
+  }
+}
+
+// Style des filtres
+button[class*='rounded-full'] {
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Style du spinner
+ion-spinner {
+  color: var(--color-primary);
+}
+
+// Animation de transition
+main {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Troncature de texte
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Responsive
+@media (max-width: 640px) {
+  main {
+    --spacing-container-padding: 12px !important;
+  }
+}

@@ -1,0 +1,7 @@
+ion-content {
+  --background: var(--color-background);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}

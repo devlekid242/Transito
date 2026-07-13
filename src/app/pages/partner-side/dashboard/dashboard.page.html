@@ -1,0 +1,382 @@
+<!-- <app-shared-header
+  title="Dashboard"
+  [showNotifications]="canViewNotifications"
+  [showProfile]="canViewProfile"
+></app-shared-header> -->
+<ion-content class="bg-background">
+  <div class="max-w-[480px] mx-auto md:max-w-none md:flex md:h-full">
+    <!-- Sidebar de navigation (Visible uniquement sur Desktop) -->
+    <aside
+      class="hidden md:flex flex-col w-64 bg-surface-container-lowest border-r border-outline-variant h-full z-40"
+    >
+      <div
+        class="h-16 flex items-center px-6 border-b border-surface-variant/40"
+      >
+        <h1 class="text-xl font-bold text-primary">Equator Transit</h1>
+      </div>
+      <nav class="flex-1 py-6 px-4 space-y-2">
+        <a
+          class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-primary text-on-primary transition-colors"
+          href="#"
+        >
+          <span class="material-symbols-outlined">dashboard</span>
+          <span class="text-sm font-semibold">Tableau de bord</span>
+        </a>
+        <!-- Flotte supprimée dans la version allégée -->
+        <a
+          *ngIf="canViewTrips"
+          class="flex items-center space-x-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors"
+          href="#"
+        >
+          <span class="material-symbols-outlined">route</span>
+          <span class="text-sm font-semibold">Voyages</span>
+        </a>
+        <a
+          *ngIf="canBoardingControl || canValidateTickets"
+          class="flex items-center space-x-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors"
+          href="#"
+        >
+          <span class="material-symbols-outlined">settings_remote</span>
+          <span class="text-sm font-semibold">Contrôle</span>
+        </a>
+      </nav>
+      <div class="p-4 border-t border-surface-variant/40">
+        <div class="flex items-center space-x-3">
+          <div
+            class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold"
+          >
+            A
+          </div>
+          <div>
+            <p class="text-sm font-bold text-on-surface">Admin Agence</p>
+            <p class="text-xs text-on-surface-variant">Partenaire Equator</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Zone principale de contenu -->
+    <main class="flex-1 px-4 py-6 md:px-8 space-y-6 overflow-y-auto">
+      <!-- Section Bienvenue -->
+      <section
+        class="flex flex-col md:flex-row md:items-end justify-between gap-4"
+      >
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold text-primary">
+            Bonjour, agent
+          </h2>
+          <p class="text-sm md:text-base text-on-surface-variant mt-1">
+            Voici vos statistiques de validation de tickets.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="onPeriodChange('day')" class="btn tiny">Jour</button>
+          <button (click)="onPeriodChange('week')" class="btn tiny">
+            Semaine
+          </button>
+          <button (click)="onPeriodChange('month')" class="btn tiny">
+            Mois
+          </button>
+          <button (click)="onPeriodChange('6months')" class="btn tiny">
+            6 mois
+          </button>
+          <button (click)="onPeriodChange('year')" class="btn tiny">
+            Année
+          </button>
+        </div>
+      </section>
+
+      <!-- Grille Bento des indicateurs clés (KPIs) -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Carte : Revenus -->
+        <div
+          *ngIf="canViewDashboard"
+          class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant relative overflow-hidden"
+        >
+          <div class="flex justify-between items-start mb-4">
+            <div
+              class="p-2 bg-secondary-container text-on-secondary-container rounded-lg"
+            >
+              <span class="material-symbols-outlined"
+                >account_balance_wallet</span
+              >
+            </div>
+            <div
+              class="flex items-center text-teal-800 bg-teal-50 px-2 py-1 rounded-full text-xs font-bold"
+            >
+              <span class="material-symbols-outlined text-[14px]"
+                >trending_up</span
+              >
+              <span class="ml-1">{{ kpis.revenueChange }}</span>
+            </div>
+          </div>
+          <p class="text-xs font-semibold text-on-surface-variant mb-1">
+            Revenus
+          </p>
+          <p class="text-2xl font-bold text-primary">
+            {{ kpis.revenue | number:'1.0-0' }}
+            <span class="text-sm font-semibold text-outline">FCFA</span>
+          </p>
+        </div>
+
+        <!-- Carte : Tickets validés par l'agent -->
+        <div
+          *ngIf="canValidateTickets || canViewDashboard"
+          class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant relative overflow-hidden"
+        >
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-primary-container text-primary rounded-lg">
+              <span class="material-symbols-outlined">how_to_reg</span>
+            </div>
+            <div
+              class="flex items-center text-teal-800 bg-teal-50 px-2 py-1 rounded-full text-xs font-bold"
+            >
+              <span class="material-symbols-outlined text-[14px]"
+                >trending_up</span
+              >
+              <span class="ml-1">{{ kpis.ticketsChange }}</span>
+            </div>
+          </div>
+          <p class="text-xs font-semibold text-on-surface-variant mb-1">
+            Billets validés
+          </p>
+          <p class="text-2xl font-bold text-primary">
+            {{ kpis.ticketsValidated }}<span
+              class="text-sm font-semibold text-outline"
+            >
+              billets</span
+            >
+          </p>
+        </div>
+
+        <!-- Carte : Voyages en cours / finalisés -->
+        <div
+          *ngIf="canViewTrips || canViewDashboard"
+          class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant relative overflow-hidden"
+        >
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-gray-100 text-gray-700 rounded-lg">
+              <span class="material-symbols-outlined">directions_bus</span>
+            </div>
+            <span
+              class="text-xs font-semibold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-full"
+              >En cours</span
+            >
+          </div>
+          <p class="text-xs font-semibold text-on-surface-variant mb-1">
+            Voyages en cours
+          </p>
+          <p class="text-2xl font-bold text-primary">
+            {{ kpis.tripsInProgress }}
+            <span class="text-sm font-semibold text-outline">en cours</span>
+          </p>
+          <p class="text-xs text-on-surface-variant mt-2">
+            Finalisés: {{ kpis.tripsCompleted }}
+          </p>
+        </div>
+      </section>
+
+      <!-- Grille Secondaire : Statistiques Supplémentaires -->
+      <section
+        class="grid grid-cols-1 md:grid-cols-4 gap-4"
+        *ngIf="detailedStats"
+      >
+        <!-- Carte : Passagers embarqués -->
+        <div
+          class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_2px_8px_rgba(30,41,59,0.02)] border border-surface-variant"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="material-symbols-outlined text-primary">person</span>
+            <span class="text-xs font-bold text-on-surface-variant"
+              >Embarqués</span
+            >
+          </div>
+          <p class="text-xl font-bold text-primary">
+            {{ detailedStats.tickets?.boarded || 0 }}
+          </p>
+          <p class="text-xs text-on-surface-variant mt-1">passagers</p>
+        </div>
+
+        <!-- Carte : Taux de validation -->
+        <div
+          class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_2px_8px_rgba(30,41,59,0.02)] border border-surface-variant"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="material-symbols-outlined text-green-600"
+              >check_circle</span
+            >
+            <span class="text-xs font-bold text-on-surface-variant">Taux</span>
+          </div>
+          <p class="text-xl font-bold text-green-600">
+            {{ detailedStats.tickets?.validationRate || '0%' }}
+          </p>
+          <p class="text-xs text-on-surface-variant mt-1">validation</p>
+        </div>
+
+        <!-- Carte : Trajets complétés -->
+        <div
+          class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_2px_8px_rgba(30,41,59,0.02)] border border-surface-variant"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="material-symbols-outlined text-blue-600"
+              >done_all</span
+            >
+            <span class="text-xs font-bold text-on-surface-variant"
+              >Complétés</span
+            >
+          </div>
+          <p class="text-xl font-bold text-blue-600">
+            {{ detailedStats.trips?.completed || 0 }}
+          </p>
+          <p class="text-xs text-on-surface-variant mt-1">trajets</p>
+        </div>
+
+        <!-- Carte : Absent (No-show) -->
+        <div
+          class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_2px_8px_rgba(30,41,59,0.02)] border border-surface-variant"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="material-symbols-outlined text-red-600">cancel</span>
+            <span class="text-xs font-bold text-on-surface-variant"
+              >Absent</span
+            >
+          </div>
+          <p class="text-xl font-bold text-red-600">
+            {{ detailedStats.tickets?.noShow || 0 }}
+          </p>
+          <p class="text-xs text-on-surface-variant mt-1">passagers</p>
+        </div>
+      </section>
+
+      <!-- Liste des Réservations Récentes -->
+      <section *ngIf="canViewTrips || canViewDashboard" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-bold text-primary">Réservations Récentes</h3>
+          <button
+            (click)="viewAllBookings()"
+            class="text-xs font-bold text-secondary hover:underline bg-transparent"
+          >
+            Voir tout
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div
+            *ngFor="let booking of recentBookings"
+            class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_2px_8px_rgba(30,41,59,0.02)] border border-surface-variant flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:shadow-[0_4px_16px_rgba(30,41,59,0.04)]"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                [class]="booking.avatarBg"
+                class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shadow-sm"
+              >
+                {{ booking.passengerInitials }}
+              </div>
+              <div>
+                <p class="text-base font-bold text-on-surface">
+                  {{ booking.passengerName }}
+                </p>
+                <div
+                  class="flex items-center text-on-surface-variant text-xs mt-1"
+                >
+                  <span>{{ booking.origin }}</span>
+                  <span class="material-symbols-outlined text-[14px] mx-1"
+                    >arrow_right_alt</span
+                  >
+                  <span>{{ booking.destination }}</span>
+                  <span class="mx-2">•</span>
+                  <span>{{ booking.timeLabel }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center justify-between sm:justify-end gap-6 sm:w-auto w-full border-t border-surface-variant sm:border-0 pt-3 sm:pt-0"
+            >
+              <div class="text-left sm:text-right">
+                <p class="text-base font-bold text-primary">
+                  {{ booking.price | number:'1.0-0' }} FCFA
+                </p>
+                <p
+                  [ngClass]="booking.status === 'Payé' ? 'text-teal-800 bg-teal-50' : 'text-red-800 bg-red-50'"
+                  class="text-[10px] font-bold px-2 py-0.5 rounded inline-block mt-1"
+                >
+                  {{ booking.status }} • {{ booking.paymentMethod }}
+                </p>
+              </div>
+              <button
+                (click)="openBookingOptions(booking)"
+                class="p-2 text-outline hover:bg-surface-container rounded-full transition-colors"
+              >
+                <span class="material-symbols-outlined">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="recentBookings.length === 0" class="text-center py-8">
+            <span
+              class="material-symbols-outlined text-5xl text-outline-variant mb-2"
+              >inbox</span
+            >
+            <p class="text-on-surface-variant text-sm">
+              Aucune réservation récente
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Synthèse Périodique -->
+      <section
+        *ngIf="canViewDashboard"
+        class="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl p-6 border border-surface-variant"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-primary">
+              Synthèse de la Période
+            </h3>
+            <p class="text-xs text-on-surface-variant mt-1">
+              Résumé des performances
+            </p>
+          </div>
+          <span class="material-symbols-outlined text-primary text-2xl"
+            >assessment</span
+          >
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+          <div class="bg-surface-container-lowest rounded-lg p-3">
+            <p class="text-xs text-on-surface-variant font-semibold">
+              Total Tickets
+            </p>
+            <p class="text-xl font-bold text-primary mt-1">
+              {{ detailedStats?.tickets?.total || 0 }}
+            </p>
+          </div>
+          <div class="bg-surface-container-lowest rounded-lg p-3">
+            <p class="text-xs text-on-surface-variant font-semibold">
+              Total Trajets
+            </p>
+            <p class="text-xl font-bold text-primary mt-1">
+              {{ detailedStats?.trips?.total || 0 }}
+            </p>
+          </div>
+          <div class="bg-surface-container-lowest rounded-lg p-3">
+            <p class="text-xs text-on-surface-variant font-semibold">
+              Passagers
+            </p>
+            <p class="text-xl font-bold text-blue-600 mt-1">
+              {{ detailedStats?.tickets?.boarded || 0 }}
+            </p>
+          </div>
+          <div class="bg-surface-container-lowest rounded-lg p-3">
+            <p class="text-xs text-on-surface-variant font-semibold">Revenus</p>
+            <p class="text-xl font-bold text-secondary mt-1">
+              {{ (detailedStats?.revenue?.amount || 0) | number:'1.0-0' }}
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</ion-content>

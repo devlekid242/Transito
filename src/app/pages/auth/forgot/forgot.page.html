@@ -1,0 +1,58 @@
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="flex flex-col min-h-full bg-white px-6">
+    
+    <div class="pt-6">
+      <button (click)="goToLogin()" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-600 active:scale-95 transition-all">
+        <i class="fa-solid fa-chevron-left text-base"></i>
+      </button>
+    </div>
+
+    <div class="flex flex-col items-center justify-center pt-10 pb-8">
+      <div class="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-200 mb-6 -rotate-3">
+        <i class="fa-solid fa-key text-white text-3xl"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight text-center">Mot de passe oublié ?</h1>
+      <p class="text-slate-500 mt-2 text-center max-w-xs">
+        Entrez votre numéro de téléphone pour recevoir un code de vérification.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-5">
+      
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider ml-1">Numéro de téléphone</label>
+        
+        <div class="flex items-center w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all gap-3">
+          <i class="fa-solid fa-phone text-outline text-base"></i>
+          
+          <span class="text-base font-bold text-secondary border-r border-outline-variant pr-3 select-none">+242</span>
+          
+          <input
+            [(ngModel)]="phoneNumber"
+            type="tel"
+            placeholder="06 000 0000"
+            class="w-full bg-transparent border-0 p-0 text-on-surface placeholder:text-outline/60 outline-none focus:ring-0 text-base"
+          />
+        </div>
+      </div>
+
+      <button
+        (click)="requestReset()"
+        [disabled]="loading"
+        class="w-full bg-primary text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-200 active:scale-[0.98] transition-all flex justify-center items-center gap-3 mt-4"
+      >
+        <span *ngIf="!loading">Valider et continuer</span>
+        <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+        <i *ngIf="!loading" class="fa-solid fa-arrow-right text-lg"></i>
+      </button>
+
+      <div *ngIf="message" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl text-center font-medium border border-red-100 mt-2">
+        {{ message }}
+      </div>
+    </div>
+
+    <div class="mt-auto py-8 text-center text-xs text-slate-400">
+      En cas de problème, veuillez contacter notre <span class="text-primary font-semibold hover:underline cursor-pointer">support technique</span>.
+    </div>
+  </div>
+</ion-content>

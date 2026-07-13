@@ -1,0 +1,40 @@
+/* Ombres douces haut de gamme pour les cartes épurées */
+.soft-shadow {
+  box-shadow: 0 12px 34px -10px rgba(15, 23, 42, 0.04), 
+              0 4px 12px -4px rgba(15, 23, 42, 0.02);
+}
+
+/* Ombre pour la bento-card centrale flottante */
+.interactive-shadow {
+  box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.08);
+}
+
+/* Animations d'interaction au clic utilisateur */
+article {
+  will-change: transform, border-color;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.25s ease, 
+              box-shadow 0.25s ease;
+  
+  &:active {
+    transform: scale(0.985);
+  }
+}
+
+/* Remplissage personnalisé pour les éléments natifs de sélection HTML */
+select {
+  background-image: none; /* Nettoyage pour laisser place aux icônes FontAwesome personnalisées */
+  &:focus {
+    box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1) !important;
+  }
+}
+
+/* Transition douce pour les loaders à effet de Shimmer */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse-subtle 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

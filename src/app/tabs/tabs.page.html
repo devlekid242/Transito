@@ -1,0 +1,93 @@
+<ion-tabs (ionTabsDidChange)="onTabChange($event)">
+  <router-outlet></router-outlet>
+  <ion-tab-bar *ngIf="role !== 'partner'" slot="bottom" class="py-2">
+    <ion-tab-button
+      [ngClass]="activeTab === 'home' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="home"
+      routerLink="/tabs/home"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-house text-xl" aria-hidden="true"></i>
+      <ion-label>Accueil</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button
+      [ngClass]="activeTab === 'reservation' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="reservation"
+      routerLink="/tabs/reservation"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-ticket text-xl" aria-hidden="true"></i>
+      <ion-label>Réservations</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button
+      [ngClass]="activeTab === 'agences' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="agences"
+      routerLink="/tabs/agences"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-building text-xl" aria-hidden="true"></i>
+      <ion-label>Agences</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button
+      [ngClass]="activeTab === 'profil' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="profil"
+      routerLink="/tabs/profil"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-user text-xl" aria-hidden="true"></i>
+      <ion-label>Profil</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+  <!-- Partner tabs -->
+  <ion-tab-bar *ngIf="role === 'partner'" slot="bottom" class="py-2">
+    <ion-tab-button
+      [ngClass]="activeTab === 'partner-dashboard' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="partner-dashboard"
+      routerLink="/tabs/partner-dashboard"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-chart-line text-xl" aria-hidden="true"></i>
+      <ion-label>Dashboard</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button
+      [ngClass]="activeTab === 'partner-trips' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="partner-trips"
+      routerLink="/tabs/partner-trips"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-route text-xl" aria-hidden="true"></i>
+      <ion-label>Trajets</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button
+      [ngClass]="activeTab === 'partner-control' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="partner-control"
+      routerLink="/tabs/partner-control"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-ticket text-xl" aria-hidden="true"></i>
+      <ion-label>Contrôle</ion-label>
+    </ion-tab-button>
+    <ion-tab-button
+      [ngClass]="activeTab === 'partner-profil' ? 'text-primary' : 'text-on-surface-variant'"
+      class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
+      tab="partner-profil"
+      routerLink="/tabs/partner-profil"
+      routerDirection="root"
+    >
+      <i class="fa-solid fa-user text-xl" aria-hidden="true"></i>
+      <ion-label>Profil</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

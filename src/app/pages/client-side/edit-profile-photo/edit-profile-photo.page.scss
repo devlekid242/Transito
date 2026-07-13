@@ -1,0 +1,33 @@
+// Style pour la page de modification de photo
+ion-content {
+  --background: var(--color-background);
+}
+
+ion-header {
+  --background: var(--color-surface-container-lowest);
+}
+
+// Animation de survol sur la zone de téléchargement
+[class*='border-dashed']:hover {
+  background-color: var(--color-surface-container);
+  border-color: var(--color-primary);
+}
+
+// Style du spinner
+ion-spinner {
+  color: currentColor;
+}
+
+// Animation pour les boutons
+button {
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Style responsif
+@media (max-width: 640px) {
+  main {
+    --spacing-container-padding: 12px !important;
+  }
+}

@@ -1,0 +1,417 @@
+<!-- <app-shared-header
+  title="Mon Profil"
+  [showNotifications]="true"
+></app-shared-header> -->
+<ion-content class="bg-background">
+  <main
+    class="w-full max-w-[480px] px-container-padding mx-auto flex flex-col gap-4 py-6 pb-24"
+  >
+    <!-- 🎨 EN-TÊTE DU PROFIL - Avatar + Infos Principales -->
+    <section
+      class="relative -mx-container-padding px-container-padding bg-gradient-to-br from-primary/5 via-secondary/5 to-tertiary/5 rounded-b-2xl py-8"
+    >
+      <div class="flex flex-col items-center text-center gap-4">
+        <!-- Avatar -->
+        <div
+          class="relative w-28 h-28 rounded-full shadow-lg border-4 border-white overflow-hidden flex items-center justify-center text-white font-bold text-4xl"
+          [style.backgroundColor]="getRandomAvatarColor()"
+        >
+          <img
+            *ngIf="userProfile.profilePhotoUrl"
+            [src]="userProfile.profilePhotoUrl"
+            alt="Photo de profil"
+            class="w-full h-full object-cover"
+          />
+          <span *ngIf="!userProfile.profilePhotoUrl" class="text-4xl font-bold">
+            {{ getAvatarInitials() }}
+          </span>
+          <button
+            (click)="editAvatar()"
+            class="absolute bottom-0 right-0 bg-secondary text-white p-2 rounded-full shadow-lg border-2 border-white hover:bg-secondary/90 transition-colors"
+          >
+            <span class="material-symbols-outlined text-[18px]">edit</span>
+          </button>
+        </div>
+
+        <!-- Nom et Rôle -->
+        <div class="space-y-2">
+          <h1 class="text-2xl font-bold text-on-surface">
+            {{ userProfile.fullName }}
+          </h1>
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            <!-- Badge Rôle -->
+            <span
+              class="inline-flex items-center gap-1 bg-primary/15 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase"
+            >
+              <span class="material-symbols-outlined text-[14px]"
+                >{{ roleIcons[userProfile.agent?.agentRole] || 'person' }}</span
+              >
+              {{ roleLabels[userProfile.agent?.agentRole] ||
+              userProfile.agent?.agentRole || 'Agent' }}
+            </span>
+
+            <!-- Badge Statut -->
+            <span
+              [ngClass]="{
+              'bg-emerald-50 text-emerald-700 border border-emerald-200': userProfile.isActive,
+              'bg-red-50 text-red-700 border border-red-200': !userProfile.isActive
+            }"
+              class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase"
+            >
+              <span class="material-symbols-outlined text-[14px]"
+                >{{ userProfile.isActive ? 'check_circle' : 'cancel' }}</span
+              >
+              {{ userProfile.isActive ? 'Actif' : 'Inactif' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 👤 INFORMATIONS PERSONNELLES -->
+    <section
+      class="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant"
+    >
+      <div
+        class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
+      >
+        <span class="material-symbols-outlined text-primary">person</span>
+        <h2 class="text-base font-bold text-on-surface">
+          Informations Personnelles
+        </h2>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Nom Complet -->
+        <div
+          class="flex justify-between items-center p-3 bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors"
+        >
+          <div>
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase">
+              Nom Complet
+            </p>
+            <p class="text-sm font-semibold text-on-surface mt-1">
+              {{ userProfile.fullName }}
+            </p>
+          </div>
+          <button
+            (click)="editPersonalInfo('fullName')"
+            class="text-secondary text-xs font-bold hover:underline"
+          >
+            Modifier
+          </button>
+        </div>
+
+        <!-- Email -->
+        <div class="p-3 bg-surface-container rounded-lg">
+          <div class="flex items-start justify-between">
+            <div>
+              <p
+                class="text-[10px] font-bold text-on-surface-variant uppercase"
+              >
+                Email
+              </p>
+              <p class="text-sm font-semibold text-on-surface mt-1">
+                {{ userProfile.email }}
+              </p>
+            </div>
+            <span
+              *ngIf="userProfile.emailVerified"
+              class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200 flex items-center gap-1"
+            >
+              <span class="material-symbols-outlined text-[12px]">verified</span
+              >Vérifié
+            </span>
+            <span
+              *ngIf="!userProfile.emailVerified"
+              class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-200 flex items-center gap-1"
+            >
+              <span class="material-symbols-outlined text-[12px]">pending</span
+              >En attente
+            </span>
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="p-3 bg-surface-container rounded-lg">
+          <div class="flex items-start justify-between">
+            <div>
+              <p
+                class="text-[10px] font-bold text-on-surface-variant uppercase"
+              >
+                Téléphone
+              </p>
+              <p class="text-sm font-semibold text-on-surface mt-1 font-mono">
+                {{ userProfile.phoneNumber }}
+              </p>
+            </div>
+            <span
+              *ngIf="userProfile.phoneVerified"
+              class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200 flex items-center gap-1"
+            >
+              <span class="material-symbols-outlined text-[12px]">verified</span
+              >Vérifié
+            </span>
+            <span
+              *ngIf="!userProfile.phoneVerified"
+              class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-200 flex items-center gap-1"
+            >
+              <span class="material-symbols-outlined text-[12px]">pending</span
+              >En attente
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📍 LOCALISATION -->
+    <section
+      class="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant"
+    >
+      <div
+        class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
+      >
+        <span class="material-symbols-outlined text-tertiary">location_on</span>
+        <h2 class="text-base font-bold text-on-surface">Localisation</h2>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Quartier -->
+        <div class="p-3 bg-surface-container rounded-lg">
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase">
+            Quartier
+          </p>
+          <p class="text-sm font-semibold text-on-surface mt-1">
+            {{ userProfile.quartier || 'Non renseigné' }}
+          </p>
+        </div>
+
+        <!-- Ville de Résidence -->
+        <div class="p-3 bg-surface-container rounded-lg">
+          <p class="text-[10px] font-bold text-on-surface-variant uppercase">
+            Ville de Résidence
+          </p>
+          <p class="text-sm font-semibold text-on-surface mt-1">
+            {{ userProfile.villeResidence || 'Non renseignée' }}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⚙️ PRÉFÉRENCES -->
+    <section
+      class="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant"
+    >
+      <div
+        class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
+      >
+        <span class="material-symbols-outlined text-secondary">tune</span>
+        <h2 class="text-base font-bold text-on-surface">Préférences</h2>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Langue -->
+        <div class="p-3 bg-surface-container rounded-lg">
+          <p
+            class="text-[10px] font-bold text-on-surface-variant uppercase mb-2"
+          >
+            Langue Préférée
+          </p>
+          <div class="flex gap-2">
+            <button
+              *ngFor="let lang of ['fr', 'en', 'pt']"
+              (click)="changeLanguage(lang)"
+              [ngClass]="{
+                'bg-primary text-white': userProfile.prefLanguage === lang,
+                'bg-surface-variant text-on-surface': userProfile.prefLanguage !== lang
+              }"
+              class="flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-colors"
+            >
+              {{ languages[lang] }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div
+          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"
+            >
+              <span class="material-symbols-outlined text-[18px]"
+                >notifications</span
+              >
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-on-surface">Notifications</p>
+              <p class="text-[10px] text-on-surface-variant">
+                Recevoir les alertes
+              </p>
+            </div>
+          </div>
+          <ion-toggle
+            [checked]="userProfile.prefNotifications"
+            (ionChange)="toggleNotifications($event)"
+            color="primary"
+          ></ion-toggle>
+        </div>
+
+        <!-- Mode Sombre -->
+        <div
+          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"
+            >
+              <span class="material-symbols-outlined text-[18px]"
+                >dark_mode</span
+              >
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-on-surface">Mode Sombre</p>
+              <p class="text-[10px] text-on-surface-variant">
+                Interface sombre
+              </p>
+            </div>
+          </div>
+          <ion-toggle
+            [checked]="userProfile.prefDarkMode"
+            (ionChange)="toggleDarkMode($event)"
+            color="primary"
+          ></ion-toggle>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🔒 SÉCURITÉ -->
+    <section
+      class="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant"
+    >
+      <div
+        class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
+      >
+        <span class="material-symbols-outlined text-red-600">security</span>
+        <h2 class="text-base font-bold text-on-surface">Sécurité</h2>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Mot de passe -->
+        <div
+          class="flex items-center justify-between p-3 bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"
+            >
+              <span class="material-symbols-outlined text-[18px]">key</span>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-on-surface">Mot de passe</p>
+              <p class="text-[10px] text-on-surface-variant">
+                Modifié le {{ formatDate(userProfile.updatedAt) }}
+              </p>
+            </div>
+          </div>
+          <button
+            (click)="changePassword()"
+            class="text-secondary text-xs font-bold hover:underline"
+          >
+            Changer
+          </button>
+        </div>
+
+        <!-- Authentification 2FA -->
+        <div
+          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600"
+            >
+              <span class="material-symbols-outlined text-[18px]"
+                >verified_user</span
+              >
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-on-surface">
+                Authentification 2FA
+              </p>
+              <p class="text-[10px] text-on-surface-variant">
+                Sécurité renforcée
+              </p>
+            </div>
+          </div>
+          <ion-toggle
+            [checked]="securitySettings.is2FAEnabled"
+            (ionChange)="toggle2FA($event)"
+            color="primary"
+          ></ion-toggle>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📅 DATES -->
+    <section
+      class="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant"
+    >
+      <div
+        class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
+      >
+        <span class="material-symbols-outlined text-tertiary"
+          >calendar_today</span
+        >
+        <h2 class="text-base font-bold text-on-surface">Informations Compte</h2>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <!-- Créé le -->
+        <div
+          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
+        >
+          <span class="text-on-surface-variant font-medium"
+            >Compte créé le:</span
+          >
+          <span class="font-semibold text-on-surface"
+            >{{ formatDate(userProfile.createdAt) }}</span
+          >
+        </div>
+
+        <!-- Modifié le -->
+        <div
+          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
+        >
+          <span class="text-on-surface-variant font-medium"
+            >Dernière modification:</span
+          >
+          <span class="font-semibold text-on-surface"
+            >{{ formatDate(userProfile.updatedAt) }}</span
+          >
+        </div>
+
+        <!-- ID Utilisateur -->
+        <div
+          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
+        >
+          <span class="text-on-surface-variant font-medium"
+            >ID Utilisateur:</span
+          >
+          <span class="font-mono text-xs text-on-surface"
+            >#{{ userProfile.id }}</span
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- 🔴 DÉCONNEXION -->
+    <button
+      (click)="logout()"
+      class="w-full py-3 rounded-xl text-red-600 bg-red-50 border border-red-200/50 hover:bg-red-100/50 text-base font-bold flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95"
+    >
+      <span class="material-symbols-outlined">logout</span>
+      Déconnexion
+    </button>
+  </main>
+</ion-content>

@@ -1,0 +1,55 @@
+// Style pour la page de gestion des moyens de paiement
+ion-content {
+  --background: var(--color-background);
+}
+
+ion-header {
+  --background: var(--color-surface-container-lowest);
+}
+
+// Style des cartes de moyens de paiement
+.bg-surface-container {
+  &:hover {
+    box-shadow: 0 4px 12px rgba(30, 41, 59, 0.1);
+  }
+}
+
+// Style des boutons
+button {
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Style du spinner
+ion-spinner {
+  color: var(--color-primary);
+}
+
+// Animation de transition
+main {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Style responsif
+@media (max-width: 640px) {
+  main {
+    --spacing-container-padding: 12px !important;
+  }
+}

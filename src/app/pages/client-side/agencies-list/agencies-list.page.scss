@@ -1,0 +1,38 @@
+/* Ombres douces haut de gamme pour les cartes épurées (cohérent avec home.page) */
+.soft-shadow {
+  box-shadow: 0 12px 34px -10px rgba(15, 23, 42, 0.04),
+              0 4px 12px -4px rgba(15, 23, 42, 0.02);
+}
+
+/* Ombre pour le panneau de recherche flottant */
+.interactive-shadow {
+  box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.08);
+}
+
+/* Animations d'interaction au clic utilisateur */
+article {
+  will-change: transform, border-color;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
+}
+
+/* Surcharge de la transition et des dégradés pour le bouton */
+button {
+  background-size: 200% auto;
+  transition: all 0.2s ease;
+}
+
+/* Transition douce pour les loaders à effet Shimmer (skeleton) */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse-subtle 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

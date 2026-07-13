@@ -1,0 +1,232 @@
+<ion-header class="ion-no-border">
+  <div
+    class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200"
+  >
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 text-secondary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1.5 rounded-lg active-scale"
+    >
+      <i class="fa-solid fa-arrow-left"></i>
+      <span class="text-body-md font-semibold">Retour</span>
+    </button>
+    <span class="font-sans text-base font-bold text-secondary tracking-tight">Modifier mes infos</span>
+    <div class="w-16"></div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-background">
+  <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-28">
+    <main class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto">
+
+      <!-- ===================== SKELETON LOADER ===================== -->
+      <div *ngIf="isLoading" class="flex flex-col gap-stack-lg">
+        <div *ngFor="let section of [1,2,3]" class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20 flex flex-col gap-4">
+          <div class="h-4 bg-surface-container rounded w-40 animate-pulse"></div>
+          <div *ngFor="let field of [1,2]" class="flex flex-col gap-2">
+            <div class="h-3 bg-surface-container rounded w-24 animate-pulse"></div>
+            <div class="h-12 bg-surface-container rounded-2xl w-full animate-pulse"></div>
+          </div>
+        </div>
+        <div class="h-12 bg-surface-container rounded-2xl w-full animate-pulse"></div>
+      </div>
+
+      <!-- ===================== FORMULAIRE ===================== -->
+      <form *ngIf="!isLoading" [formGroup]="userForm" (ngSubmit)="saveChanges()" class="flex flex-col gap-stack-lg">
+
+        <!-- Section Informations de base -->
+        <section class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20">
+          <h2 class="text-sm font-headline-sm font-extrabold text-on-surface mb-4 flex items-center gap-2 tracking-tight">
+            <i class="fa-solid fa-user text-secondary text-sm"></i>
+            Informations de base
+          </h2>
+
+          <!-- Nom complet -->
+          <div class="flex flex-col gap-1.5 mb-4">
+            <label for="fullName" class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1">Nom complet *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-user absolute left-4 text-on-surface-variant/50 text-sm"></i>
+              <input
+                type="text"
+                id="fullName"
+                formControlName="fullName"
+                placeholder="Votre nom complet"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-medium placeholder:text-on-surface-variant/40"
+              />
+            </div>
+            <span
+              *ngIf="userForm.get('fullName')?.invalid && userForm.get('fullName')?.touched"
+              class="text-[11px] text-red-500 font-semibold ml-1"
+            >
+              Le nom doit contenir au moins 3 caractères
+            </span>
+          </div>
+
+          <!-- Email -->
+          <div class="flex flex-col gap-1.5 mb-4">
+            <label for="email" class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1">Email *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-envelope absolute left-4 text-on-surface-variant/50 text-sm"></i>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="votre@email.com"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-medium placeholder:text-on-surface-variant/40"
+              />
+            </div>
+            <span
+              *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+              class="text-[11px] text-red-500 font-semibold ml-1"
+            >
+              Veuillez entrer un email valide
+            </span>
+          </div>
+
+          <!-- Téléphone -->
+          <div class="flex flex-col gap-1.5">
+            <label for="phoneNumber" class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1">Téléphone *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-phone absolute left-4 text-on-surface-variant/50 text-sm"></i>
+              <input
+                type="tel"
+                id="phoneNumber"
+                formControlName="phoneNumber"
+                placeholder="+237 6XX XX XX XX"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-medium placeholder:text-on-surface-variant/40"
+              />
+            </div>
+            <span
+              *ngIf="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched"
+              class="text-[11px] text-red-500 font-semibold ml-1"
+            >
+              Le téléphone doit contenir au moins 10 chiffres
+            </span>
+          </div>
+        </section>
+
+        <!-- Section Localisation (villeResidence / quartier - conforme à User.php) -->
+        <section class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20">
+          <h2 class="text-sm font-headline-sm font-extrabold text-on-surface mb-4 flex items-center gap-2 tracking-tight">
+            <i class="fa-solid fa-location-dot text-secondary text-sm"></i>
+            Localisation
+          </h2>
+
+          <!-- Ville de résidence -->
+          <div class="flex flex-col gap-1.5 mb-4">
+            <label for="villeResidence" class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1">Ville de résidence *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-city absolute left-4 text-on-surface-variant/50 text-sm"></i>
+              <input
+                type="text"
+                id="villeResidence"
+                formControlName="villeResidence"
+                placeholder="Ex : Pointe-Noire"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-medium placeholder:text-on-surface-variant/40"
+              />
+            </div>
+            <span
+              *ngIf="userForm.get('villeResidence')?.invalid && userForm.get('villeResidence')?.touched"
+              class="text-[11px] text-red-500 font-semibold ml-1"
+            >
+              La ville de résidence est obligatoire
+            </span>
+          </div>
+
+          <!-- Quartier -->
+          <div class="flex flex-col gap-1.5">
+            <label for="quartier" class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1">Quartier *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-map-pin absolute left-4 text-on-surface-variant/50 text-sm"></i>
+              <input
+                type="text"
+                id="quartier"
+                formControlName="quartier"
+                placeholder="Votre quartier"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-medium placeholder:text-on-surface-variant/40"
+              />
+            </div>
+            <span
+              *ngIf="userForm.get('quartier')?.invalid && userForm.get('quartier')?.touched"
+              class="text-[11px] text-red-500 font-semibold ml-1"
+            >
+              Le quartier est obligatoire
+            </span>
+          </div>
+        </section>
+
+        <!-- Section Contact d'urgence (nouveau, conforme à User.php) -->
+        <section class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20">
+          <h2 class="text-sm font-headline-sm font-extrabold text-on-surface mb-4 flex items-center gap-2 tracking-tight">
+            <i class="fa-solid fa-user-shield text-secondary text-sm"></i>
+            Contact d'urgence
+          </h2>
+
+          <!-- Nom du contact -->
+          <div class="flex flex-col gap-1.5 mb-4">
+            <label for="emergencyContactName" class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1">Nom du contact *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-address-card absolute left-4 text-on-surface-variant/50 text-sm"></i>
+              <input
+                type="text"
+                id="emergencyContactName"
+                formControlName="emergencyContactName"
+                placeholder="Nom complet du contact"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-medium placeholder:text-on-surface-variant/40"
+              />
+            </div>
+            <span
+              *ngIf="userForm.get('emergencyContactName')?.invalid && userForm.get('emergencyContactName')?.touched"
+              class="text-[11px] text-red-500 font-semibold ml-1"
+            >
+              Le nom du contact d'urgence est obligatoire
+            </span>
+          </div>
+
+          <!-- Téléphone du contact -->
+          <div class="flex flex-col gap-1.5">
+            <label for="emergencyContactPhone" class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1">Téléphone du contact *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-phone-volume absolute left-4 text-on-surface-variant/50 text-sm"></i>
+              <input
+                type="tel"
+                id="emergencyContactPhone"
+                formControlName="emergencyContactPhone"
+                placeholder="+237 6XX XX XX XX"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-medium placeholder:text-on-surface-variant/40"
+              />
+            </div>
+            <span
+              *ngIf="userForm.get('emergencyContactPhone')?.invalid && userForm.get('emergencyContactPhone')?.touched"
+              class="text-[11px] text-red-500 font-semibold ml-1"
+            >
+              Le téléphone du contact d'urgence est obligatoire
+            </span>
+          </div>
+        </section>
+
+        <!-- Boutons d'action -->
+        <section class="flex flex-col gap-3">
+          <button
+            type="submit"
+            [disabled]="userForm.invalid || isSaving"
+            class="w-full bg-primary text-on-primary font-bold text-sm py-4 rounded-2xl shadow-lg shadow-primary/10 active:scale-[0.98] hover:brightness-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <span *ngIf="!isSaving">Enregistrer les modifications</span>
+            <span *ngIf="isSaving" class="flex items-center justify-center gap-2">
+              <i class="fa-solid fa-spinner fa-spin text-sm"></i>
+              Sauvegarde...
+            </span>
+          </button>
+
+          <button
+            type="button"
+            (click)="goBack()"
+            class="w-full bg-surface-container-low text-on-surface font-bold text-sm py-4 rounded-2xl hover:bg-surface-container transition-colors active:scale-[0.98] border border-outline-variant/30"
+          >
+            Annuler
+          </button>
+        </section>
+      </form>
+    </main>
+  </div>
+</ion-content>

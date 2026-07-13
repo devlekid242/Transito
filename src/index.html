@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Transito</title>
+
+    <base href="/" />
+
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="viewport"
+      content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
+
+    <!-- add to homescreen for ios -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!-- Tailwind CDN and fonts required by the integrated static templates -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#059669",
+              "primary-container": "#d1fae5",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#064e3b",
+              secondary: "#0f172a",
+              "secondary-container": "#e2e8f0",
+              "on-secondary": "#ffffff",
+              "on-secondary-container": "#0f172a",
+              tertiary: "#0284c7",
+              "tertiary-container": "#e0f2fe",
+              "on-tertiary-container": "#075985",
+              surface: "#f8fafc",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f1f5f9",
+              "surface-container": "#e2e8f0",
+              "surface-variant": "#cbd5e1",
+              "on-surface": "#0f172a",
+              "on-surface-variant": "#475569",
+              outline: "#94a3b8",
+              "outline-variant": "#cbd5e1",
+              background: "#f8fafc",
+              "on-background": "#0f172a",
+              "inverse-surface": "#1e293b",
+              "inverse-on-surface": "#f8fafc",
+              "inverse-primary": "#34d399",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "container-padding": "16px",
+              gutter: "12px",
+              "stack-lg": "24px",
+              "stack-md": "16px",
+              "stack-sm": "8px",
+              base: "4px",
+            },
+            fontFamily: {
+              "title-lg": ["Inter", "sans-serif"],
+              "headline-md": ["Inter", "sans-serif"],
+              "body-lg": ["Inter", "sans-serif"],
+              "price-lg": ["Inter", "sans-serif"],
+              "display-lg": ["Inter", "sans-serif"],
+              "body-md": ["Inter", "sans-serif"],
+              "label-md": ["Inter", "sans-serif"],
+              "headline-sm": ["Inter", "sans-serif"],
+            },
+            fontSize: {
+              "title-lg": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+              "headline-md": [
+                "24px",
+                {
+                  lineHeight: "32px",
+                  letterSpacing: "-0.01em",
+                  fontWeight: "600",
+                },
+              ],
+              "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              "price-lg": [
+                "20px",
+                {
+                  lineHeight: "24px",
+                  letterSpacing: "0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "display-lg": [
+                "32px",
+                {
+                  lineHeight: "40px",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "label-md": [
+                "12px",
+                {
+                  lineHeight: "16px",
+                  letterSpacing: "0.05em",
+                  fontWeight: "500",
+                },
+              ],
+              "headline-sm": [
+                "20px",
+                { lineHeight: "28px", fontWeight: "600" },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .hero-gradient {
+        background: linear-gradient(
+          135deg,
+          theme("colors.secondary") 0%,
+          theme("colors.primary") 100%
+        );
+      }
+      .soft-shadow {
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+      }
+      .interactive-shadow {
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
+      }
+      .bento-card {
+        background: linear-gradient(
+          145deg,
+          theme("colors.surface-container-lowest") 0%,
+          theme("colors.surface") 100%
+        );
+        box-shadow: 0 4px 20px rgba(30, 41, 59, 0.05);
+        border: 1px solid theme("colors.surface-variant");
+      }
+      .qr-gradient {
+        background: linear-gradient(
+          135deg,
+          theme("colors.primary") 0%,
+          theme("colors.secondary") 100%
+        );
+      }
+    </style>
+  </head>
+
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

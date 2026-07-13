@@ -1,0 +1,13 @@
+// Styles spécifiques au Tableau de bord Partenaire
+
+:host {
+  --background: var(--color-background);
+}
+
+ion-content {
+  --background: var(--color-background);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}

@@ -1,0 +1,53 @@
+// Style pour la page des trajets favoris
+ion-content {
+  --background: var(--color-background);
+}
+
+ion-header {
+  --background: var(--color-surface-container-lowest);
+}
+
+// Hover sur les trajets
+.bg-surface-container-lowest {
+  &:hover {
+    box-shadow: 0 4px 12px rgba(30, 41, 59, 0.1);
+    transform: translateY(-2px);
+  }
+
+  transition: all 0.2s ease;
+}
+
+// Animation du bouton favoris
+button[class*='text-error'] {
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+// Style du spinner
+ion-spinner {
+  color: var(--color-primary);
+}
+
+// Animation de transition
+main {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  main {
+    --spacing-container-padding: 12px !important;
+  }
+}

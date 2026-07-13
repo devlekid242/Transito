@@ -1,0 +1,57 @@
+ion-content {
+  --background: var(--color-background);
+}
+
+/* Suppression élégante des barres de défilement pour les filtres pills horizontaux */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Ombres douces haut de gamme pour les cartes épurées */
+.soft-shadow {
+  box-shadow: 0 12px 34px -10px rgba(15, 23, 42, 0.04), 
+              0 4px 12px -4px rgba(15, 23, 42, 0.02);
+}
+
+/* Micro-animations d'interaction au toucher */
+article {
+  will-change: transform, border-color, box-shadow;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.2s ease, 
+              box-shadow 0.2s ease;
+  
+  &:active {
+    transform: scale(0.985);
+    box-shadow: 0 4px 12px -4px rgba(15, 23, 42, 0.02);
+  }
+}
+
+/* Animation Shimmer Premium pour l'effet Skeleton */
+@keyframes shimmer {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse {
+  animation: shimmer 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Personnalisation visuelle du conteneur d'Infinite Scroll */
+.infinite-loading-container {
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  span.animate-spin {
+    border-top-color: transparent;
+  }
+}

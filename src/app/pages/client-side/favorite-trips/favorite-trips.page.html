@@ -1,0 +1,132 @@
+<ion-header class="ion-no-border">
+  <div
+    class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200"
+  >
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 text-secondary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded-lg active-scale"
+    >
+      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="text-sm font-semibold">Retour</span>
+    </button>
+    <span class="font-sans text-lg font-bold text-secondary tracking-tight">Trajets favoris</span>
+    <div class="w-8"></div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-background" *ngIf="!isLoading">
+  <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-28">
+    <main class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto">
+      <!-- Header avec info -->
+      <section class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-on-surface">{{ favoriteTrips.length }} trajet(s)</h1>
+      </section>
+
+      <!-- Liste des trajets favoris -->
+      <section *ngIf="favoriteTrips.length > 0" class="flex flex-col gap-3">
+        <div
+          *ngFor="let trip of favoriteTrips"
+          class="bg-surface-container-lowest rounded-lg p-4 border border-surface-variant hover:border-primary transition-colors shadow-sm"
+        >
+          <!-- Header -->
+          <div class="flex items-start justify-between mb-3">
+            <!-- Logo agence -->
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-primary text-2xl">directions_bus</span>
+            </div>
+
+            <!-- Infos trajet -->
+            <div class="flex-1 ml-3">
+              <h3 class="font-bold text-on-surface">{{ trip.departureCity }} → {{ trip.arrivalCity }}</h3>
+              <p class="text-xs text-on-surface-variant">{{ trip?.agencyName }}</p>
+            </div>
+
+            <!-- Bouton favoris -->
+            <button
+              (click)="removeFavorite(trip)"
+              class="text-error hover:bg-red-50 p-2 rounded-full transition-colors"
+            >
+              <span class="material-symbols-outlined text-2xl">favorite</span>
+            </button>
+          </div>
+
+          <!-- Détails -->
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-symbols-outlined text-primary text-lg">schedule</span>
+              <div>
+                <p class="text-xs text-on-surface-variant">Départ</p>
+                <p class="font-semibold text-on-surface">{{ trip.departureTime }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-symbols-outlined text-primary text-lg">access_time</span>
+              <div>
+                <p class="text-xs text-on-surface-variant">Durée</p>
+                <p class="font-semibold text-on-surface">{{ calculerDuree(trip.departureTime, trip.arrivalTime) }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-symbols-outlined text-primary text-lg">event_seat</span>
+              <div>
+                <p class="text-xs text-on-surface-variant">Sièges</p>
+                <p class="font-semibold text-on-surface">{{ trip.availableSeats }}/{{ trip.maxSeats }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-symbols-outlined text-primary text-lg">local_taxi</span>
+              <div>
+                <p class="text-xs text-on-surface-variant">Type</p>
+                <p class="font-semibold text-on-surface">{{ trip.busType }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer avec prix et bouton -->
+          <div class="flex items-center justify-between pt-3 border-t border-surface-variant">
+            <p class="text-2xl font-bold text-primary">{{ trip.pricePerSeat | number: '0.0-0' }} FCFA</p>
+            <button
+              (click)="bookTrip(trip)"
+              class="bg-primary text-on-primary font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity active-scale text-sm"
+            >
+              Réserver
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Message si aucun favori -->
+      <section *ngIf="favoriteTrips.length === 0" class="text-center py-12">
+        <span class="material-symbols-outlined text-5xl text-surface-variant/50 block mb-3">favorite</span>
+        <p class="text-on-surface-variant text-base mb-2">Aucun trajet favori pour le moment</p>
+        <p class="text-on-surface-variant text-xs mb-6">
+          Ajoutez des trajets à vos favoris pour les retrouver plus facilement
+        </p>
+        <button
+          (click)="navigateToHome()"
+          class="bg-primary text-on-primary font-semibold px-6 py-2 rounded-lg hover:opacity-90 transition-opacity active-scale"
+        >
+          Découvrir des trajets
+        </button>
+      </section>
+
+      <!-- Info -->
+      <section class="bg-secondary-container rounded-lg p-4 flex gap-3">
+        <span class="material-symbols-outlined text-secondary flex-shrink-0">info</span>
+        <div class="text-sm text-on-surface">
+          <p class="font-semibold mb-1">Trajets favoris:</p>
+          <p class="text-xs text-on-surface-variant">
+            Vous pouvez ajouter un trajet à vos favoris en cliquant sur l'icône cœur lors de votre recherche.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</ion-content>
+
+<!-- Loader initial -->
+<ion-content class="bg-background" *ngIf="isLoading">
+  <div class="flex items-center justify-center h-screen">
+    <ion-spinner></ion-spinner>
+  </div>
+</ion-content>

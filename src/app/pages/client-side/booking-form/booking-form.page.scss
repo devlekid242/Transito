@@ -1,0 +1,38 @@
+ion-content {
+  --background: var(--color-background);
+}
+
+/* Animations de transition de vues (fade) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Retrait du style natif select pour match avec la refonte Bento */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none !important;
+}
+
+/* Interaction douce sur les inputs */
+input:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1); /* Utilisation d'un vert léger lié au Primary */
+}
+
+/* Animation customisée de spinner si besoin */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

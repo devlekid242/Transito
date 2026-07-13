@@ -1,0 +1,72 @@
+<ion-content [fullscreen]="true" class="bg-background">
+  <div class="flex flex-col min-h-full px-6 justify-between bg-background">
+    
+    <div class="flex flex-col items-center justify-center pt-16 pb-6">
+      <div class="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center soft-shadow mb-6 transform rotate-3 transition-transform hover:rotate-0 duration-300">
+        <i class="fa-solid fa-bus text-white text-3xl"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold text-secondary tracking-tight">Bienvenue sur Transito</h1>
+      <p class="text-on-surface-variant mt-2 text-center text-sm">Vos prochains billets de bus interurbains sont à portée de main.</p>
+    </div>
+
+    <div class="flex-1 flex flex-col justify-center max-w-md w-full mx-auto gap-5">
+      
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider ml-1">Numéro de téléphone</label>
+        
+        <div class="flex items-center w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all gap-3">
+          <i class="fa-solid fa-phone text-outline text-base"></i>
+          
+          <span class="text-base font-bold text-secondary border-r border-outline-variant pr-3 select-none">+242</span>
+          
+          <input
+            [(ngModel)]="phoneNumber"
+            type="tel"
+            placeholder="06 000 0000"
+            class="w-full bg-transparent border-0 p-0 text-on-surface placeholder:text-outline/60 outline-none focus:ring-0 text-base"
+          />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Mot de passe</label>
+          <button (click)="goToForgot()" class="text-xs font-bold text-primary hover:text-on-primary-container transition-colors">Oublié ?</button>
+        </div>
+        <div class="relative flex items-center">
+          <i class="fa-solid fa-lock absolute left-4 text-outline text-base"></i>
+          <input
+            [(ngModel)]="password"
+            type="password"
+            placeholder="••••••••"
+            class="w-full bg-surface-container-lowest border border-outline-variant rounded-2xl pl-12 pr-4 py-4 text-on-surface placeholder:text-outline/60 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+          />
+        </div>
+      </div>
+
+      <div *ngIf="error" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl text-center font-medium border border-red-100 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ error }}</span>
+      </div>
+
+      <button
+        (click)="login()"
+        [disabled]="loading"
+        class="w-full bg-primary text-white font-bold py-4 rounded-2xl soft-shadow hover:brightness-95 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none transition-all flex justify-center items-center gap-3 mt-4"
+      >
+        <span *ngIf="!loading">Se connecter</span>
+        <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+        <i *ngIf="!loading" class="fa-solid fa-arrow-right text-lg"></i>
+      </button>
+
+    </div>
+
+    <div class="py-8 text-center mt-auto">
+      <p class="text-sm text-on-surface-variant">
+        Pas encore de compte ? 
+        <button (click)="goToRegister()" class="text-primary font-bold hover:text-on-primary-container transition-colors ml-1">Créer un compte</button>
+      </p>
+    </div>
+
+  </div>
+</ion-content>

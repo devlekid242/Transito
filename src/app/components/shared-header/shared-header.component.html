@@ -1,0 +1,45 @@
+<!-- Header pour Mobile et Desktop -->
+<ion-header class="ion-no-border shadow-sm">
+  <div
+    class="bg-surface flex justify-between items-center px-4 md:px-6 h-16 w-full"
+  >
+    <!-- Logo/Brand à gauche -->
+    <div class="flex items-center gap-2" *ngIf="showLogo">
+      <span class="material-symbols-outlined text-2xl text-primary"
+        >directions_bus</span
+      >
+      <span class="font-bold text-lg text-primary hidden md:inline"
+        >Transito</span
+      >
+    </div>
+
+    <!-- Titre au centre (optional) -->
+    <h1
+      class="text-lg font-semibold text-on-surface flex-1 text-center md:text-left md:ml-4"
+      *ngIf="title"
+    >
+      {{ title }}
+    </h1>
+
+    <!-- Actions à droite -->
+    <div class="flex items-center gap-1">
+      <!-- Notifications -->
+      <button
+        *ngIf="showNotifications"
+        (click)="openNotifications()"
+        class="relative p-2 rounded-full hover:bg-surface-container transition-colors flex items-center justify-center"
+        aria-label="Notifications"
+      >
+        <span class="material-symbols-outlined text-primary"
+          >notifications</span
+        >
+        <span
+          *ngIf="notificationCount > 0"
+          class="absolute top-1 right-1 w-5 h-5 bg-error text-on-error text-[10px] font-bold rounded-full flex items-center justify-center"
+        >
+          {{ notificationCount }}
+        </span>
+      </button>
+    </div>
+  </div>
+</ion-header>

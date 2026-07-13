@@ -1,0 +1,108 @@
+<ion-header class="ion-no-border">
+  <div
+    class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full border-b border-surface-variant/40 shadow-sm"
+  >
+    <span class="font-sans text-lg font-bold text-secondary tracking-tight">Choisir un moyen de paiement</span>
+    <button
+      (click)="cancel()"
+      class="text-secondary hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full flex items-center justify-center"
+    >
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+</ion-header>
+
+<ion-content class="bg-background">
+  <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-24">
+    <main class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto">
+      <!-- Loader -->
+      <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+        <ion-spinner></ion-spinner>
+      </div>
+
+      <!-- Liste des moyens de paiement -->
+      <div *ngIf="!isLoading" class="flex flex-col gap-3">
+        <!-- Méthode de paiement -->
+        <button
+          *ngFor="let method of paymentMethods"
+          (click)="selectMethod(method)"
+          [disabled]="!method.isAvailable"
+          [class.opacity-50]="!method.isAvailable"
+          [class.opacity-100]="method.isAvailable"
+          [class.ring-2]="selectedMethod?.id === method.id"
+          [class.ring-primary]="selectedMethod?.id === method.id"
+          class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant hover:border-primary transition-all duration-200 text-left flex items-center gap-4 disabled:cursor-not-allowed"
+        >
+          <!-- Icône -->
+          <div
+            [class.bg-primary-container]="selectedMethod?.id === method.id"
+            [class.bg-surface-container]="selectedMethod?.id !== method.id"
+            class="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+          >
+            <span
+              [class.text-primary]="selectedMethod?.id === method.id"
+              [class.text-secondary]="selectedMethod?.id !== method.id"
+              class="material-symbols-outlined text-2xl transition-colors"
+            >
+              {{ method.icon }}
+            </span>
+          </div>
+
+          <!-- Contenu -->
+          <div class="flex-1">
+            <h3 class="font-semibold text-on-surface mb-1">{{ method.name }}</h3>
+            <p class="text-xs text-on-surface-variant">{{ method.description }}</p>
+            <p *ngIf="!method.isAvailable" class="text-xs text-error mt-1 font-semibold">
+              Non disponible actuellement
+            </p>
+          </div>
+
+          <!-- Checkbox -->
+          <div
+            [class.bg-primary]="selectedMethod?.id === method.id"
+            [class.border-primary]="selectedMethod?.id === method.id"
+            [class.bg-surface-container]="selectedMethod?.id !== method.id"
+            [class.border-surface-variant]="selectedMethod?.id !== method.id"
+            class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+          >
+            <span
+              *ngIf="selectedMethod?.id === method.id"
+              class="material-symbols-outlined text-sm text-on-primary"
+            >
+              check
+            </span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Message informatif -->
+      <div *ngIf="!isLoading" class="bg-secondary-container rounded-lg p-4 flex gap-3">
+        <span class="material-symbols-outlined text-secondary flex-shrink-0">info</span>
+        <div class="text-sm text-on-surface">
+          <p class="font-semibold mb-1">Informations de sécurité:</p>
+          <p class="text-xs text-on-surface-variant">
+            Tous les paiements sont chiffrés et sécurisés. Vos données bancaires ne sont jamais stockées sur nos serveurs.
+          </p>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div *ngIf="!isLoading" class="flex flex-col gap-3">
+        <button
+          (click)="confirmSelection()"
+          [disabled]="!selectedMethod"
+          class="w-full bg-primary text-on-primary font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity active-scale disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Continuer
+        </button>
+
+        <button
+          (click)="cancel()"
+          class="w-full bg-surface-container text-on-surface font-semibold py-3 rounded-lg hover:bg-surface-container-high transition-colors active-scale border border-surface-variant"
+        >
+          Annuler
+        </button>
+      </div>
+    </main>
+  </div>
+</ion-content>

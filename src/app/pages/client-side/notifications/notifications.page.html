@@ -1,0 +1,68 @@
+<ion-content [fullscreen]="true" class="bg-background">
+  <div class="w-full max-w-[480px] bg-surface min-h-screen relative pb-28 mx-auto shadow-sm">
+
+    <!-- En-tête standardisé -->
+    <header class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200">
+      <button (click)="goBack()" aria-label="Menu" class="text-primary hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full flex items-center justify-center active-scale">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span class="font-sans text-lg font-bold text-secondary tracking-tight">Notifications</span>
+      <div class="w-10"></div>
+    </header>
+
+    <!-- Zone principale -->
+    <main class="w-full px-container-padding pt-stack-md flex flex-col gap-stack-lg">
+      
+      <!-- En-tête de section -->
+      <section class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-on-surface m-0">
+          Notifications
+        </h2>
+        <button (click)="markAllAsRead()" class="text-xs font-semibold text-primary hover:underline bg-transparent">
+          Marquer tout lu
+        </button>
+      </section>
+
+      <!-- Liste de notifications interactive -->
+      <section class="flex flex-col gap-3 mt-2">
+        <article *ngFor="let notification of notifications"
+          [ngClass]="notification.isRead ? 'border-surface-variant' : 'border-primary/40 bg-primary-container/10'"
+          class="bg-surface-container-lowest border rounded-lg p-4 flex items-start gap-3 transition-all">
+          
+          <!-- Icône de notification dynamique -->
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary flex-shrink-0">
+            <span class="material-symbols-outlined text-[20px]">{{ getNotificationIcon(notification) }}</span>
+          </div>
+          
+          <div class="flex-1">
+            <div class="flex justify-between items-start gap-2">
+              <div>
+                <p [ngClass]="notification.isRead ? 'text-on-surface-variant' : 'text-on-surface font-medium'" class="text-sm m-0 leading-tight mb-1">
+                  {{ notification.title }}
+                </p>
+                <p class="text-xs text-on-surface-variant mb-2">
+                  {{ notification.message }}
+                </p>
+                <p class="text-[10px] text-on-surface-variant font-medium m-0">
+                  {{ formatTime(notification.createdAt) }}
+                </p>
+              </div>
+              
+              <button (click)="viewDetails(notification); markAsRead(notification)" 
+                      class="text-xs font-bold text-primary flex-shrink-0 bg-transparent py-1 hover:underline">
+                Voir
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Message si liste vide -->
+        <div *ngIf="notifications.length === 0" class="p-12 text-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-4xl mb-2 text-surface-container inline-block">notifications_off</span>
+          <p>Aucune notification pour le moment.</p>
+        </div>
+      </section>
+    </main>
+
+  </div>
+</ion-content>

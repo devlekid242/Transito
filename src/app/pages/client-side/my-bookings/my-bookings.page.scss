@@ -1,0 +1,30 @@
+/* Styles Bento personnalisés alignés sur la maquette */
+.bento-card {
+  background: linear-gradient(
+    145deg,
+    var(--color-surface-container-lowest) 0%,
+    var(--color-surface) 100%
+  );
+  box-shadow: 0 4px 20px rgba(30, 41, 59, 0.04);
+}
+
+/* Dégradé graphique pour l'accentuation des boutons et du QR Code */
+.qr-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-secondary) 100%
+  );
+}
+
+/* Animation douce pour l'apparition du modal */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -1,0 +1,275 @@
+<ion-header class="ion-no-border">
+  <div
+    class="bg-surface flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-50 border-b border-surface-variant/40 shadow-sm"
+  >
+    <button
+      (click)="goBack()"
+      class="text-primary hover:bg-surface-container rounded-full p-2 transition-colors flex items-center justify-center"
+      aria-label="Retour"
+    >
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <div class="flex items-center gap-2">
+      <h1 class="text-title-lg text-primary">Manifeste de Voyage</h1>
+      <span
+        [ngClass]="getTripStatusClasses(tripDetails.status || 'En cours')"
+        class="font-bold text-[10px] px-2.5 py-1 rounded-full border uppercase tracking-wider"
+      >
+        {{ tripDetails.status || 'En cours' }}
+      </span>
+    </div>
+    <button
+      class="text-primary hover:bg-surface-container rounded-full p-2 flex items-center justify-center"
+      aria-label="Plus d'options"
+    >
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+  </div>
+</ion-header>
+
+<ion-content class="bg-background">
+  <main
+    class="w-full max-w-[480px] mx-auto px-container-padding py-4 flex flex-col gap-4 pb-24"
+  >
+    <!-- Trajet -->
+    <section
+      class="hero-gradient rounded-2xl p-5 relative overflow-hidden"
+    >
+      <!--  date -->
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px] text-on-primary">calendar_month</span>
+          <span class="text-label-md font-semibold text-on-primary">
+            {{ tripDetails.tripDate | date: 'dd MMMM yyyy' }}
+          </span>
+        </div>
+        <span
+          [ngClass]="getTripStatusClasses(tripDetails.status || 'En cours')"
+          class="font-bold text-[10px] px-2.5 py-1 rounded-full border uppercase tracking-wider"
+        >
+          {{ tripDetails.status || 'En cours' }}
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="text-center flex-1 min-w-0">
+          <div class="text-[10px] font-bold text-on-primary uppercase tracking-wider">
+            Départ
+          </div>
+          <div class="text-title-lg text-on-primary truncate">
+            {{ tripDetails.departure || '—' }}
+          </div>
+          <div class="text-label-md text-on-primary mt-0.5">
+            {{ tripDetails.departureTime }}
+          </div>
+        </div>
+
+        <div class="flex-1 flex items-center gap-1 px-1 self-start mt-3.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-outline shrink-0"></span>
+          <span class="flex-1 border-t border-dashed border-outline-variant"></span>
+          <span class="material-symbols-outlined text-on-primary text-[18px] shrink-0"
+            >directions_bus</span
+          >
+          <span class="flex-1 border-t border-dashed border-outline-variant"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-outline shrink-0"></span>
+        </div>
+
+        <div class="text-center flex-1 min-w-0">
+          <div class="text-[10px] font-bold text-on-primary uppercase tracking-wider">
+            Arrivée
+          </div>
+          <div class="text-title-lg text-on-primary truncate">
+            {{ tripDetails.arrival || '—' }}
+          </div>
+          <div class="text-label-md text-on-primary mt-0.5">
+            {{ tripDetails.arrivalTime }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bus / Équipage / Occupation -->
+    <section class="grid grid-cols-2 gap-3">
+      <div
+        class="bg-surface-container-lowest rounded-xl p-3 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex flex-col gap-2"
+      >
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[16px]">commute</span>
+          </div>
+          <span class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide">Bus</span>
+        </div>
+        <div>
+          <div class="text-body-lg font-bold text-on-surface truncate">
+            {{ tripDetails.busInfo?.licensePlate || tripDetails.busInfo?.code || 'N/A' }}
+          </div>
+          <div class="text-body-md text-on-surface-variant truncate">
+            {{ tripDetails.busInfo?.type || tripDetails.busInfo?.model || 'Bus' }}
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-surface-container-lowest rounded-xl p-3 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex flex-col gap-2"
+      >
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[16px]">group</span>
+          </div>
+          <span class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide">Équipage</span>
+        </div>
+        <div class="grid grid-cols-1 gap-1 text-body-md">
+          <div class="flex justify-between gap-2">
+            <span class="text-on-surface-variant">Chauffeur</span>
+            <span class="font-semibold text-on-surface truncate">{{ tripDetails.driver?.name || 'N/A' }}</span>
+          </div>
+          <div class="flex justify-between gap-2">
+            <span class="text-on-surface-variant">Hôtesse</span>
+            <span class="font-semibold text-on-surface truncate">{{ tripDetails.hostess?.name || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="col-span-2 bg-surface-container-lowest rounded-xl p-3 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex flex-col gap-3"
+      >
+        <div class="flex justify-between items-end">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[16px]">event_seat</span>
+            </div>
+            <span class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide">Occupation</span>
+          </div>
+          <div class="text-body-lg font-bold text-on-surface">
+            <span class="text-secondary">{{ validBookingsCount }}</span> / {{ tripDetails.busInfo?.capacity || 0 }}
+            <span class="text-label-md text-on-surface-variant font-normal">places</span>
+          </div>
+        </div>
+        <div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+          <div
+            [style.width.%]="occupancyPercentage"
+            class="bg-secondary h-2.5 rounded-full transition-all duration-500"
+          ></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Statistiques -->
+    <section>
+      <h2 class="text-label-md font-bold text-secondary uppercase tracking-wide mb-2 px-1">
+        Statistiques
+      </h2>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">groups</span>
+          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.total || 0 }}</span>
+          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">Total</span>
+        </div>
+        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
+          <span class="material-symbols-outlined text-[16px] text-teal-700">task_alt</span>
+          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.boarded || 0 }}</span>
+          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">Embarqués</span>
+        </div>
+        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
+          <span class="material-symbols-outlined text-[16px] text-cyan-700">hourglass_empty</span>
+          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.pending || 0 }}</span>
+          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">En attente</span>
+        </div>
+        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
+          <span class="material-symbols-outlined text-[16px] text-red-700">cancel</span>
+          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.cancelled || 0 }}</span>
+          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">Annulés</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recherche + export -->
+    <section class="flex gap-3 mt-1">
+      <div
+        class="relative flex-1 flex items-center border border-surface-variant rounded-lg overflow-hidden bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-all"
+      >
+        <span
+          class="material-symbols-outlined absolute left-3 text-gray-400 text-[20px]"
+          >search</span
+        >
+        <input
+          [(ngModel)]="searchQuery"
+          (input)="applySearchFilter()"
+          class="w-full pl-10 pr-4 py-3 bg-transparent text-body-md text-on-surface placeholder-gray-400 border-0 focus:ring-0 outline-none"
+          placeholder="Rechercher un passager..."
+          type="text"
+        />
+      </div>
+      <button
+        (click)="downloadManifestPDF()"
+        aria-label="Télécharger PDF"
+        class="bg-secondary text-on-secondary px-4 rounded-lg flex items-center justify-center shadow-sm active-scale transition-colors hover:bg-slate-800"
+      >
+        <span class="material-symbols-outlined text-[22px]">picture_as_pdf</span>
+      </button>
+    </section>
+
+    <!-- Passagers -->
+    <section class="flex flex-col gap-3 mt-1">
+      <h2 class="text-headline-sm text-on-surface px-1">
+        Passagers ({{ validBookingsCount }})
+      </h2>
+
+      <ng-container *ngFor="let passenger of filteredPassengers">
+        <div
+          *ngIf="getPassengerStatusMeta(passenger.boardingStatus) as status"
+          [ngClass]="passenger.boardingStatus === 'CANCELLED' ? 'opacity-60 bg-gray-50' : 'bg-surface-container-lowest'"
+          class="rounded-xl p-3 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex items-center justify-between transition-all"
+        >
+          <div class="flex items-center gap-3 min-w-0">
+            <div
+              [ngClass]="status.badge"
+              class="w-11 h-11 rounded-full flex items-center justify-center border font-bold text-label-md shrink-0"
+            >
+              {{ passenger.seatNumber }}
+            </div>
+
+            <div class="flex flex-col min-w-0">
+              <span
+                [ngClass]="{ 'line-through text-gray-400': passenger.boardingStatus === 'CANCELLED' }"
+                class="text-body-lg font-bold text-on-surface truncate"
+              >
+                {{ passenger.name }}
+              </span>
+              <span class="text-label-md text-on-surface-variant flex items-center gap-1 mt-0.5">
+                <span class="material-symbols-outlined text-[14px]">call</span>
+                {{ passenger.phone || 'N/A' }}
+              </span>
+              <span class="text-[10px] font-semibold text-gray-400 mt-0.5">
+                {{ passenger.ticketNumber }}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex flex-col items-end gap-2 shrink-0">
+            <span
+              [ngClass]="status.chip"
+              class="font-bold text-[9px] px-2 py-0.5 rounded border uppercase tracking-wider"
+            >
+              {{ status.label }}
+            </span>
+            <button
+              (click)="openPassengerMenu(passenger)"
+              class="text-secondary hover:bg-surface-container rounded-full p-1"
+              aria-label="Actions du passager"
+            >
+              <span class="material-symbols-outlined text-[18px]">more_horiz</span>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <div
+        *ngIf="filteredPassengers.length === 0"
+        class="p-8 text-center flex flex-col items-center gap-2 text-on-surface-variant"
+      >
+        <span class="material-symbols-outlined text-3xl text-outline-variant">person_search</span>
+        <p class="text-body-md">Aucun voyageur ne correspond à votre recherche.</p>
+      </div>
+    </section>
+  </main>
+</ion-content>

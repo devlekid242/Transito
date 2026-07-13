@@ -1,0 +1,139 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+
+
+// 2. Déclaration du Thème Personnalisé (Sémantique & Identité Visuelle)
+:root {
+  --font-sans: 'Inter', sans-serif;
+
+  /* --- PALETTE DE COULEURS --- */
+  --color-primary: #059669;
+  --color-primary-container: #d1fae5;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #064e3b;
+  
+  --color-secondary: #0f172a;
+  --color-secondary-container: #e2e8f0;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #0f172a;
+  
+  --color-tertiary: #0284c7;
+  --color-tertiary-container: #e0f2fe;
+  --color-on-tertiary-container: #075985;
+  
+  --color-surface: #f8fafc;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f1f5f9;
+  --color-surface-container: #e2e8f0;
+  --color-surface-variant: #cbd5e1;
+  --color-on-surface: #0f172a;
+  --color-on-surface-variant: #475569;
+  
+  --color-outline: #94a3b8;
+  --color-outline-variant: #cbd5e1;
+  
+  --color-background: #f8fafc;
+  --color-on-background: #0f172a;
+  
+  --color-inverse-surface: #1e293b;
+  --color-inverse-on-surface: #f8fafc;
+  --color-inverse-primary: #34d399;
+
+  /* --- ESPACEMENTS & GRILLE --- */
+  --spacing-container-padding: 16px;
+  --spacing-gutter: 12px;
+  --spacing-stack-lg: 24px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-sm: 8px;
+  --spacing-base: 4px;
+
+  /* --- BORDURES ARRONDIES --- */
+  --radius-default: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+
+  /* --- TYPOGRAPHIE --- */
+  --font-family-title-lg: 'Inter', sans-serif;
+  --font-family-headline-md: 'Inter', sans-serif;
+  --font-family-body-lg: 'Inter', sans-serif;
+  --font-family-price-lg: 'Inter', sans-serif;
+  --font-family-display-lg: 'Inter', sans-serif;
+  --font-family-body-md: 'Inter', sans-serif;
+  --font-family-label-md: 'Inter', sans-serif;
+  --font-family-headline-sm: 'Inter', sans-serif;
+}
+
+/* ==========================================================================
+   RESETS ET UTILITIES SPECIFIQUES IONIC
+   ========================================================================== */
+html, body {
+  font-family: var(--font-sans) !important;
+  background-color: var(--color-background);
+}
+
+/* Effet actif sur les éléments interactifs de ton design */
+.active-scale {
+  &:active {
+    transform: scale(0.98);
+  }
+  transition: transform 0.15s ease-in-out;
+}
+
+/* Gradient personnalisé pour la Hero Banner */
+.hero-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary) 0%,
+    var(--color-primary) 100%
+  );
+}
+
+/* Ombres douces Material 3 pour les cartes */
+.soft-shadow {
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+.interactive-shadow {
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
+}
+
+
+.bento-card {
+    background: linear-gradient(145deg,
+            var("--color-surface-container-lowest") 0%,
+            var("--color-surface") 100%);
+    box-shadow: 0 4px 20px rgba(30, 41, 59, 0.05);
+    border: 1px solid var("--color-surface-variant");
+}
+
+.qr-gradient {
+    background: linear-gradient(135deg,
+            var("--color-primary") 0%,
+            var("--color-secondary") 100%);
+}

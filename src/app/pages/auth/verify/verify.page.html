@@ -1,0 +1,133 @@
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="flex flex-col min-h-full bg-white px-6 justify-between">
+    
+    <div class="flex items-center justify-between pt-6">
+      <button 
+        (click)="prevStep()" 
+        [disabled]="loading"
+        class="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 rounded-full text-slate-600 active:scale-95 transition-all disabled:opacity-0"
+      >
+        <i class="fa-solid fa-chevron-left text-base"></i>
+      </button>
+      
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Étape {{ currentStep }} sur 2</span>
+    </div>
+
+    <div class="flex items-center gap-2 mt-4 max-w-md w-full mx-auto">
+      <div class="h-1.5 flex-1 rounded-full transition-all duration-300" [ngClass]="currentStep >= 1 ? 'bg-primary' : 'bg-slate-100'"></div>
+      <div class="h-1.5 flex-1 rounded-full transition-all duration-300" [ngClass]="currentStep >= 2 ? 'bg-primary' : 'bg-slate-100'"></div>
+    </div>
+
+    <div class="pt-8 pb-4 max-w-md w-full mx-auto text-center">
+      <div class="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto mb-4">
+        <i [ngClass]="currentStep === 1 ? 'fa-solid fa-shield-halved' : 'fa-solid fa-lock-open'" class="text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+        <span *ngIf="currentStep === 1">Vérification du code</span>
+        <span *ngIf="currentStep === 2">Nouveau mot de passe</span>
+      </h1>
+      <p class="text-slate-500 mt-2 text-sm px-2">
+        <span *ngIf="currentStep === 1">Un code OTP secret a été envoyé au <strong class="text-slate-700">{{ getMaskedPhone() }}</strong>.</span>
+        <span *ngIf="currentStep === 2">Définissez le mot de passe sécurisé pour vos prochaines connexions.</span>
+      </p>
+    </div>
+
+    <div class="flex-1 flex flex-col justify-start max-w-md w-full mx-auto gap-5 pt-4">
+
+      <div *ngIf="currentStep === 1" class="space-y-5">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Code de validation</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-key absolute left-4 text-slate-400 text-base"></i>
+            <input
+              [(ngModel)]="code"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="6"
+              placeholder="123456"
+              class="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-slate-900 font-mono tracking-[0.2em] text-lg outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:tracking-normal placeholder:font-sans"
+            />
+          </div>
+        </div>
+
+        <div class="text-center py-2">
+          <p *ngIf="countdown > 0" class="text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5">
+            <i class="fa-regular fa-clock text-xs"></i>
+            Vous pouvez modifier le numéro dans <span class="text-primary font-bold">{{ countdown }}s</span>
+          </p>
+          
+          <button 
+            *ngIf="countdown === 0" 
+            (click)="goToForgot()"
+            class="text-xs font-bold text-primary hover:text-indigo-700 transition-colors flex items-center justify-center gap-1.5 mx-auto"
+          >
+            <i class="fa-solid fa-rotate-right text-xs"></i>
+            Je n'ai pas reçu de code (Modifier le numéro)
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 2" class="space-y-4">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Nouveau mot de passe</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-base"></i>
+            <input
+              [(ngModel)]="newPassword"
+              type="password"
+              placeholder="••••••••"
+              class="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-slate-900 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-base"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Confirmer le mot de passe</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-check-double absolute left-4 text-slate-400 text-base"></i>
+            <input
+              [(ngModel)]="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              class="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-slate-900 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-base"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="message" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl text-center font-medium border border-red-100 flex items-center justify-center gap-2 mt-2">
+        <i class="fa-solid fa-circle-exclamation text-base"></i>
+        <span>{{ message }}</span>
+      </div>
+
+      <div class="mt-4">
+        <button
+          *ngIf="currentStep === 1"
+          (click)="nextStep()"
+          class="w-full bg-primary text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-100 hover:brightness-95 active:scale-[0.99] transition-all flex justify-center items-center gap-2"
+        >
+          <span>Vérifier le code</span>
+          <i class="fa-solid fa-arrow-right text-sm"></i>
+        </button>
+
+        <button
+          *ngIf="currentStep === 2"
+          (click)="submit()"
+          [disabled]="loading"
+          class="w-full bg-primary text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-100 hover:brightness-95 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none transition-all flex justify-center items-center gap-2"
+        >
+          <span *ngIf="!loading">Réinitialiser mon mot de passe</span>
+          <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+          <i *ngIf="!loading" class="fa-solid fa-check text-base"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="py-6 text-center mt-auto text-xs text-slate-400">
+      Besoin d'aide ? <span class="text-primary font-bold cursor-pointer hover:underline">Contactez le support</span>
+    </div>
+
+  </div>
+</ion-content>

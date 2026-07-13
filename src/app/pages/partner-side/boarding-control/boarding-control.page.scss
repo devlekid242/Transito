@@ -1,0 +1,21 @@
+// Styles spécifiques au Contrôle d'Embarquement
+
+:host {
+  --background: var(--color-background);
+}
+
+ion-content {
+  --background: var(--color-background);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

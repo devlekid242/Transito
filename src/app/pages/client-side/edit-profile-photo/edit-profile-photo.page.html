@@ -1,0 +1,100 @@
+<ion-header class="ion-no-border">
+  <div
+    class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200"
+  >
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 text-secondary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded-lg active-scale"
+    >
+      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="text-sm font-semibold">Retour</span>
+    </button>
+    <span class="font-sans text-lg font-bold text-secondary tracking-tight">Modifier la photo</span>
+    <div class="w-8"></div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-background">
+  <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-28">
+    <main class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto">
+      <!-- Section Aperçu de la photo -->
+      <section class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant">
+        <h2 class="text-lg font-bold text-on-surface mb-4">Aperçu</h2>
+        <div class="flex justify-center mb-6">
+          <div class="w-48 h-48 rounded-full overflow-hidden border-4 border-primary shadow-lg">
+            <img
+              [src]="previewPhoto"
+              alt="Aperçu de la photo"
+              class="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+
+        <!-- Zone de téléchargement -->
+        <div
+          class="border-2 border-dashed border-surface-variant rounded-lg p-8 text-center cursor-pointer hover:bg-surface-container transition-colors"
+          (click)="openFileInput()"
+        >
+          <span class="material-symbols-outlined text-4xl text-secondary block mb-3">cloud_upload</span>
+          <p class="text-sm font-semibold text-on-surface mb-1">Cliquez pour sélectionner une image</p>
+          <p class="text-xs text-on-surface-variant">ou glissez-déposez une image ici</p>
+          <p class="text-xs text-on-surface-variant mt-2">Format: PNG, JPG, JPEG | Taille max: 5MB</p>
+        </div>
+
+        <!-- Input file caché -->
+        <input
+          #fileInput
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          style="display: none"
+        />
+      </section>
+
+      <!-- Boutons d'action -->
+      <section class="flex flex-col gap-3">
+        <button
+          (click)="uploadPhoto()"
+          [disabled]="!selectedFile || isUploading"
+          class="w-full bg-primary text-on-primary font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity active-scale disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span *ngIf="!isUploading">Mettre à jour la photo</span>
+          <span *ngIf="isUploading" class="flex items-center justify-center gap-2">
+            <ion-spinner name="crescent"></ion-spinner>
+            Téléchargement...
+          </span>
+        </button>
+
+        <button
+          *ngIf="selectedFile"
+          (click)="removePhoto()"
+          class="w-full bg-surface-container text-on-surface font-semibold py-3 rounded-lg hover:bg-surface-container-high transition-colors active-scale border border-surface-variant"
+        >
+          Annuler la sélection
+        </button>
+
+        <button
+          (click)="goBack()"
+          class="w-full bg-surface-container text-on-surface font-semibold py-3 rounded-lg hover:bg-surface-container-high transition-colors active-scale border border-surface-variant"
+        >
+          Retour
+        </button>
+      </section>
+
+      <!-- Messages d'aide -->
+      <section class="bg-primary-container rounded-lg p-4 flex gap-3">
+        <span class="material-symbols-outlined text-primary flex-shrink-0">info</span>
+        <div class="text-sm text-on-surface">
+          <p class="font-semibold mb-1">Conseils pour votre photo:</p>
+          <ul class="text-xs space-y-1 text-on-surface-variant">
+            <li>• Utiliser une photo claire et bien éclairée</li>
+            <li>• La photo doit être récente et ressemblante</li>
+            <li>• Format carré recommandé pour un meilleur résultat</li>
+            <li>• Éviter les filtres excessifs</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+</ion-content>
