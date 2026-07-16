@@ -1,0 +1,35 @@
+.skeleton-loader {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.skeleton-header {
+  height: 20px;
+  width: 60%;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-content {
+  height: 200px;
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}

@@ -1,5 +1,9 @@
+<app-partner-header title="Validation de Ticket"></app-partner-header>
+
 <ion-content class="bg-background">
-  <div class="max-w-[480px] mx-auto min-h-screen relative pb-24">
+  <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
+
+  <main *ngIf="!loading" class="max-w-[480px] mx-auto min-h-screen relative pb-24">
 
     <!-- Barre supérieure minimale -->
     <div class="flex items-center gap-2 px-container-padding pt-4">
@@ -149,5 +153,5 @@
       </section>
 
     </main>
-  </div>
+  </main>
 </ion-content>

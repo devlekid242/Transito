@@ -1,36 +1,9 @@
-<ion-header class="ion-no-border">
-  <div
-    class="bg-surface flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-50 border-b border-surface-variant/40 shadow-sm"
-  >
-    <button
-      (click)="goBack()"
-      class="text-primary hover:bg-surface-container rounded-full p-2 transition-colors flex items-center justify-center"
-      aria-label="Retour"
-    >
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <div class="flex items-center gap-2">
-      <h1 class="text-title-lg text-primary">Manifeste de Voyage</h1>
-      <span
-        [ngClass]="getTripStatusClasses(tripDetails.status || 'En cours')"
-        class="font-bold text-[10px] px-2.5 py-1 rounded-full border uppercase tracking-wider"
-      >
-        {{ tripDetails.status || 'En cours' }}
-      </span>
-    </div>
-    <button
-      class="text-primary hover:bg-surface-container rounded-full p-2 flex items-center justify-center"
-      aria-label="Plus d'options"
-    >
-      <span class="material-symbols-outlined">more_vert</span>
-    </button>
-  </div>
-</ion-header>
+<app-partner-header title="Manifeste de Voyage"></app-partner-header>
 
 <ion-content class="bg-background">
-  <main
-    class="w-full max-w-[480px] mx-auto px-container-padding py-4 flex flex-col gap-4 pb-24"
-  >
+  <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
+
+  <main *ngIf="!loading" class="w-full max-w-[480px] mx-auto px-container-padding py-4 flex flex-col gap-4 pb-24">
     <!-- Trajet -->
     <section
       class="hero-gradient rounded-2xl p-5 relative overflow-hidden"

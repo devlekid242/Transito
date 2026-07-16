@@ -10,6 +10,8 @@ import {
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { ActivatedRoute } from '@angular/router';
+import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
+import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
 interface Passenger {
   id: number;
@@ -52,10 +54,17 @@ interface TripManifest {
   templateUrl: './trip-manifest.page.html',
   styleUrls: ['./trip-manifest.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    PartnerHeaderComponent,
+    SkeletonLoaderComponent,
+  ],
 })
 export class TripManifestPage implements OnInit {
   canViewManifest = false;
+  loading: boolean = true;
 
   tripDetails: TripManifest = {
     tripId: 0,
@@ -107,6 +116,7 @@ export class TripManifestPage implements OnInit {
   }
 
   private loadManifestData(): void {
+    this.loading = true;
     const tripId = Number(this.route.snapshot.paramMap.get('tripId')) || 0;
 
     this.apiService.getTripManifest(tripId).subscribe(
@@ -153,10 +163,12 @@ export class TripManifestPage implements OnInit {
         }));
 
         this.applySearchFilter();
+        this.loading = false;
       },
       (error: any) => {
         console.error('Erreur chargement manifeste:', error);
         this.applySearchFilter();
+        this.loading = false;
       },
     );
   }
@@ -172,7 +184,10 @@ export class TripManifestPage implements OnInit {
     if (!dateStr) return '--:--';
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return '--:--';
-    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   get validBookingsCount(): number {

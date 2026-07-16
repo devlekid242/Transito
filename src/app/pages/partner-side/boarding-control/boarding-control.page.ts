@@ -10,6 +10,8 @@ import {
   Trip,
   ManifestData,
 } from '../../../services/partner-api.service';
+import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
+import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
 interface PassengerManifest {
   id: number;
@@ -28,7 +30,14 @@ interface PassengerManifest {
   templateUrl: './boarding-control.page.html',
   styleUrls: ['./boarding-control.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, SharedHeaderComponent],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    SharedHeaderComponent,
+    PartnerHeaderComponent,
+    SkeletonLoaderComponent,
+  ],
 })
 export class BoardingControlPage implements OnInit {
   trips: Trip[] = [];
@@ -45,6 +54,7 @@ export class BoardingControlPage implements OnInit {
   loadingTrips = false;
   loadingManifest = false;
   errorMessage = '';
+  loading: boolean = true;
 
   canBoardingControl = false;
   isWharfAgent = false;
@@ -67,6 +77,7 @@ export class BoardingControlPage implements OnInit {
   }
 
   private loadTrips(): void {
+    this.loading = true;
     this.loadingTrips = true;
     this.errorMessage = '';
     this.apiService.getTrips().subscribe(
@@ -75,10 +86,12 @@ export class BoardingControlPage implements OnInit {
         if (this.trips.length > 0) {
           this.selectTrip(this.trips[0].id);
         }
+        this.loading = false;
       },
       (error: any) => {
         console.error('Erreur chargement des voyages:', error);
         this.errorMessage = 'Impossible de charger les voyages.';
+        this.loading = false;
       },
       () => {
         this.loadingTrips = false;
@@ -198,15 +211,31 @@ export class BoardingControlPage implements OnInit {
   } {
     switch (status) {
       case 'BOARDED':
-        return { badge: 'bg-teal-50 text-teal-800 border border-teal-200', label: 'Embarqué' };
+        return {
+          badge: 'bg-teal-50 text-teal-800 border border-teal-200',
+          label: 'Embarqué',
+        };
       case 'PENDING':
-        return { badge: 'bg-cyan-50 text-cyan-800 border border-cyan-200', label: 'En attente' };
+        return {
+          badge: 'bg-cyan-50 text-cyan-800 border border-cyan-200',
+          label: 'En attente',
+        };
       case 'NO_SHOW':
-        return { badge: 'bg-amber-50 text-amber-800 border border-amber-200', label: 'Non présenté' };
+        return {
+          badge: 'bg-amber-50 text-amber-800 border border-amber-200',
+          label: 'Non présenté',
+        };
       case 'CANCELLED':
-        return { badge: 'bg-rose-50 text-rose-800 border border-rose-200', label: 'Annulé' };
+        return {
+          badge: 'bg-rose-50 text-rose-800 border border-rose-200',
+          label: 'Annulé',
+        };
       default:
-        return { badge: 'bg-surface-container text-on-surface border border-surface-variant', label: 'Inconnu' };
+        return {
+          badge:
+            'bg-surface-container text-on-surface border border-surface-variant',
+          label: 'Inconnu',
+        };
     }
   }
 

@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { SharedHeaderComponent } from '../../../components/shared-header/shared-header.component';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
+import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
+import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
 interface ScheduledTrip {
   id: number;
@@ -26,7 +28,14 @@ interface ScheduledTrip {
   templateUrl: './scheduled-trips.page.html',
   styleUrls: ['./scheduled-trips.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, SharedHeaderComponent],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    SharedHeaderComponent,
+    PartnerHeaderComponent,
+    SkeletonLoaderComponent,
+  ],
 })
 export class ScheduledTripsPage implements OnInit {
   // Filtre d'onglet actif : 'all' | 'planifie' | 'active'
@@ -41,11 +50,12 @@ export class ScheduledTripsPage implements OnInit {
   // Permissions
   canViewTrips = false;
   partnerRole: string | null = null;
+  loading: boolean = true;
 
   constructor(
     private router: Router,
     private permissionService: PartnerPermissionService,
-    private apiService: PartnerApiService
+    private apiService: PartnerApiService,
   ) {}
 
   ngOnInit() {
@@ -63,9 +73,10 @@ export class ScheduledTripsPage implements OnInit {
    * Charger les trajets depuis l'API
    */
   private loadTrips(): void {
+    this.loading = true;
     this.apiService.getTrips().subscribe(
       (trips: any[]) => {
-        this.trips = trips.map(trip => ({
+        this.trips = trips.map((trip) => ({
           id: trip.id,
           busNumber: trip.bus?.registrationNumber,
           classType: trip.classType || 'VIP',
@@ -76,16 +87,18 @@ export class ScheduledTripsPage implements OnInit {
           departureTime: trip.departureTimeOfDay || '08:00',
           arrivalTime: trip.arrivalTimeOfDay,
           occupiedSeats: trip.seatsReserved,
-          totalSeats: trip.totalSeats || 50
+          totalSeats: trip.totalSeats || 50,
         }));
         console.log('Trajets chargés:', this.trips);
         this.applyTabFilter(this.activeFilter);
+        this.loading = false;
       },
       (error: any) => {
         console.error('Erreur lors du chargement des trajets:', error);
         // Les données par défaut restent utilisées en cas d'erreur
         this.applyTabFilter(this.activeFilter);
-      }
+        this.loading = false;
+      },
     );
   }
 

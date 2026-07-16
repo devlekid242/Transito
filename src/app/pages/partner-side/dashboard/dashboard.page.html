@@ -1,10 +1,9 @@
-<!-- <app-shared-header
-  title="Dashboard"
-  [showNotifications]="canViewNotifications"
-  [showProfile]="canViewProfile"
-></app-shared-header> -->
+<app-partner-header title="Tableau de Bord"></app-partner-header>
+
 <ion-content class="bg-background">
-  <div class="max-w-[480px] mx-auto md:max-w-none md:flex md:h-full">
+  <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
+
+  <div *ngIf="!loading" class="max-w-[480px] mx-auto md:max-w-none md:flex md:h-full">
     <!-- Sidebar de navigation (Visible uniquement sur Desktop) -->
     <aside
       class="hidden md:flex flex-col w-64 bg-surface-container-lowest border-r border-outline-variant h-full z-40"

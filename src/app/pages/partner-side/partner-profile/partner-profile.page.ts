@@ -6,19 +6,29 @@ import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
+import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
+import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-partner-profile',
   templateUrl: './partner-profile.page.html',
   styleUrls: ['./partner-profile.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, SharedHeaderComponent],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    SharedHeaderComponent,
+    PartnerHeaderComponent,
+    SkeletonLoaderComponent,
+  ],
 })
 export class PartnerProfilePage implements OnInit {
   // Permissions
   canEditProfile = false;
   canViewAllFields = false;
   partnerRole: string | null = null;
+  loading: boolean = true;
 
   // Profil complet de l'utilisateur (chargé depuis API)
   userProfile: any = {
@@ -99,6 +109,7 @@ export class PartnerProfilePage implements OnInit {
    * Charger le profil partenaire depuis l'API
    */
   private loadProfile(): void {
+    this.loading = true;
     this.apiService.getPartnerProfile().subscribe(
       (profile: any) => {
         this.userProfile = {
@@ -129,9 +140,11 @@ export class PartnerProfilePage implements OnInit {
         };
 
         console.log('Profil chargé:', this.userProfile);
+        this.loading = false;
       },
       (error: any) => {
         console.error('Erreur lors du chargement du profil:', error);
+        this.loading = false;
       },
     );
   }

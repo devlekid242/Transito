@@ -1,11 +1,10 @@
-<!-- <app-shared-header
-  title="Mon Profil"
-  [showNotifications]="true"
-></app-shared-header> -->
+<app-partner-header title="Mon Profil"></app-partner-header>
+
 <ion-content class="bg-background">
-  <main
-    class="w-full max-w-[480px] px-container-padding mx-auto flex flex-col gap-4 py-6 pb-24"
-  >
+  <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
+
+  <main *ngIf="!loading" class="w-full max-w-[480px] px-container-padding mx-auto flex flex-col gap-4 py-6 pb-24">
+
     <!-- 🎨 EN-TÊTE DU PROFIL - Avatar + Infos Principales -->
     <section
       class="relative -mx-container-padding px-container-padding bg-gradient-to-br from-primary/5 via-secondary/5 to-tertiary/5 rounded-b-2xl py-8"

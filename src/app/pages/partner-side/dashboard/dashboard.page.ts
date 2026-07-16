@@ -5,6 +5,8 @@ import { IonicModule, NavController } from '@ionic/angular';
 import { SharedHeaderComponent } from '../../../components/shared-header/shared-header.component';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
+import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
+import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
 interface Booking {
   id: number;
@@ -52,7 +54,14 @@ interface DetailedStats {
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, SharedHeaderComponent],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    SharedHeaderComponent,
+    PartnerHeaderComponent,
+    SkeletonLoaderComponent,
+  ],
 })
 export class DashboardPage implements OnInit {
   // Permissions
@@ -66,6 +75,7 @@ export class DashboardPage implements OnInit {
   canViewProfile = false;
   canBoardingControl = false;
   partnerRole: string | null = null;
+  loading: boolean = true;
 
   // Métriques clés de l'agence (KPIs - chargées depuis API)
   kpis = {
@@ -122,6 +132,7 @@ export class DashboardPage implements OnInit {
    * Charger les données du dashboard depuis l'API
    */
   private loadDashboardData(): void {
+    this.loading = true;
     // Calculer la plage de dates selon la période sélectionnée
     const { start, end } = this.computeDateRange(this.filterPeriod);
 
@@ -153,6 +164,7 @@ export class DashboardPage implements OnInit {
 
         console.log('Statistiques agent chargées:', this.kpis);
         console.log('Statistiques détaillées:', this.detailedStats);
+        this.loading = false;
       },
       (error: any) => {
         console.error('Erreur chargement statistiques agent:', error);
@@ -173,6 +185,7 @@ export class DashboardPage implements OnInit {
             total: 0,
           },
         };
+        this.loading = false;
       },
     );
 

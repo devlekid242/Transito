@@ -9,6 +9,8 @@ import {
   PartnerApiService,
   TicketValidationResponse,
 } from '../../../services/partner-api.service';
+import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
+import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
 interface TicketData {
   passengerName: string;
@@ -26,13 +28,20 @@ interface TicketData {
   templateUrl: './ticket-validation.page.html',
   styleUrls: ['./ticket-validation.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    PartnerHeaderComponent,
+    SkeletonLoaderComponent,
+  ],
 })
 export class TicketValidationPage implements OnInit, OnDestroy {
   scanState: 'idle' | 'scanning' | 'success' | 'error' = 'idle';
   qrCodeInput = '';
   errorMessage = '';
   private validationSub?: Subscription;
+  loading: boolean = true;
 
   validatedTicket: TicketData = {
     passengerName: '',
@@ -56,6 +65,7 @@ export class TicketValidationPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadPermissions();
+    this.loading = false;
   }
 
   ngOnDestroy(): void {
