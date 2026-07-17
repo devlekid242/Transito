@@ -32,7 +32,7 @@ export class EditProfilePhotoPage implements OnInit {
   private loadCurrentPhoto() {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
-        this.currentPhoto = user.profileImage || 'https://via.placeholder.com/200?text=No+Photo';
+        this.currentPhoto = user.profileImage || '/assets/images/default-avatar.png';
         this.previewPhoto = this.currentPhoto;
       },
       error: (err) => {

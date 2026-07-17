@@ -36,3 +36,56 @@ input:focus, select:focus {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
+/* ==========================================================
+   Impression du/des billet(s) (bouton "Imprimer / PDF")
+   L'utilisateur choisit "Enregistrer au format PDF" dans la
+   boîte de dialogue d'impression du navigateur.
+   ========================================================== */
+@media print {
+  // Masque toute l'interface applicative (header, nav, boutons...)
+  ion-header,
+  ion-footer,
+  ion-tab-bar,
+  .no-print {
+    display: none !important;
+  }
+
+  // Réinitialise ion-content pour laisser le flux d'impression naturel
+  ion-content {
+    --overflow: visible;
+    position: static !important;
+  }
+
+  body,
+  ion-app,
+  ion-content,
+  main {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main {
+    max-width: 100% !important;
+  }
+
+  // Isole uniquement la zone imprimable
+  #printArea {
+    display: block !important;
+  }
+
+  .print-ticket {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    page-break-after: always;
+    break-after: page;
+    margin: 0 auto 0 !important;
+  }
+
+  .print-ticket:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}

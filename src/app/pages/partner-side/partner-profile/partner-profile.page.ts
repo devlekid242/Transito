@@ -193,23 +193,17 @@ export class PartnerProfilePage implements OnInit {
 
   // Modification de la photo de profil
   editAvatar() {
-    console.log("Ouverture du sélecteur d'image pour l'avatar...");
-    this.showToast('Fonctionnalité en développement', 'info');
+    this.navCtrl.navigateForward('/edit-profile-photo');
   }
 
   // Modifier les informations personnelles
   editPersonalInfo(field: string) {
-    console.log(`Modification demandée pour le champ : ${field}`);
-    this.showToast(`Édition de ${field} en cours...`, 'info');
+    this.navCtrl.navigateForward('/edit-user-info');
   }
 
   // Changer le mot de passe
   changePassword() {
-    console.log('Ouverture du formulaire de changement de mot de passe...');
-    this.showToast(
-      'Fonction de changement de mot de passe disponible prochainement',
-      'info',
-    );
+        this.navCtrl.navigateForward('/change-password');
   }
 
   // Activer ou désactiver l'authentification 2FA

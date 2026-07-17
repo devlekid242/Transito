@@ -137,7 +137,7 @@ export class HomePage implements OnInit, OnDestroy {
     return new Promise((resolve, reject) => {
       // Simulation ou appel au service pour charger les lignes programmées par défaut
       this.tripService
-        .getPopularTrips() // Reste mappé sur la méthode du service mais traité comme flux général récent
+        .getUncomingTrips() // Reste mappé sur la méthode du service mais traité comme flux général récent
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (trips) => {

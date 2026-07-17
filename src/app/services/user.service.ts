@@ -47,7 +47,7 @@ export class UserService {
    * Changer le mot de passe
    */
   changePassword(oldPassword: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/change-password`, {
+    return this.http.put(`${this.apiUrl}/me/change-password`, {
       old_password: oldPassword,
       new_password: newPassword,
     });

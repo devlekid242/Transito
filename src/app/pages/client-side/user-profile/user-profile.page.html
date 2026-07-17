@@ -103,7 +103,7 @@
             <img
               alt="Photo de profil utilisateur"
               class="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
-              [src]="user.avatar"
+              [src]="user.avatar || '/assets/images/default-avatar.png'"
             />
             <div
               class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
@@ -156,34 +156,34 @@
                     Informations personnelles
                   </h3>
                   <p class="text-[11px] font-medium text-on-surface-variant/70">
-                    Nom, téléphone, pièce d'identité
+                    Nom, téléphone, adress
                   </p>
                 </div>
               </div>
               <i class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"></i>
             </li>
 
-            <!-- <li
-              (click)="managePaymentMethods()"
+            <li
+              (click)="managePassword()"
               class="py-4 flex items-center justify-between hover:bg-surface-container-low px-2 -mx-2 rounded-xl transition-colors cursor-pointer group"
             >
               <div class="flex items-center gap-3">
                 <div
                   class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-on-surface-variant group-hover:text-primary group-hover:bg-primary-container/40 transition-colors"
                 >
-                  <i class="fa-solid fa-credit-card text-sm"></i>
+                  <i class="fa-solid fa-lock text-sm"></i>
                 </div>
                 <div>
                   <h3 class="text-sm font-bold text-on-surface">
-                    Moyens de paiement
+                    Securité et Mots de passe
                   </h3>
                   <p class="text-[11px] font-medium text-on-surface-variant/70">
-                    Mobile Money, carte bancaire
+                    Modifier votre mot de passe, activer l'authentification à deux facteurs
                   </p>
                 </div>
               </div>
               <i class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"></i>
-            </li> -->
+            </li>
 
             <li
               (click)="viewPaymentHistory()"

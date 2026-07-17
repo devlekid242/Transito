@@ -66,6 +66,16 @@ export class BookingFormPage implements OnInit, OnDestroy {
   transactionId: string | null = null;
   generatedTicket: any = null;
 
+  // Un billet par passager (nom + téléphone imprimés sur chaque billet)
+  tickets: Array<{
+    ticketNumber: string;
+    seat: number | string;
+    qr: string;
+    passengerName: string;
+    passengerPhone: string;
+  }> = [];
+  private rawBookingTickets: any[] = [];
+
   isLoading = false;
   isPaymentLoading = false;
   paymentStep: 'initiate' | 'confirming' | 'confirmed' = 'initiate';
@@ -124,9 +134,9 @@ export class BookingFormPage implements OnInit, OnDestroy {
           this.tripDetails = {
             origin: trip.departureCity,
             destination: trip.arrivalCity,
-            departureDate: trip.departureDate,
-            departureTime: trip.departureTime,
-            arrivalTime: trip.arrivalTime,
+            departureDate: new Date(trip.departureDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+            departureTime: new Date(trip.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            arrivalTime: new Date(trip.arrivalTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
             serviceFee: 500, // Frais de plateforme standardisés
           };
 
@@ -258,6 +268,8 @@ export class BookingFormPage implements OnInit, OnDestroy {
       .subscribe({
         next: (bookingResponse) => {
           this.bookingId = bookingResponse.reservationId || bookingResponse.id;
+          // Le backend renvoie un ticket par passager (nom, téléphone, siège, QR, n° billet)
+          this.rawBookingTickets = bookingResponse.tickets || [];
 
           // Étape 2 : Initier le paiement
           const paymentRequest: PaymentRequest = {
@@ -314,7 +326,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
         next: (confirmResponse) => {
           this.paymentStep = 'confirmed';
 
-          // Paiement confirmé, afficher le ticket
+          // Paiement confirmé, afficher le(s) ticket(s)
           setTimeout(() => {
             this.isPaymentLoading = false;
             this.generatedTicket = {
@@ -323,6 +335,25 @@ export class BookingFormPage implements OnInit, OnDestroy {
               transactionId: this.transactionId,
               paymentStatus: 'Confirmé',
             };
+
+            // Un billet par passager : on associe la donnée backend (siège, QR, n° billet)
+            // à la donnée locale (nom, téléphone) via le n° CNI en priorité, sinon par ordre.
+            this.tickets = this.passengers.map((passenger, index) => {
+              const backendTicket =
+                this.rawBookingTickets.find(
+                  (t) => t.passengerCni && t.passengerCni === passenger.identityNumber,
+                ) || this.rawBookingTickets[index];
+
+              return {
+                ticketNumber:
+                  backendTicket?.ticketNumber || `TKT-${this.bookingId}-${index + 1}`,
+                seat: backendTicket?.seat ?? index + 1,
+                qr: backendTicket?.qr || '',
+                passengerName: passenger.fullName,
+                passengerPhone: passenger.phoneNumber,
+              };
+            });
+
             this.stepNumber = 3; // Navigation vers le ticket
           }, 1000);
         },
@@ -358,6 +389,17 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
   finishBooking() {
     this.navCtrl.navigateRoot('/tabs/home');
+  }
+
+  /**
+   * Déclenche l'impression du/des billet(s). La zone imprimable est isolée
+   * via CSS (@media print, voir booking-form.page.scss) : un billet par page,
+   * avec nom et téléphone du passager sur chacun.
+   * Depuis la boîte de dialogue d'impression, l'utilisateur choisit
+   * "Enregistrer au format PDF" pour obtenir un PDF.
+   */
+  printTicket() {
+    window.print();
   }
 
   private async showAlert(header: string, message: string) {

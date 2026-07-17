@@ -12,10 +12,15 @@ export interface User {
   emailVerified: boolean;
   phoneVerified: boolean;
   prefNotifications?: number;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  villeResidence?: string;
+  quartier?: string;
   prefLanguage?: string;
   prefDarkMode?: number;
   createdAt: string;
   updatedAt: string;
+  agent?: any[]
 }
 
 export interface UserProfile extends User {

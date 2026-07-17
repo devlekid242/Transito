@@ -170,6 +170,14 @@ export const routes: Routes = [
         (m) => m.PaymentHistoryPage,
       ),
   },
+  {
+    path: 'change-password',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/client-side/change-password/change-password.page').then(
+        (m) => m.ChangePasswordPage,
+      ),
+  },
 
   // ========== PARTNER SECONDARY ROUTES ==========
   {

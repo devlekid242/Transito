@@ -13,17 +13,17 @@ ion-content {
 
 /* Ombres douces haut de gamme pour les cartes épurées */
 .soft-shadow {
-  box-shadow: 0 12px 34px -10px rgba(15, 23, 42, 0.04), 
+  box-shadow: 0 12px 34px -10px rgba(15, 23, 42, 0.04),
               0 4px 12px -4px rgba(15, 23, 42, 0.02);
 }
 
 /* Micro-animations d'interaction au toucher */
 article {
   will-change: transform, border-color, box-shadow;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-              border-color 0.2s ease, 
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s ease,
               box-shadow 0.2s ease;
-  
+
   &:active {
     transform: scale(0.985);
     box-shadow: 0 4px 12px -4px rgba(15, 23, 42, 0.02);
@@ -53,5 +53,168 @@ article {
   letter-spacing: -0.01em;
   span.animate-spin {
     border-top-color: transparent;
+  }
+}
+
+/* =====================================================================
+   PANNEAU DE FILTRES AVANCÉS (bottom-sheet)
+   ===================================================================== */
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-sheet-up {
+  animation: sheetUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.label-heading {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+  padding-left: 2px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-on-surface-variant);
+  }
+
+  &__input {
+    background: var(--color-surface-container-low);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 0.75rem;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    }
+  }
+}
+
+.swap-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
+  transition: transform 0.15s ease;
+  z-index: 1;
+
+  &:active {
+    transform: translateY(-50%) scale(0.9);
+  }
+}
+
+.stepper-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &:hover {
+    background: var(--color-surface-container);
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--color-surface-container-low);
+  transition: all 0.2s ease;
+
+  &--active {
+    border-color: var(--color-primary);
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--color-primary);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.agency-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 0.75rem;
+  background: var(--color-surface-container-low);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &--active {
+    border-color: var(--color-primary);
+    background: rgba(5, 150, 105, 0.06);
+  }
+
+  &__icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 0.6rem;
+    background: var(--color-surface-container);
+    color: var(--color-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    flex-shrink: 0;
   }
 }

@@ -1,3 +1,74 @@
 :host {
   display: block;
 }
+
+ion-content {
+  --background: var(--color-background);
+}
+
+/* Animations d'apparition */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pulse {
+  animation: pulse-subtle 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ==========================================================
+   Gestion de l'impression système (Filtres PDF)
+   ========================================================== */
+@media print {
+  // Disparition complète de l'interface Ionic
+  ion-header,
+  ion-footer,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  ion-content {
+    --overflow: visible;
+    position: static !important;
+  }
+
+  body,
+  ion-app,
+  ion-content,
+  main {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main {
+    max-width: 100% !important;
+  }
+
+  #printArea {
+    display: block !important;
+  }
+
+  .print-ticket {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 16px !important;
+    page-break-after: avoid;
+    break-after: avoid;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 450px;
+  }
+}

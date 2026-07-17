@@ -37,10 +37,17 @@
           <i class="fa-solid fa-lock absolute left-4 text-outline text-base"></i>
           <input
             [(ngModel)]="password"
-            type="password"
+            [type]="showPassword ? 'text' : 'password'"
             placeholder="••••••••"
             class="w-full bg-surface-container-lowest border border-outline-variant rounded-2xl pl-12 pr-4 py-4 text-on-surface placeholder:text-outline/60 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
           />
+          <button 
+            type="button"
+            (click)="showPassword = !showPassword"
+            class="absolute right-4 text-on-surface-variant/50 hover:text-on-surface transition-colors"
+          >
+            <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
         </div>
       </div>
 

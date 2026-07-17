@@ -155,7 +155,7 @@
         </section>
 
         <!-- Section Contact d'urgence (nouveau, conforme à User.php) -->
-        <section class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20">
+        <section *ngIf="!isAgent" class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20">
           <h2 class="text-sm font-headline-sm font-extrabold text-on-surface mb-4 flex items-center gap-2 tracking-tight">
             <i class="fa-solid fa-user-shield text-secondary text-sm"></i>
             Contact d'urgence

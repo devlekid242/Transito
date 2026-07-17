@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <div class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full border-b border-surface-variant/40">
-    <span class="font-sans text-lg font-bold text-secondary tracking-tight">Votre Billet</span>
+    <span class="font-sans text-lg font-bold text-secondary tracking-tight">QrCode</span>
     <button
       (click)="close()"
       class="text-secondary hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full"
@@ -11,146 +11,25 @@
 </ion-header>
 
 <ion-content class="bg-background">
-  <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-24">
-    <main class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto">
-      <!-- Skeleton loader -->
+  <div class="w-full bg-surface min-h-screen mx-auto pt-24">
+
       <div *ngIf="isLoading" class="flex flex-col gap-stack-lg py-2">
         <section class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant flex flex-col items-center">
           <div class="h-5 w-36 bg-surface-container rounded animate-pulse mb-4"></div>
           <div class="w-64 h-64 bg-surface-container rounded-xl animate-pulse mb-4"></div>
           <div class="h-3 w-48 bg-surface-container rounded animate-pulse"></div>
         </section>
-
-        <section class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant">
-          <div class="h-5 w-32 bg-surface-container rounded animate-pulse mb-4"></div>
-          <div class="space-y-4">
-            <div class="h-14 bg-surface-container rounded-xl animate-pulse"></div>
-            <div class="h-14 bg-surface-container rounded-xl animate-pulse"></div>
-            <div class="h-14 bg-surface-container rounded-xl animate-pulse"></div>
-          </div>
-        </section>
-
-        <section class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant">
-          <div class="h-5 w-28 bg-surface-container rounded animate-pulse mb-4"></div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="h-16 bg-surface-container rounded-xl animate-pulse"></div>
-            <div class="h-16 bg-surface-container rounded-xl animate-pulse"></div>
-            <div class="h-16 bg-surface-container rounded-xl animate-pulse"></div>
-            <div class="h-16 bg-surface-container rounded-xl animate-pulse"></div>
-          </div>
-        </section>
       </div>
 
       <!-- QR Code Section -->
-      <div *ngIf="!isLoading && ticketDetails" class="flex flex-col gap-stack-md">
+      <div *ngIf="!isLoading && ticketDetails" class="flex flex-col justify-center items-center gap-stack-lg py-2">
         <!-- Code QR -->
-        <section class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant flex flex-col items-center">
-          <h2 class="text-lg font-bold text-on-surface mb-4">Code d'embarquement</h2>
-          <div class="bg-white p-4 rounded-lg shadow-md mb-4">
-            <img
-              [src]="qrCodeUrl"
-              alt="QR Code"
-              class="w-64 h-64"
-            />
-          </div>
+            <div
+              class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-3"
+            >
+              <img [src]="qrCodeUrl" alt="QR Code" class="w-74 h-74" />
+            </div>
           <p class="text-sm text-on-surface-variant text-center">Présentez ce code à l'embarquement</p>
-        </section>
-
-        <!-- Détails du trajet -->
-        <section class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant">
-          <h3 class="text-lg font-bold text-on-surface mb-4">Détails du trajet</h3>
-
-          <div class="space-y-4">
-            <!-- Départ -->
-            <div class="flex items-start gap-3">
-              <span class="material-symbols-outlined text-primary text-2xl">location_on</span>
-              <div>
-                <p class="text-xs text-on-surface-variant font-semibold">Départ</p>
-                <p class="text-base font-bold text-on-surface">{{ ticketDetails.departureCity }}</p>
-                <p class="text-xs text-on-surface-variant">{{ ticketDetails.departureTime }}</p>
-              </div>
-            </div>
-
-            <!-- Durée -->
-            <div class="flex items-center gap-3 text-on-surface-variant">
-              <div class="flex-1 border-t border-surface-variant"></div>
-              <span class="text-xs font-semibold">{{ ticketDetails.duration }}</span>
-              <div class="flex-1 border-t border-surface-variant"></div>
-            </div>
-
-            <!-- Arrivée -->
-            <div class="flex items-start gap-3">
-              <span class="material-symbols-outlined text-primary text-2xl">location_on</span>
-              <div>
-                <p class="text-xs text-on-surface-variant font-semibold">Arrivée</p>
-                <p class="text-base font-bold text-on-surface">{{ ticketDetails.arrivalCity }}</p>
-                <p class="text-xs text-on-surface-variant">{{ ticketDetails.arrivalTime }}</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Informations passager -->
-        <section class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant">
-          <h3 class="text-lg font-bold text-on-surface mb-4">Informations</h3>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-xs text-on-surface-variant font-semibold mb-1">Passager</p>
-              <p class="text-base font-bold text-on-surface">{{ ticketDetails.passengerName }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-on-surface-variant font-semibold mb-1">Numéro de siège</p>
-              <p class="text-base font-bold text-on-surface">{{ ticketDetails.seatNumber }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-on-surface-variant font-semibold mb-1">Référence</p>
-              <p class="text-base font-bold text-on-surface">{{ bookingId }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-on-surface-variant font-semibold mb-1">Date de voyage</p>
-              <p class="text-base font-bold text-on-surface">{{ ticketDetails.travelDate }}</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Boutons d'action -->
-        <section class="flex flex-col gap-3">
-          <button
-            (click)="downloadQr()"
-            class="w-full bg-primary text-on-primary font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity active-scale flex items-center justify-center gap-2"
-          >
-            <span class="material-symbols-outlined">download</span>
-            Télécharger le billet
-          </button>
-
-          <button
-            (click)="printQr()"
-            class="w-full bg-surface-container text-on-surface font-semibold py-3 rounded-lg hover:bg-surface-container-high transition-colors active-scale border border-surface-variant flex items-center justify-center gap-2"
-          >
-            <span class="material-symbols-outlined">print</span>
-            Imprimer le billet
-          </button>
-
-          <button
-            (click)="close()"
-            class="w-full bg-surface-container text-on-surface font-semibold py-3 rounded-lg hover:bg-surface-container-high transition-colors active-scale border border-surface-variant"
-          >
-            Fermer
-          </button>
-        </section>
-
-        <!-- Info de sécurité -->
-        <section class="bg-secondary-container rounded-lg p-4 flex gap-3">
-          <span class="material-symbols-outlined text-secondary flex-shrink-0">security</span>
-          <div class="text-sm text-on-surface">
-            <p class="font-semibold mb-1">Important:</p>
-            <p class="text-xs text-on-surface-variant">
-              Gardez ce code en sécurité. Il vous sera demandé à l'embarquement. Vous pouvez le présenter depuis ce téléphone ou l'imprimer.
-            </p>
-          </div>
-        </section>
       </div>
-    </main>
   </div>
 </ion-content>

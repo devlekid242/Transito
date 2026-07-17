@@ -7,6 +7,8 @@ import { PartnerPermissionService } from '../../../services/partner-permission.s
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
+import { AuthService } from '../../../services/auth.service';
+
 
 interface Booking {
   id: number;
@@ -93,11 +95,16 @@ export class DashboardPage implements OnInit {
   // Liste dynamique des réservations récentes (chargée depuis API)
   recentBookings: Booking[] = [];
 
+  userName: any;
+
   constructor(
     private permissionService: PartnerPermissionService,
     private navCtrl: NavController,
     private apiService: PartnerApiService,
-  ) {}
+    private AuthService: AuthService
+  ) {
+    this.userName = this.AuthService.getUser()?.fullName || 'Agent';
+  }
 
   ngOnInit() {
     this.loadPermissions();
@@ -108,7 +115,7 @@ export class DashboardPage implements OnInit {
   // Période de filtrage: 'day' | 'week' | '6months' | 'year' | 'month'
   filterPeriod: 'day' | 'week' | '6months' | 'year' | 'month' = 'month';
 
-  onPeriodChange(period: 'day' | 'week' | '6months' | 'year' | 'month') {
+  onPeriodChange(period: any) {
     this.filterPeriod = period;
     this.loadDashboardData();
   }
@@ -285,6 +292,14 @@ export class DashboardPage implements OnInit {
     console.log('Affichage de toutes les réservations...');
   }
 
+  viewTicketDetails(bookingId: number) {
+    const booking = this.recentBookings.find((b) => b.id === bookingId);
+    if (booking) {
+      this.navCtrl.navigateForward(`/ticket/${bookingId}`, {
+        state: { booking },
+      });
+    }
+  }
   /**
    * Génère les initiales d'un nom
    */

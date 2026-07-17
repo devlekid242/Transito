@@ -18,7 +18,7 @@ export class PartnerHeaderComponent {
     this.navCtrl.pop();
   }
 
-  openMenu(): void {
-    this.menuClicked.emit();
+  openNotifications(): void {
+    this.navCtrl.navigateForward('/notifications');
   }
 }

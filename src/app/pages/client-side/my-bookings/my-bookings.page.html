@@ -337,11 +337,19 @@
             >
               <div class="flex justify-between items-start">
                 <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-circle-check text-primary text-sm"></i>
+                  @if(history.status === 'Confirmé'){
+                    <i class="fa-solid fa-circle-check text-primary text-sm"></i>
+                  }
+                  @if(history.status === 'Expiré'){
+                    <i class="fa-solid fa-clock text-warning text-sm"></i>
+                  }
+                  @if(history.status === 'Annulé'){
+                    <i class="fa-solid fa-clock text-warning text-sm"></i>
+                  }
                   <span
                     class="text-[10px] font-black text-on-surface-variant/70 uppercase tracking-wider"
                   >
-                    Terminé • {{ history.trip?.departureDate ||
+                    {{history.status}} • {{ history.trip?.departureDate ||
                     history.bookingDate | date: 'dd/MM/yyyy' }}
                   </span>
                 </div>

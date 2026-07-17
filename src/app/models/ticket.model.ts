@@ -4,6 +4,7 @@ export interface Ticket {
   reservationId: number;
   ticketNumber: string;
   passengerName: string;
+  passengerPhone?: string;
   tripNumber: string;
   departureCity: string;
   arrivalCity: string;

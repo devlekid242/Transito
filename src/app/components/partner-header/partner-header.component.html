@@ -6,8 +6,15 @@
     <h1 class="text-base font-bold text-on-primary flex-1 text-center">
       {{ title }}
     </h1>
-    <button (click)="openMenu()" class="p-2 -mr-2 text-on-primary hover:bg-surface-variant rounded-full flex items-center justify-center transition-colors">
-      <span class="material-symbols-outlined">more_vert</span>
+    <button
+      (click)="openNotifications()"
+      aria-label="Notifications"
+      class="hover:bg-white/15 text-white transition-all duration-200 p-2.5 rounded-xl flex items-center justify-center active:scale-95 bg-white/5 backdrop-blur-sm relative border border-white/10"
+    >
+      <i class="fa-solid fa-bell text-base"></i>
+      <span
+        class="absolute top-2.5 right-2.5 w-2 h-2 bg-amber-400 rounded-full ring-2 ring-primary animate-pulse"
+      ></span>
     </button>
   </div>
 </ion-header>

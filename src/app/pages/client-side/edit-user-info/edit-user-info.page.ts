@@ -30,6 +30,8 @@ export class EditUserInfoPage implements OnInit {
   isLoading = false;
   isSaving = false;
 
+  isAgent = false;
+
   constructor(
     private navCtrl: NavController,
     private userService: UserService,
@@ -73,11 +75,14 @@ export class EditUserInfoPage implements OnInit {
           fullName: user.fullName,
           email: user.email || '',
           phoneNumber: user.phoneNumber,
-          villeResidence: (user as any).villeResidence || '',
-          quartier: (user as any).quartier || '',
-          emergencyContactName: (user as any).emergencyContactName || '',
-          emergencyContactPhone: (user as any).emergencyContactPhone || '',
+          villeResidence: user.villeResidence || '',
+          quartier: user.quartier || '',
+          emergencyContactName: user.emergencyContactName || '',
+          emergencyContactPhone: user.emergencyContactPhone || '',
         });
+
+        this.isAgent = user?.agent?.length > 0;
+        
         this.isLoading = false;
       },
       error: async (err) => {
@@ -91,6 +96,8 @@ export class EditUserInfoPage implements OnInit {
       },
     });
   }
+
+
 
   async saveChanges() {
     if (this.userForm.invalid) {

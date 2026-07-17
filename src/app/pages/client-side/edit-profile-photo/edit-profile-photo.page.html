@@ -23,7 +23,7 @@
         <div class="flex justify-center mb-6">
           <div class="w-48 h-48 rounded-full overflow-hidden border-4 border-primary shadow-lg">
             <img
-              [src]="previewPhoto"
+              [src]="previewPhoto || '/assets/images/default-avatar.png'"
               alt="Aperçu de la photo"
               class="w-full h-full object-cover"
             />

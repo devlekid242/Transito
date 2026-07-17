@@ -2,7 +2,7 @@
   <div
     class="bg-surface-container-lowest px-5 py-3.5 shadow-sm max-w-[480px] mx-auto sticky top-0 z-40 border-b border-outline-variant/20"
   >
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-3">
       <button
         (click)="goBack()"
         aria-label="Retour"
@@ -35,18 +35,43 @@
             ><i
               class="fa-solid fa-user text-[10px] mr-1 text-on-surface-variant/50"
             ></i
-            >{{ searchSummary.passengersCount }} Passager</span
+            >{{ searchSummary.passengersCount }} Passager{{ searchSummary.passengersCount > 1 ? 's' : '' }}</span
           >
         </div>
       </div>
 
       <button
         (click)="modifySearch()"
-        aria-label="Modifier"
-        class="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors text-primary active:scale-95 border border-outline-variant/10"
+        aria-label="Filtrer"
+        class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors text-primary active:scale-95 border border-outline-variant/10"
       >
         <i class="fa-solid fa-sliders text-sm"></i>
+        <span
+          *ngIf="advancedFilterCount > 0"
+          class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-on-primary text-[9px] font-black flex items-center justify-center shadow-sm"
+        >
+          {{ advancedFilterCount }}
+        </span>
       </button>
+    </div>
+
+    <!-- Résumé passager : nom + téléphone -->
+    <div
+      *ngIf="searchSummary.passengerName || searchSummary.passengerPhone"
+      class="flex items-center justify-center gap-2 mb-3 text-[11px] font-semibold text-on-surface-variant/80 bg-surface-container-low/50 rounded-lg py-1.5 px-3 mx-auto w-fit"
+    >
+      <span *ngIf="searchSummary.passengerName" class="flex items-center gap-1.5">
+        <i class="fa-solid fa-id-card text-[10px] text-tertiary"></i>
+        {{ searchSummary.passengerName }}
+      </span>
+      <span
+        *ngIf="searchSummary.passengerName && searchSummary.passengerPhone"
+        class="w-1 h-1 rounded-full bg-outline-variant/60"
+      ></span>
+      <span *ngIf="searchSummary.passengerPhone" class="flex items-center gap-1.5">
+        <i class="fa-solid fa-phone text-[10px] text-tertiary"></i>
+        {{ searchSummary.passengerPhone }}
+      </span>
     </div>
 
     <div class="flex overflow-x-auto no-scrollbar gap-2.5 pb-1">
@@ -73,6 +98,14 @@
       >
         <i class="fa-solid fa-crown text-[11px]"></i>
         <span>Agences VIP</span>
+      </button>
+      <button
+        (click)="modifySearch()"
+        [ngClass]="advancedFilterCount > 0 ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
+        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
+      >
+        <i class="fa-solid fa-filter text-[11px]"></i>
+        <span>Filtres avancés</span>
       </button>
     </div>
   </div>
@@ -210,14 +243,14 @@
           </div>
 
           <span
-            [ngClass]="trip.busType === 'VIP' ? 'bg-amber-500/10 text-amber-700 border-amber-500/20' : 'bg-secondary-container text-on-secondary-container border-outline-variant/30'"
+            [ngClass]="trip.category === 'VIP' ? 'bg-amber-500/10 text-amber-700 border-amber-500/20' : 'bg-secondary-container text-on-secondary-container border-outline-variant/30'"
             class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border tracking-wider"
           >
             <i
               class="fa-solid"
-              [ngClass]="trip.busType === 'VIP' ? 'fa-crown mr-1' : 'fa-bus mr-1'"
+              [ngClass]="trip.category === 'VIP' ? 'fa-crown mr-1' : 'fa-bus mr-1'"
             ></i>
-            {{ trip.busType }}
+            {{ trip.category }}
           </span>
         </div>
 
@@ -315,4 +348,205 @@
       </div>
     </ion-infinite-scroll>
   </main>
+
+  <!-- ============================================================= -->
+  <!-- PANNEAU DE FILTRES AVANCÉS (bottom-sheet) -->
+  <!-- Trajet (départ/arrivée/date), passagers, type de bus, agence, budget -->
+  <!-- ============================================================= -->
+  <div
+    *ngIf="isFilterPanelOpen"
+    class="fixed inset-0 z-[60] flex items-end justify-center"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Filtrer la recherche"
+  >
+    <div
+      class="absolute inset-0 bg-secondary/40 backdrop-blur-[2px]"
+      (click)="closeFilterPanel()"
+    ></div>
+
+    <div
+      class="relative w-full max-w-[480px] bg-surface-container-lowest rounded-t-[2rem] shadow-2xl max-h-[88vh] overflow-y-auto pb-6 animate-sheet-up"
+    >
+      <!-- Poignée + titre -->
+      <div
+        class="sticky top-0 bg-surface-container-lowest pt-3 pb-4 px-5 border-b border-outline-variant/15 z-10"
+      >
+        <div class="w-10 h-1.5 bg-outline-variant/50 rounded-full mx-auto mb-3"></div>
+        <div class="flex items-center justify-between">
+          <h2 class="text-headline-sm text-on-surface">Filtrer la recherche</h2>
+          <button
+            (click)="closeFilterPanel()"
+            aria-label="Fermer"
+            class="w-9 h-9 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform"
+          >
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="px-5 pt-5 flex flex-col gap-6">
+        <!-- Trajet -->
+        <section class="flex flex-col gap-3">
+          <h3 class="label-heading">Trajet</h3>
+          <div class="bento-card rounded-2xl p-4 flex flex-col gap-3 relative">
+            <label class="filter-field">
+              <span class="filter-field__label">
+                <i class="fa-solid fa-circle-dot text-primary text-[10px]"></i>
+                Ville de départ
+              </span>
+              <input
+                [(ngModel)]="filterDraft.departureCity"
+                type="text"
+                class="filter-field__input"
+                placeholder="Ex : Pointe-Noire"
+              />
+            </label>
+
+            <button
+              (click)="swapDepartureArrival()"
+              aria-label="Inverser le départ et l'arrivée"
+              class="swap-btn"
+            >
+              <i class="fa-solid fa-arrow-up-arrow-down"></i>
+            </button>
+
+            <label class="filter-field">
+              <span class="filter-field__label">
+                <i class="fa-solid fa-location-dot text-primary text-[10px]"></i>
+                Ville d'arrivée
+              </span>
+              <input
+                [(ngModel)]="filterDraft.arrivalCity"
+                type="text"
+                class="filter-field__input"
+                placeholder="Ex : Brazzaville"
+              />
+            </label>
+          </div>
+        </section>
+
+        <!-- Date & passagers -->
+        <section class="grid grid-cols-2 gap-3">
+          <div class="bento-card rounded-2xl p-4">
+            <label class="filter-field">
+              <span class="filter-field__label">
+                <i class="fa-solid fa-calendar-day text-primary text-[10px]"></i>
+                Date
+              </span>
+              <input
+                [(ngModel)]="filterDraft.departureDate"
+                type="date"
+                class="filter-field__input"
+              />
+            </label>
+          </div>
+
+          <div class="bento-card rounded-2xl p-4 flex flex-col gap-2">
+            <span class="filter-field__label">
+              <i class="fa-solid fa-user text-primary text-[10px]"></i>
+              Passagers
+            </span>
+            <div class="flex items-center justify-between mt-1">
+              <button
+                (click)="decrementPassengers()"
+                aria-label="Retirer un passager"
+                class="stepper-btn"
+              >
+                −
+              </button>
+              <span class="text-title-lg text-on-surface">{{ filterDraft.passengers }}</span>
+              <button
+                (click)="incrementPassengers()"
+                aria-label="Ajouter un passager"
+                class="stepper-btn"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Type de bus -->
+        <section class="flex flex-col gap-3">
+          <h3 class="label-heading">Type de bus</h3>
+          <div class="flex gap-2.5 flex-wrap">
+            <button
+              *ngFor="let cat of ['VIP','Classique','Standard']"
+              (click)="selectCategoryDraft(cat)"
+              [ngClass]="filterDraft.category === cat ? 'chip chip--active' : 'chip'"
+            >
+              <i class="fa-solid" [ngClass]="cat === 'VIP' ? 'fa-crown' : 'fa-bus'"></i>
+              {{ cat }}
+            </button>
+          </div>
+        </section>
+
+        <!-- Agences -->
+        <section *ngIf="availableAgencies.length" class="flex flex-col gap-3">
+          <h3 class="label-heading">Agence</h3>
+          <div class="flex flex-col gap-2">
+            <label
+              *ngFor="let agency of availableAgencies"
+              [ngClass]="isAgencySelected(agency.name) ? 'agency-row agency-row--active' : 'agency-row'"
+            >
+              <span class="flex items-center gap-2.5 min-w-0">
+                <span class="agency-row__icon">{{ agency.name | slice:0:2 }}</span>
+                <span class="text-sm font-semibold text-on-surface truncate">{{ agency.name }}</span>
+              </span>
+              <span class="flex items-center gap-2 shrink-0">
+                <span class="text-[11px] text-on-surface-variant/70 font-medium whitespace-nowrap"
+                  >{{ agency.count }} trajet{{ agency.count > 1 ? 's' : '' }}</span
+                >
+                <input
+                  type="checkbox"
+                  [checked]="isAgencySelected(agency.name)"
+                  (change)="toggleAgencyDraft(agency.name)"
+                  class="accent-primary w-4 h-4 rounded"
+                />
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Budget maximum -->
+        <section class="flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h3 class="label-heading">Budget maximum</h3>
+            <span class="text-sm font-black text-primary">
+              {{ (filterDraft.maxPrice || priceBounds.max) | number:'1.0-0' }} FCFA
+            </span>
+          </div>
+          <input
+            type="range"
+            [min]="priceBounds.min"
+            [max]="priceBounds.max"
+            [step]="500"
+            [(ngModel)]="filterDraft.maxPrice"
+            class="w-full accent-primary"
+          />
+          <div class="flex justify-between text-[11px] text-on-surface-variant/60 font-semibold">
+            <span>{{ priceBounds.min | number:'1.0-0' }} FCFA</span>
+            <span>{{ priceBounds.max | number:'1.0-0' }} FCFA</span>
+          </div>
+        </section>
+      </div>
+
+      <!-- Actions -->
+      <div class="px-5 pt-6 flex gap-3">
+        <button
+          (click)="resetFilterPanel()"
+          class="flex-1 py-3.5 rounded-xl border border-outline-variant/40 text-on-surface-variant font-bold text-sm active:scale-95 transition-all"
+        >
+          Réinitialiser
+        </button>
+        <button
+          (click)="applyFilterPanel()"
+          class="flex-[1.4] py-3.5 rounded-xl bg-primary text-on-primary font-bold text-sm shadow-sm hover:brightness-110 active:scale-95 transition-all"
+        >
+          Appliquer les filtres
+        </button>
+      </div>
+    </div>
+  </div>
 </ion-content>

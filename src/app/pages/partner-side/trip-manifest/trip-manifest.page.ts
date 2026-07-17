@@ -66,6 +66,8 @@ export class TripManifestPage implements OnInit {
   canViewManifest = false;
   loading: boolean = true;
 
+  title: string = 'Manifeste de voyage';
+
   tripDetails: TripManifest = {
     tripId: 0,
     departure: '',
@@ -114,6 +116,11 @@ export class TripManifestPage implements OnInit {
     const permissions = this.permissionService.getPermissions();
     this.canViewManifest = permissions?.canViewManifest || false;
   }
+
+  openNotifications() {
+    this.navCtrl.navigateForward('/notifications');
+  }
+
 
   private loadManifestData(): void {
     this.loading = true;
@@ -268,6 +275,10 @@ export class TripManifestPage implements OnInit {
     );
   }
 
+  // viewTicketDetails(bookingId: number) {
+  //   this.navCtrl.navigateForward(`/ticket/${bookingId}`);
+  // }
+
   async openPassengerMenu(passenger: Passenger): Promise<void> {
     const actionSheet = await this.actionSheetCtrl.create({
       header: `Actions - ${passenger.name}`,
@@ -276,7 +287,7 @@ export class TripManifestPage implements OnInit {
           text: 'Voir détails',
           icon: 'eye-outline',
           handler: () => {
-            console.log('Affichage des détails du passager:', passenger.name);
+            // this.viewTicketDetails(passenger.bookingId);
           },
         },
         {
@@ -362,6 +373,6 @@ export class TripManifestPage implements OnInit {
   }
 
   goBack(): void {
-    this.navCtrl.pop();
+    this.navCtrl.back();
   }
 }

@@ -266,11 +266,10 @@ export class MyBookingsPage implements OnInit, OnDestroy {
    */
   rebookTrip(history: Reservation) {
     // Naviguer vers la page de recherche avec les mêmes paramètres
-    this.navCtrl.navigateForward('/search-results', {
-      state: {
+    this.navCtrl.navigateForward(['/search-results'], {
+      queryParams: {
         departure: history.trip?.departureCity,
         arrival: history.trip?.arrivalCity,
-        date: history.trip?.departureDate,
       },
     });
   }

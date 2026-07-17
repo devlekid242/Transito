@@ -22,7 +22,10 @@ interface TicketInfo {
   departureDate: string;
   departureTime: string;
   arrivalTime: string;
+  passengerName?: string;
+  passengerPhone?: string;
   seatNumber: string;
+  qrCode?: string;
   ticketClass: string;
   price: number;
   status: string;
@@ -46,6 +49,9 @@ export class TicketDetailPage implements OnInit {
     departureDate: '',
     departureTime: '',
     arrivalTime: '',
+    passengerName: '',
+    passengerPhone: '',
+    qrCode: '',
     seatNumber: 'N/A',
     ticketClass: 'Standard',
     price: 0,
@@ -53,6 +59,7 @@ export class TicketDetailPage implements OnInit {
     canCancel: false,
   };
   isLoading = true;
+  qrCodeUrl: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -80,6 +87,7 @@ export class TicketDetailPage implements OnInit {
     this.ticketService.getTicket(itemId).subscribe({
       next: (ticket) => {
         this.mapTicket(ticket);
+        this.qrCodeUrl = this.buildQrCodeUrl(String(this.ticket.qrCode));
         this.isLoading = false;
       },
       error: async () => {
@@ -110,10 +118,19 @@ export class TicketDetailPage implements OnInit {
       origin: ticket.departureCity,
       destination: ticket.arrivalCity,
       departureDate: ticket.departureDate,
-      departureTime: new Date(ticket.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      arrivalTime: new Date(ticket.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      departureTime: new Date(ticket.departureTime).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      arrivalTime: new Date(ticket.arrivalTime).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
       seatNumber: ticket.seatNumber,
       ticketClass: ticket.status,
+      qrCode: ticket.qrCode,
+      passengerName: ticket.passengerName || '',
+      passengerPhone: ticket.passengerPhone || '',
       price: ticket.price || 0,
       status: ticket.status,
       canCancel: this.checkCancellationEligibility(
@@ -134,6 +151,8 @@ export class TicketDetailPage implements OnInit {
       departureTime: booking.trip?.departureTime || '',
       arrivalTime: booking.trip?.arrivalTime || '',
       seatNumber: booking.seatNumber || 'N/A',
+      passengerName: booking.passengerName || '',
+      passengerPhone: booking.passengerPhone || '',
       ticketClass: booking.trip?.pricePerSeat ? 'Standard' : 'Standard',
       price: booking.totalPrice || 0,
       status: booking.status || 'Confirmé',
@@ -201,6 +220,11 @@ export class TicketDetailPage implements OnInit {
 
   goBack() {
     this.navCtrl.back();
+  }
+
+  // À insérer dans votre classe TicketDetailPage
+  printTicket() {
+    window.print();
   }
 
   private async showAlert(header: string, message: string) {

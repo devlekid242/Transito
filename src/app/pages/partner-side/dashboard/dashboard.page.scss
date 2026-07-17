@@ -1,13 +1,61 @@
-// Styles spécifiques au Tableau de bord Partenaire
-
-:host {
-  --background: var(--color-background);
-}
-
 ion-content {
   --background: var(--color-background);
 }
 
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+// ===== UTILS =====
+.scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// ===== INTERACTIVE CARD EFFECTS =====
+div[class*="bg-surface-container-lowest"] {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ===== INTERACTIVE BUTTON EFFECTS =====
+button {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+// ===== SEQUENTIAL SECTIONS ANIMATIONS =====
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+section {
+  opacity: 0;
+  animation: slideInUp 0.45s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.12s; }
+  &:nth-child(3) { animation-delay: 0.19s; }
+  &:nth-child(4) { animation-delay: 0.26s; }
+  &:nth-child(5) { animation-delay: 0.33s; }
 }

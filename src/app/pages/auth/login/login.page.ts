@@ -16,6 +16,7 @@ export class LoginPage {
   password = '';
   error = '';
   loading = false;
+  showPassword = false;
 
   constructor(
     private authService: AuthService,

@@ -91,8 +91,8 @@ export class UserProfilePage implements OnInit {
 
 
 
-  managePaymentMethods() {
-    this.navCtrl.navigateForward('/manage-payment-methods');
+  managePassword() {
+    this.navCtrl.navigateForward('/change-password');
   }
 
   editProfilePhoto() {

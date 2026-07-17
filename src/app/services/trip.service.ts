@@ -41,6 +41,17 @@ export class TripService {
       .pipe(unwrapCollection<Trip, TripResponse>(false));
   }
 
+  /** 
+   * Obtenir tout les trajete disponible a venir 
+   */
+
+  getUncomingTrips(): Observable<Trip[]> {
+    return this.http
+      .get<any>(`${this.apiUrl}/uncoming`)
+      .pipe(unwrapCollection<Trip>());
+  }
+
+
   /**
    * Obtenir les détails d'un trajet
    */

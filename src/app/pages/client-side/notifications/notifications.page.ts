@@ -23,6 +23,8 @@ export class NotificationsPage implements OnInit {
   notifications: Notification[] = [];
   isLoading = false;
 
+  isMarkingAllRead: boolean = false;
+
   constructor(
     private navCtrl: NavController,
     private notificationService: NotificationService,
@@ -61,12 +63,17 @@ export class NotificationsPage implements OnInit {
 
   // Marquer toutes les notifications comme lues
   markAllAsRead() {
+    this.isMarkingAllRead = true;
+
     this.notifications = this.notifications.map((notification) => ({
       ...notification,
       isRead: true,
     }));
     this.notificationService.markAllAsRead().subscribe({
       error: (err) => console.error('Erreur marquer tout lu :', err),
+      complete: () => {
+        this.isMarkingAllRead = false;
+      }
     });
   }
 
@@ -75,11 +82,16 @@ export class NotificationsPage implements OnInit {
       return;
     }
 
+    this.isMarkingAllRead = true;
+
     notification.isRead = true;
     this.notificationService.markAsRead(notification.id).subscribe({
       error: (err) => {
         console.error(`Erreur marquer notification ${notification.id} lue :`, err);
       },
+      complete: () => {
+        this.isMarkingAllRead = false;
+      }
     });
   }
 

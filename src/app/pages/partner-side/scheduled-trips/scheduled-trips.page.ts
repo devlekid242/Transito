@@ -87,7 +87,7 @@ export class ScheduledTripsPage implements OnInit {
           departureTime: trip.departureTimeOfDay || '08:00',
           arrivalTime: trip.arrivalTimeOfDay,
           occupiedSeats: trip.seatsReserved,
-          totalSeats: trip.totalSeats || 50,
+          totalSeats: trip.maxSeats || 50,
         }));
         console.log('Trajets chargés:', this.trips);
         this.applyTabFilter(this.activeFilter);
