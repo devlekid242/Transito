@@ -8,7 +8,7 @@ import { PartnerPermissionService } from '../../../services/partner-permission.s
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
-
+import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-partner-profile',
   templateUrl: './partner-profile.page.html',
@@ -119,7 +119,7 @@ export class PartnerProfilePage implements OnInit {
           emailVerified: profile.emailVerified || false,
           phoneNumber: profile.phoneNumber || '',
           phoneVerified: profile.phoneVerified || false,
-          profilePhotoUrl: profile.profilePhotoUrl || null,
+          profilePhotoUrl: profile.profilePhotoUrl ? environment.baseApiUrl + profile.profilePhotoUrl : null,
           quartier: profile.quartier || '',
           villeResidence: profile.villeResidence || '',
           role: profile.role || '',
@@ -192,7 +192,7 @@ export class PartnerProfilePage implements OnInit {
   }
 
   // Modification de la photo de profil
-  editAvatar() {
+  editProfilePhoto() {
     this.navCtrl.navigateForward('/edit-profile-photo');
   }
 

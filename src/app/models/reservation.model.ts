@@ -17,6 +17,7 @@ export interface Reservation {
     departureTime: string;
     arrivalTime: string;
     departureDate: string;
+    agencyLogo?: string;
     agencyId: number;
     agencyName?: string;
     pricePerSeat: number;

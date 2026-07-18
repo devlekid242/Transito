@@ -120,18 +120,19 @@ export class TicketValidationPage implements OnInit, OnDestroy {
       return;
     }
 
-    const code = qrCode?.trim() || this.qrCodeInput?.trim();
-    if (!code) {
+    const qr = qrCode?.trim() 
+    const ticketCode = this.qrCodeInput?.trim();
+    if (!qr && !ticketCode) {
       this.scanState = 'error';
       this.errorMessage =
         'Veuillez scanner un QR code ou saisir le numéro du billet.';
       return;
     }
 
-    console.log('Validating ticket with code:', code);
+    console.log('Validating ticket with code:', qr || ticketCode);
     this.scanState = 'scanning';
     this.validationSub?.unsubscribe();
-    this.validationSub = this.apiService.validateTicket(code).subscribe({
+    this.validationSub = this.apiService.validateTicket(String(qr), ticketCode).subscribe({
       next: (response: TicketValidationResponse) => {
         if (!response.success) {
           this.scanState = 'error';
@@ -141,7 +142,7 @@ export class TicketValidationPage implements OnInit, OnDestroy {
 
         this.validatedTicket = {
           passengerName: response.passengerName || 'N/A',
-          ticketNumber: response.ticketNumber || code,
+          ticketNumber: response.ticketNumber || ticketCode || 'N/A',
           boardingStatusLabel: this.getBoardingStatusLabel(
             response.boardingStatus,
           ),

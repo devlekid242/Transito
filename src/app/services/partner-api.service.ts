@@ -230,10 +230,10 @@ export class PartnerApiService {
   /**
    * Valide un ticket via QR code
    */
-  validateTicket(qrCode: string): Observable<TicketValidationResponse> {
+  validateTicket(qrCode: string , TicketCode?: string): Observable<TicketValidationResponse> {
     return this.http.post<TicketValidationResponse>(
       `${this.apiUrl}/tickets/validate`,
-      { qrCodeToken: qrCode },
+      { qrCodeToken: qrCode, ticketCode: TicketCode },
     );
   }
 

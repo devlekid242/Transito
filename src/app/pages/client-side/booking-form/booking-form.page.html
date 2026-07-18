@@ -46,7 +46,7 @@
               *ngIf="stepNumber > step"
               class="fa-solid fa-check text-[10px]"
             ></i>
-            <span *ngIf="stepNumber <= step">{{ step }}</span>
+            <span *ngIf="stepNumber <= step ">{{ step }}</span>
           </div>
           <span
             [ngClass]="stepNumber >= step ? 'text-primary font-bold' : 'text-on-surface-variant/50 font-medium'"
@@ -160,7 +160,7 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 gap-3">
                 <div class="relative">
                   <label
                     class="text-[10px] font-bold text-on-surface-variant/70 uppercase tracking-wider block mb-1.5"
@@ -178,7 +178,7 @@
                     />
                   </div>
                 </div>
-                <div class="relative">
+                <!-- <div class="relative">
                   <label
                     class="text-[10px] font-bold text-on-surface-variant/70 uppercase tracking-wider block mb-1.5 flex items-center gap-1"
                   >
@@ -198,7 +198,7 @@
                       class="w-full bg-surface-container-low/50 border border-outline-variant/30 rounded-xl pl-8 pr-3 py-3.5 text-sm font-semibold text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                     />
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>

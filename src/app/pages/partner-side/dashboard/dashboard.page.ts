@@ -18,7 +18,7 @@ interface Booking {
   destination: string;
   timeLabel: string;
   price: number;
-  status: 'Payé' | 'En attente';
+  status: 'Payé' | 'En attente' | 'Annulé';
   paymentMethod: string;
   avatarBg: string;
 }
@@ -211,11 +211,14 @@ export class DashboardPage implements OnInit {
           }
 
           // Convertir paymentStatus en status lisible
-          const statusMap: { [key: string]: 'Payé' | 'En attente' } = {
+          const statusMap: { [key: string]: 'Payé' | 'En attente' | 'Annulé' } = {
             paye: 'Payé',
             paid: 'Payé',
             en_attente: 'En attente',
             pending: 'En attente',
+            annule: 'Annulé',
+            cancelled: 'Annulé',
+            rembourse: 'Annulé',
           };
           const displayStatus =
             statusMap[booking.paymentStatus?.toLowerCase()] || 'En attente';

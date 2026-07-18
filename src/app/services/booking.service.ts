@@ -57,7 +57,7 @@ export class BookingService {
   /**
    * Annuler une réservation
    */
-  cancelBooking(bookingId: number, reason: string): Observable<any> {
+  cancelBooking(bookingId: number, reason?: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/${bookingId}/cancel`, { reason });
   }
 

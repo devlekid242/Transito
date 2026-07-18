@@ -14,6 +14,8 @@ import { Reservation } from '../../../models';
 import { BookingService } from '../../../services';
 import { QrTicketModalComponent } from '../../../components/qr-ticket-modal/qr-ticket-modal.component';
 
+export type BookingFilterType = 'all' | 'active' | 'past' | 'cancelled';
+
 @Component({
   selector: 'app-my-bookings',
   templateUrl: './my-bookings.page.html',
@@ -26,6 +28,7 @@ export class MyBookingsPage implements OnInit, OnDestroy {
   bookings: Reservation[] = [];
   activeBookings: Reservation[] = [];
   pastBookings: Reservation[] = [];
+  cancelledBookings: Reservation[] = [];
 
   // Billet actif (pour affichage détail)
   activeTicket: any[] = [];
@@ -33,9 +36,16 @@ export class MyBookingsPage implements OnInit, OnDestroy {
   // Historique des réservations
   bookingHistory: Reservation[] = [];
 
-  // Filtrage
-  filterType: 'all' | 'active' | 'past' = 'all';
+  // Filtrage par segment (onglets)
+  filterType: BookingFilterType = 'all';
   displayedBookings: Reservation[] = [];
+
+  readonly tabs: { value: BookingFilterType; label: string; icon: string }[] = [
+    { value: 'all', label: 'Tous', icon: 'fa-layer-group' },
+    { value: 'active', label: 'En cours', icon: 'fa-bus' },
+    { value: 'past', label: 'Passés', icon: 'fa-clock-rotate-left' },
+    { value: 'cancelled', label: 'Annulés', icon: 'fa-ban' },
+  ];
 
   // État modales
   isQrModalOpen = false;
@@ -73,7 +83,7 @@ export class MyBookingsPage implements OnInit, OnDestroy {
       .getUserBookings()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (bookings) => {
+        next: (bookings : Reservation[]) => {
           this.bookings = bookings;
           this.separateBookings();
           this.bookingHistory = this.pastBookings;
@@ -93,23 +103,33 @@ export class MyBookingsPage implements OnInit, OnDestroy {
   }
 
   /**
-   * Séparer les réservations actives et passées
+   * Séparer les réservations par segment : en cours, passées, annulées.
+   * Le statut renvoyé par l'API (`Confirmé` | `En attente` | `Annulé` | `Expiré`)
+   * fait foi — une réservation annulée reste dans le segment "Annulés" même si
+   * sa date de voyage est encore à venir ou déjà passée.
    */
   private separateBookings() {
     const now = new Date();
+
+    this.cancelledBookings = this.bookings.filter(
+      (b) => b.status === 'Annulé',
+    );
+
     this.activeBookings = this.bookings.filter(
-      (b) => new Date(b.bookingDate) > now,
+      (b) => b.status !== 'Annulé' && new Date(b.bookingDate) > now,
     );
+
     this.pastBookings = this.bookings.filter(
-      (b) => new Date(b.bookingDate) <= now,
+      (b) => b.status !== 'Annulé' && new Date(b.bookingDate) <= now,
     );
+
     this.applyFilter(this.filterType);
   }
 
   /**
-   * Appliquer le filtre
+   * Appliquer le filtre de segment (onglet actif)
    */
-  applyFilter(type: 'all' | 'active' | 'past') {
+  applyFilter(type: BookingFilterType) {
     this.filterType = type;
 
     switch (type) {
@@ -119,15 +139,63 @@ export class MyBookingsPage implements OnInit, OnDestroy {
       case 'past':
         this.displayedBookings = this.pastBookings;
         break;
+      case 'cancelled':
+        this.displayedBookings = this.cancelledBookings;
+        break;
       default:
         this.displayedBookings = this.bookings;
     }
   }
 
+  // Compteurs utilisés dans les badges des onglets
+  get allCount(): number {
+    return this.bookings.length;
+  }
+
+  get activeCount(): number {
+    return this.activeBookings.length;
+  }
+
+  get pastCount(): number {
+    return this.pastBookings.length;
+  }
+
+  get cancelledCount(): number {
+    return this.cancelledBookings.length;
+  }
+
+  getTabCount(type: BookingFilterType): number {
+    switch (type) {
+      case 'active':
+        return this.activeCount;
+      case 'past':
+        return this.pastCount;
+      case 'cancelled':
+        return this.cancelledCount;
+      default:
+        return this.allCount;
+    }
+  }
+
+  /** Un billet annulé n'a plus ni détail, ni QR, ni possibilité d'être scanné. */
+  isCancelled(booking: Reservation): boolean {
+    return booking?.status === 'Annulé';
+  }
+
+  /** Le voyage n'a pas encore eu lieu — utilisé pour choisir la carte "billet actif" vs carte compacte. */
+  isUpcoming(booking: Reservation): boolean {
+    return !!booking?.bookingDate && new Date(booking.bookingDate) > new Date();
+  }
+
   /**
-   * Voir les détails d'une réservation
+   * Voir les détails d'une réservation.
+   * Verrouillé pour les réservations annulées : aucune page de détail n'est
+   * exposée pour un billet devenu invalide.
    */
   viewDetails(booking: Reservation) {
+    if (this.isCancelled(booking)) {
+      return;
+    }
     this.navCtrl.navigateForward(`/ticket/${booking.id}`, {
       state: { booking },
     });
@@ -137,9 +205,15 @@ export class MyBookingsPage implements OnInit, OnDestroy {
    * Annuler une réservation
    */
   async cancelBooking(booking: Reservation) {
+    if (this.isCancelled(booking)) {
+      await this.showAlert('Information', 'Cette réservation a déjà été annulée.');
+      return;
+    }
+
     const alert = await this.alertCtrl.create({
       header: 'Annuler la réservation',
-      message: 'Êtes-vous sûr de vouloir annuler cette réservation ?',
+      message:
+        'Êtes-vous sûr de vouloir annuler cette réservation ? Le remboursement sera traité par notre équipe.',
       buttons: [
         {
           text: 'Non',
@@ -166,12 +240,19 @@ export class MyBookingsPage implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: async () => {
-          await this.showAlert('Succès', 'Réservation annulée');
+          await this.showAlert(
+            'Succès',
+            'Réservation annulée. Le remboursement est en cours de traitement.',
+          );
           this.loadBookings();
         },
         error: async (err) => {
           console.error('Erreur annulation:', err);
-          await this.showAlert('Erreur', "Erreur lors de l'annulation");
+          const message =
+            err?.error?.error ||
+            err?.error?.message ||
+            "Erreur lors de l'annulation";
+          await this.showAlert('Erreur', message);
         },
       });
   }
@@ -213,10 +294,21 @@ export class MyBookingsPage implements OnInit, OnDestroy {
   }
 
   /**
-   * Ouvrir la modale QR code avec les données déjà disponibles
+   * Ouvrir la modale QR code avec les données déjà disponibles.
+   * Verrouillé pour les réservations annulées : un billet annulé n'est plus
+   * scannable, la modale QR ne doit donc jamais s'ouvrir pour lui.
    */
   async openQrModal(bookingId: number | string) {
     const booking = this.bookings.find((item) => item.id === Number(bookingId));
+
+    if (booking && this.isCancelled(booking)) {
+      await this.showAlert(
+        'Billet annulé',
+        'Ce billet a été annulé et ne peut plus être scanné.',
+      );
+      return;
+    }
+
     const qrValue = booking?.id ? `booking-${booking.id}` : String(bookingId);
     const modal = await this.modalCtrl.create({
       component: QrTicketModalComponent,
@@ -250,14 +342,13 @@ export class MyBookingsPage implements OnInit, OnDestroy {
   }
 
   /**
-   * Voir les détails d'un billet
+   * Voir les détails d'un billet.
+   * Verrouillé pour les réservations annulées (cf. viewDetails()).
    */
   viewTicketDetails(bookingId: number) {
     const booking = this.bookings.find((b) => b.id === bookingId);
     if (booking) {
-      this.navCtrl.navigateForward(`/ticket/${bookingId}`, {
-        state: { booking },
-      });
+      this.viewDetails(booking);
     }
   }
 

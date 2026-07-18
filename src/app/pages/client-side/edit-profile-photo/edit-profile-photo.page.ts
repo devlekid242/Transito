@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, LoadingController, AlertController, ToastController } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-edit-profile-photo',
@@ -32,7 +33,7 @@ export class EditProfilePhotoPage implements OnInit {
   private loadCurrentPhoto() {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
-        this.currentPhoto = user.profileImage || '/assets/images/default-avatar.png';
+        this.currentPhoto = user.profilePhotoUrl ? environment.baseApiUrl + user.profilePhotoUrl : '/assets/images/default-avatar.png';
         this.previewPhoto = this.currentPhoto;
       },
       error: (err) => {

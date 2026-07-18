@@ -61,15 +61,15 @@ export class EditUserInfoPage implements OnInit {
       quartier: ['', [Validators.required]],
 
       // Contact d'urgence (NotBlank côté entité)
-      emergencyContactName: ['', [Validators.required]],
-      emergencyContactPhone: ['', [Validators.required, Validators.minLength(10)]],
+      emergencyContactName: [''],
+      emergencyContactPhone: ['', [Validators.minLength(10)]],
     });
   }
 
   private async loadUserData() {
     this.isLoading = true;
     this.userService.getCurrentUser().subscribe({
-      next: (user) => {
+      next: (user : any) => {
         this.currentUser = user;
         this.userForm.patchValue({
           fullName: user.fullName,
@@ -81,9 +81,12 @@ export class EditUserInfoPage implements OnInit {
           emergencyContactPhone: user.emergencyContactPhone || '',
         });
 
-        this.isAgent = user?.agent?.length > 0;
+        
         
         this.isLoading = false;
+
+        this.isAgent =  user?.agent == undefined;
+        // console.log(user?.agent == undefined);
       },
       error: async (err) => {
         

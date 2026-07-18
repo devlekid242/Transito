@@ -173,7 +173,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
         {
           fullName: this.currentUser.fullName || '',
           phoneNumber: this.currentUser.phoneNumber || '',
-          identityNumber: (this.currentUser as any).identityNumber || '', // CNI mapping
+          // identityNumber: (this.currentUser as any).identityNumber || '', // CNI mapping
           isMainPassenger: true,
           email: this.currentUser.email || '',
         },
@@ -187,7 +187,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
     this.passengers.push({
       fullName: '',
       phoneNumber: '',
-      identityNumber: '',
+      // identityNumber: '',
       isMainPassenger: false,
       email: '',
     });
@@ -222,7 +222,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
   async processPayment() {
     // Validations strictes
     const invalidPassenger = this.passengers.find(
-      (p) => !p.fullName || !p.phoneNumber || !p.identityNumber,
+      (p) => !p.fullName || !p.phoneNumber,
     );
     if (invalidPassenger) {
       await this.showAlert(

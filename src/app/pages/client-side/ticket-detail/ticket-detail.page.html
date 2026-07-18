@@ -49,9 +49,62 @@
       </section>
     </div>
 
-    <!-- ===================== CONTENU PRINCIPAL ===================== -->
+    <!-- ===================== BILLET ANNULÉ : ÉTAT VERROUILLÉ ===================== -->
+    <!-- Aucun QR code, aucune impression, aucun bouton de scan/embarquement :   -->
+    <!-- ce billet est définitivement invalide, seul son statut est consultable. -->
     <div
-      *ngIf="!isLoading"
+      *ngIf="!isLoading && isCancelled"
+      class="flex flex-col items-center text-center gap-4 py-14 px-2 animate-[fadeIn_0.5s_ease-out]"
+    >
+      <div class="w-16 h-16 rounded-full bg-red-50 border border-red-200/60 flex items-center justify-center text-red-500">
+        <i class="fa-solid fa-ban text-2xl"></i>
+      </div>
+      <div>
+        <h2 class="text-lg font-black text-on-surface">Billet annulé</h2>
+        <p class="text-sm text-on-surface-variant mt-1.5 max-w-[300px] leading-relaxed">
+          Ce billet a été annulé et n'est plus valide : il ne peut plus être scanné,
+          imprimé ni utilisé pour l'embarquement. Le remboursement est en cours de
+          traitement par notre équipe.
+        </p>
+      </div>
+
+      <div class="w-full bg-surface-container-lowest rounded-2xl border border-surface-variant p-4 text-left mt-2">
+        <div class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60">
+          <span class="text-on-surface-variant">Référence</span>
+          <span class="font-bold text-on-surface font-mono">{{ ticket.ticketNumber }}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60">
+          <span class="text-on-surface-variant">Trajet</span>
+          <span class="font-bold text-on-surface text-right">{{ ticket.origin }} → {{ ticket.destination }}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60">
+          <span class="text-on-surface-variant">Passager</span>
+          <span class="font-bold text-on-surface text-right">{{ ticket.passengerName || 'N/A' }}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm py-1.5">
+          <span class="text-on-surface-variant">Montant à rembourser</span>
+          <span class="font-bold text-primary">{{ ticket.price | number:'1.0-0' }} FCFA</span>
+        </div>
+      </div>
+
+      <div
+        class="w-full rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-xs px-4 py-3 flex items-center gap-2 text-left"
+      >
+        <i class="fa-solid fa-hourglass-half"></i>
+        <span>Remboursement en cours de traitement — vous serez notifié dès sa confirmation.</span>
+      </div>
+
+      <button
+        (click)="goBack()"
+        class="w-full bg-secondary text-on-secondary font-bold py-3.5 rounded-2xl shadow-md active:scale-[0.98] transition-all mt-2"
+      >
+        Retour à mes réservations
+      </button>
+    </div>
+
+    <!-- ===================== CONTENU PRINCIPAL (billet valide) ===================== -->
+    <div
+      *ngIf="!isLoading && !isCancelled"
       class="flex flex-col gap-6 animate-[fadeIn_0.5s_ease-out]"
     >
       <!-- Boutons d'actions rapides (Masqués à l'impression) -->
@@ -164,9 +217,10 @@
                 >
               </div>
             </div>
-
+            
+            
             <!-- Horaires -->
-            <div class="grid grid-cols-2 gap-4 mb-4 p-3 bg-slate-50 rounded-xl">
+            <div class="grid grid-cols-2 gap-4 mb-6 p-3 bg-slate-50 rounded-xl">
               <div>
                 <span
                   class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block"
@@ -189,7 +243,7 @@
 
             <!-- Bloc Financier Vert -->
             <div
-              class="grid grid-cols-2 gap-4 p-3 bg-green-50 rounded-xl border-l-4 border-green-500"
+              class="grid grid-cols-2 gap-4 p-3 bg-green-50 mb-6 rounded-xl border-l-4 border-green-500"
             >
               <div>
                 <span
@@ -207,6 +261,19 @@
                 >
                 <span class="text-sm font-black text-green-600"
                   >{{ ticket.price | number:'1.0-0' }} FCFA</span
+                >
+              </div>
+            </div>
+
+            <!-- Trajet Départ / Arrivée -->
+            <div class="grid grid-cols-1 gap-4 mb-6">
+              <div>
+                <span
+                  class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5"
+                  >Date et heure de creation</span
+                >
+                <span class="text-base font-black text-slate-800"
+                  >{{ ticket.createdAt }}</span
                 >
               </div>
             </div>
@@ -244,17 +311,17 @@
         class="rounded-2xl bg-secondary-container/10 border border-secondary-container text-secondary p-4 text-xs leading-relaxed no-print"
       >
         Annulation possible uniquement 24h avant l’embarquement. Si le voyage
-        est dans moins de 24h, l’annulation ne pourra pas être traitée[cite: 6].
+        est dans moins de 24h, l’annulation ne pourra pas être traitée
       </div>
 
       <!-- Section Actions d'annulation (Masquée à l'impression) -->
       <div class="p-stack-md no-print">
         <button
           (click)="cancelReservation()"
-          [disabled]="!ticket.canCancel"
-          class="w-full bg-error text-on-error font-bold py-4 rounded-2xl shadow-md transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          [disabled]="!ticket.canCancel || isCancelling"
+          class="w-full bg-secondary text-on-secondary font-bold py-4 rounded-2xl shadow-md transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Annuler la réservation
+          {{ isCancelling ? 'Annulation en cours...' : 'Annuler la réservation' }}
         </button>
       </div>
     </div>

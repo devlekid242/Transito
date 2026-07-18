@@ -163,199 +163,235 @@
 
       <!-- ===================== CONTENU ===================== -->
       <ng-container *ngIf="!isLoading">
-        <!-- Section du Billet Actif (QR Code embarquement) -->
-        <section
-          *ngIf="activeTicket.length > 0"
-          class="flex flex-col gap-stack-sm"
+        <!-- Onglets segmentés : Tous / En cours / Passés / Annulés -->
+        <div
+          *ngIf="!noBookings"
+          class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1"
         >
-          <div class="flex justify-between items-end px-1">
-            <h3
-              class="font-headline-sm text-white font-extrabold text-white tracking-tight"
-            >
-              Billet actif
-            </h3>
-            <span
-              class="text-[9px] font-black uppercase tracking-wider text-white bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1"
-            >
-              <i class="fa-solid fa-clock text-[9px]"></i>
-              Départ imminent
-            </span>
-          </div>
-
-          <div
-            *ngFor="let ticket of activeTicket" 
-            class="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] overflow-hidden soft-shadow relative"
+          <button
+            *ngFor="let tab of tabs"
+            (click)="applyFilter(tab.value)"
+            [ngClass]="filterType === tab.value
+              ? 'bg-primary text-on-primary border-primary shadow-sm'
+              : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant/30'"
+            class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold whitespace-nowrap transition-all active:scale-95"
           >
-            <!-- En-tête Billet -->
-            <div
-              class="p-5 border-b border-surface-variant/40 flex justify-between items-center"
+            <i class="fa-solid text-[11px]" [ngClass]="tab.icon"></i>
+            <span>{{ tab.label }}</span>
+            <span
+              [ngClass]="filterType === tab.value ? 'bg-white/20 text-on-primary' : 'bg-surface-container text-on-surface-variant'"
+              class="text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
             >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center overflow-hidden border border-outline-variant/10 shadow-inner"
-                >
-                  <img
-                    *ngIf="ticket?.trip?.agencyLogo"
-                    [src]="ticket?.trip?.agencyLogo"
-                    alt="Logo"
-                    class="w-full h-full object-cover"
-                  />
-                  <i
-                    *ngIf="!ticket?.trip?.agencyLogo"
-                    class="fa-solid fa-bus text-secondary text-base"
-                  ></i>
-                </div>
-                <div>
-                  <p class="font-bold text-sm text-on-surface tracking-tight">
-                    {{ ticket?.trip?.agencyName }}
-                  </p>
-                  <p
-                    class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider"
-                  >
-                    {{ ticket.classType }} • Siège {{ ticket.seatNumber }}
-                  </p>
-                </div>
-              </div>
-              <div class="text-right">
-                <p
-                  class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider"
-                >
-                  Date
-                </p>
-                <p class="font-bold text-xs text-on-surface">
-                  {{ ticket?.trip?.departureDate | date: 'dd/MM/yyyy' }}
-                </p>
-              </div>
-            </div>
+              {{ getTabCount(tab.value) }}
+            </span>
+          </button>
+        </div>
 
-            <!-- Détails de l'itinéraire -->
+        <!-- État vide global (aucune réservation du tout) -->
+        <div
+          *ngIf="noBookings"
+          class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest rounded-[2rem] p-6 border border-dashed border-outline-variant"
+        >
+          <div
+            class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant/40 mb-3 shadow-inner"
+          >
+            <i class="fa-solid fa-ticket text-2xl"></i>
+          </div>
+          <p class="text-on-surface font-bold text-sm">Aucune réservation</p>
+          <p class="text-on-surface-variant/60 text-xs mt-1 max-w-[280px]">
+            Vos billets réservés apparaîtront ici.
+          </p>
+        </div>
+
+        <!-- État vide pour l'onglet sélectionné -->
+        <div
+          *ngIf="!noBookings && displayedBookings.length === 0"
+          class="flex flex-col items-center justify-center py-12 text-center bg-surface-container-lowest rounded-[2rem] p-6 border border-dashed border-outline-variant"
+        >
+          <div
+            class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant/40 mb-3 shadow-inner"
+          >
+            <i
+              class="fa-solid text-2xl"
+              [ngClass]="filterType === 'cancelled' ? 'fa-ban' : (filterType === 'active' ? 'fa-bus' : 'fa-clock-rotate-left')"
+            ></i>
+          </div>
+          <p class="text-on-surface font-bold text-sm">
+            {{ filterType === 'cancelled' ? 'Aucun billet annulé' : (filterType === 'active' ? 'Aucun voyage en cours' : 'Aucun trajet passé') }}
+          </p>
+          <p class="text-on-surface-variant/60 text-xs mt-1 max-w-[280px]">
+            {{ filterType === 'cancelled' ? "Les réservations que vous annulez s'affichent ici." : "Vos billets apparaîtront ici dès qu'ils correspondront à ce filtre." }}
+          </p>
+        </div>
+
+        <!-- Liste unifiée, filtrée par onglet -->
+        <div
+          *ngIf="displayedBookings.length > 0"
+          class="flex flex-col gap-stack-md"
+        >
+          <ng-container *ngFor="let booking of displayedBookings">
+            <!-- ============ CARTE "BILLET ACTIF" (voyage à venir, non annulé) ============ -->
             <div
-              class="p-5 flex justify-between items-center bg-surface-container-low/40"
+              *ngIf="!isCancelled(booking) && isUpcoming(booking)"
+              class="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] overflow-hidden soft-shadow relative"
             >
-              <div class="flex flex-col gap-0.5 w-1/3">
-                <span class="font-title-lg font-black text-base text-on-surface"
-                  >{{ ticket?.trip?.departureTime | date:'HH:mm' }}</span
-                >
-                <span
-                  class="text-[11px] font-semibold text-on-surface-variant/70"
-                  >{{ ticket?.trip?.departureCity }}</span
-                >
-              </div>
-
+              <!-- En-tête Billet -->
               <div
-                class="flex-1 flex flex-col items-center justify-center relative mx-2"
+                class="p-5 border-b border-surface-variant/40 flex justify-between items-center"
               >
-                <div
-                  class="w-full border-t-2 border-dashed border-outline-variant/60"
-                ></div>
-                <div
-                  class="absolute bg-surface-container-lowest px-2.5 py-1 rounded-full border border-outline-variant/30 shadow-sm"
-                >
-                  <i class="fa-solid fa-arrow-right text-primary text-xs"></i>
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-0.5 w-1/3 text-right">
-                <span class="font-title-lg font-black text-base text-on-surface"
-                  >{{ ticket?.trip?.arrivalTime | date:'HH:mm' }}</span
-                >
-                <span
-                  class="text-[11px] font-semibold text-on-surface-variant/70"
-                  >{{ ticket?.trip?.arrivalCity }}</span
-                >
-              </div>
-            </div>
-
-            <!-- Section d'accès au QR Code -->
-            <div
-              class="p-5 bg-surface-container-low/60 flex items-center justify-between border-t border-surface-variant/40"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-12 h-12 bg-surface-container-lowest rounded-xl shadow-sm flex items-center justify-center border border-outline-variant/20"
-                >
+                <div class="flex items-center gap-3">
                   <div
-                    class="w-full h-full qr-gradient rounded-lg flex items-center justify-center"
+                    class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center overflow-hidden border border-outline-variant/10 shadow-inner"
                   >
-                    <i class="fa-solid fa-qrcode text-on-primary text-lg"></i>
+                    <img
+                      *ngIf="booking?.trip?.agencyLogo"
+                      [src]="booking?.trip?.agencyLogo || '/assets/images/default-agency-logo.png'"
+                      alt="Logo"
+                      class="w-full h-full object-cover"
+                    />
+                    <i
+                      *ngIf="!booking?.trip?.agencyLogo"
+                      class="fa-solid fa-bus text-secondary text-base"
+                    ></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-sm text-on-surface tracking-tight">
+                      {{ booking?.trip?.agencyName }}
+                    </p>
+                    <p
+                      class="text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider"
+                    >
+                      Siège {{ booking.seatNumber }}
+                    </p>
                   </div>
                 </div>
-                <p
-                  class="text-[11px] font-semibold text-on-surface-variant/70 leading-tight"
-                >
-                  Scanner pour <br />
-                  embarquer
-                </p>
+                <div class="text-right">
+                  <p
+                    class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider"
+                  >
+                    Date
+                  </p>
+                  <p class="font-bold text-xs text-on-surface">
+                    {{ booking?.trip?.departureDate | date: 'dd/MM/yyyy' }}
+                  </p>
+                </div>
               </div>
-              <div class="flex items-center gap-2">
-                <button
-                  (click)="openQrModal(ticket.id)"
-                  class="qr-gradient text-on-primary font-bold text-xs px-4 py-2.5 rounded-xl shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
+
+              <!-- Détails de l'itinéraire -->
+              <div
+                class="p-5 flex justify-between items-center bg-surface-container-low/40"
+              >
+                <div class="flex flex-col gap-0.5 w-1/3">
+                  <span class="font-title-lg font-black text-base text-on-surface"
+                    >{{ booking?.trip?.departureTime | date:'HH:mm' }}</span
+                  >
+                  <span
+                    class="text-[11px] font-semibold text-on-surface-variant/70"
+                    >{{ booking?.trip?.departureCity }}</span
+                  >
+                </div>
+
+                <div
+                  class="flex-1 flex flex-col items-center justify-center relative mx-2"
                 >
-                  <i class="fa-solid fa-qrcode text-[13px]"></i>
-                  <span>Voir QR</span>
-                </button>
-                <button
-                  (click)="viewTicketDetails(ticket.id)"
-                  class="bg-surface-container-lowest border border-outline-variant/30 text-primary font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:bg-surface-container-low transition-colors active:scale-95"
-                >
-                  Détails
-                </button>
+                  <div
+                    class="w-full border-t-2 border-dashed border-outline-variant/60"
+                  ></div>
+                  <div
+                    class="absolute bg-surface-container-lowest px-2.5 py-1 rounded-full border border-outline-variant/30 shadow-sm"
+                  >
+                    <i class="fa-solid fa-arrow-right text-primary text-xs"></i>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-0.5 w-1/3 text-right">
+                  <span class="font-title-lg font-black text-base text-on-surface"
+                    >{{ booking?.trip?.arrivalTime | date:'HH:mm' }}</span
+                  >
+                  <span
+                    class="text-[11px] font-semibold text-on-surface-variant/70"
+                    >{{ booking?.trip?.arrivalCity }}</span
+                  >
+                </div>
               </div>
+
+              <!-- Section d'accès au QR Code -->
+              <div
+                class="p-5 bg-surface-container-low/60 flex items-center justify-between border-t border-surface-variant/40"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 bg-surface-container-lowest rounded-xl shadow-sm flex items-center justify-center border border-outline-variant/20"
+                  >
+                    <div
+                      class="w-full h-full qr-gradient rounded-lg flex items-center justify-center"
+                    >
+                      <i class="fa-solid fa-qrcode text-on-primary text-lg"></i>
+                    </div>
+                  </div>
+                  <p
+                    class="text-[11px] font-semibold text-on-surface-variant/70 leading-tight"
+                  >
+                    Scanner pour <br />
+                    embarquer
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    (click)="openQrModal(booking.id)"
+                    class="qr-gradient text-on-primary font-bold text-xs px-4 py-2.5 rounded-xl shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
+                  >
+                    <i class="fa-solid fa-qrcode text-[13px]"></i>
+                    <span>Voir QR</span>
+                  </button>
+                  <button
+                    (click)="viewDetails(booking)"
+                    class="bg-surface-container-lowest border border-outline-variant/30 text-primary font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:bg-surface-container-low transition-colors active:scale-95"
+                  >
+                    Détails
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bouton d'annulation rapide -->
+              <!-- <div class="px-5 pb-5 -mt-1">
+                <button
+                  (click)="cancelBooking(booking)"
+                  class="w-full text-center text-[11px] font-bold text-red-600 hover:text-red-700 py-2 rounded-xl transition-colors"
+                >
+                  Annuler cette réservation
+                </button>
+              </div> -->
             </div>
-          </div>
-        </section>
 
-        <!-- Historique des anciens billets -->
-        <section class="flex flex-col gap-stack-md">
-          <h3
-            class="font-headline-sm text-base font-extrabold text-on-surface tracking-tight px-1"
-          >
-            Historique
-          </h3>
-
-          <!-- État vide -->
-          <div
-            *ngIf="!bookingHistory || bookingHistory.length === 0"
-            class="flex flex-col items-center justify-center py-12 text-center bg-surface-container-lowest rounded-[2rem] p-6 border border-dashed border-outline-variant"
-          >
+            <!-- ============ CARTE COMPACTE (passé / expiré / annulé) ============ -->
             <div
-              class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant/40 mb-3 shadow-inner"
-            >
-              <i class="fa-solid fa-ticket text-2xl"></i>
-            </div>
-            <p class="text-on-surface font-bold text-sm">Aucun trajet passé</p>
-            <p class="text-on-surface-variant/60 text-xs mt-1 max-w-[280px]">
-              Vos billets terminés apparaîtront ici après votre premier voyage.
-            </p>
-          </div>
-
-          <div class="flex flex-col gap-4">
-            <div
-              *ngFor="let history of bookingHistory"
-              class="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] p-5 soft-shadow hover:border-primary/20 active:scale-[0.99] transition-all flex flex-col gap-3"
+              *ngIf="isCancelled(booking) || !isUpcoming(booking)"
+              [ngClass]="isCancelled(booking) ? 'border-red-200/50 bg-surface-container-lowest' : 'border-outline-variant/20 bg-surface-container-lowest'"
+              class="border rounded-[2rem] p-5 soft-shadow hover:border-primary/20 active:scale-[0.99] transition-all flex flex-col gap-3"
             >
               <div class="flex justify-between items-start">
                 <div class="flex items-center gap-2">
-                  @if(history.status === 'Confirmé'){
+                  @if(booking.status === 'Confirmé'){
                     <i class="fa-solid fa-circle-check text-primary text-sm"></i>
                   }
-                  @if(history.status === 'Expiré'){
-                    <i class="fa-solid fa-clock text-warning text-sm"></i>
+                  @if(booking.status === 'Expiré'){
+                    <i class="fa-solid fa-clock-rotate-left text-amber-500 text-sm"></i>
                   }
-                  @if(history.status === 'Annulé'){
-                    <i class="fa-solid fa-clock text-warning text-sm"></i>
+                  @if(booking.status === 'Annulé'){
+                    <i class="fa-solid fa-ban text-red-500 text-sm"></i>
                   }
                   <span
-                    class="text-[10px] font-black text-on-surface-variant/70 uppercase tracking-wider"
+                    [ngClass]="isCancelled(booking) ? 'text-red-600' : 'text-on-surface-variant/70'"
+                    class="text-[10px] font-black uppercase tracking-wider"
                   >
-                    {{history.status}} • {{ history.trip?.departureDate ||
-                    history.bookingDate | date: 'dd/MM/yyyy' }}
+                    {{ booking.status }} • {{ booking.trip?.departureDate ||
+                    booking.bookingDate | date: 'dd/MM/yyyy' }}
                   </span>
                 </div>
                 <div class="flex items-baseline gap-1">
                   <span class="font-price-lg font-black text-base text-primary"
-                    >{{ history.totalPrice | number:'1.0-0' }}</span
+                    >{{ booking.totalPrice | number:'1.0-0' }}</span
                   >
                   <span
                     class="text-[10px] font-bold text-on-surface-variant/60 uppercase"
@@ -375,29 +411,40 @@
                   </div>
                   <div>
                     <p class="font-bold text-sm text-on-surface tracking-tight">
-                      {{ history.trip?.agencyName || 'Agence' }}
+                      {{ booking.trip?.agencyName || 'Agence' }}
                     </p>
                     <p
                       class="text-[11px] font-semibold text-on-surface-variant/70 flex items-center gap-1"
                     >
-                      {{ history.trip?.departureCity || '-' }}
+                      {{ booking.trip?.departureCity || '-' }}
                       <i
                         class="fa-solid fa-arrow-right-long text-[9px] text-outline-variant"
                       ></i>
-                      {{ history.trip?.arrivalCity || '-' }}
+                      {{ booking.trip?.arrivalCity || '-' }}
                     </p>
                   </div>
                 </div>
                 <button
-                  (click)="rebookTrip(history)"
+                  (click)="rebookTrip(booking)"
                   class="text-[11px] font-bold text-primary border border-primary/20 rounded-xl px-4 py-2 bg-primary-container/30 hover:bg-primary-container/50 transition-colors active:scale-95 flex items-center gap-1.5"
                 >
                   <i class="fa-solid fa-rotate-right text-[10px]"></i>
                   Reprendre
                 </button>
               </div>
+
+              <!-- Note de remboursement : uniquement pour les billets annulés.  -->
+              <!-- Pas de QR ni de "Détails" ici : le billet est définitivement  -->
+              <!-- invalide et ne peut plus être consulté ni scanné.             -->
+              <div
+                *ngIf="isCancelled(booking)"
+                class="rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-[11px] px-3.5 py-2.5 flex items-center gap-2"
+              >
+                <i class="fa-solid fa-hourglass-half text-[11px]"></i>
+                <span>Remboursement en cours de traitement par notre équipe.</span>
+              </div>
             </div>
-          </div>
+          </ng-container>
 
           <!-- Infinite Scroll -->
           <ion-infinite-scroll
@@ -410,58 +457,8 @@
             >
             </ion-infinite-scroll-content>
           </ion-infinite-scroll>
-        </section>
+        </div>
       </ng-container>
     </main>
-
-    <!-- Modal d'affichage du QR Code en plein écran -->
-    <!-- <div
-      *ngIf="isQrModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
-    >
-      <div
-        class="absolute inset-0 bg-secondary/30 backdrop-blur-sm"
-        (click)="toggleQrModal(false)"
-      ></div>
-
-      <div
-        class="bg-surface-container-lowest rounded-[2rem] shadow-2xl w-full max-w-sm relative z-10 flex flex-col overflow-hidden animate-[slideUp_0.2s_ease-out] border border-outline-variant/20"
-      >
-        <div
-          class="p-5 border-b border-surface-variant/40 flex justify-between items-center"
-        >
-          <h3 class="font-headline-sm font-extrabold text-base text-on-surface tracking-tight">
-            Votre ticket d'embarquement
-          </h3>
-          <button
-            (click)="toggleQrModal(false)"
-            class="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95 flex items-center"
-          >
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
-        </div>
-
-        <div
-          class="p-6 flex flex-col items-center justify-center gap-4 text-center"
-        >
-          <div
-            class="w-56 h-56 qr-gradient rounded-2xl p-4 shadow-md flex items-center justify-center"
-          >
-            <div
-              class="w-full h-full bg-white rounded-xl flex items-center justify-center p-2"
-            >
-              <i class="fa-solid fa-qrcode text-secondary text-9xl"></i>
-            </div>
-          </div>
-          <p class="font-bold text-sm text-on-surface">
-            Ticket N° TKT-8842
-          </p>
-          <p class="text-xs text-on-surface-variant/70 -mt-2 max-w-[260px]">
-            Présentez ce code QR au contrôleur d'embarquement avant de monter
-            dans le bus.
-          </p>
-        </div>
-      </div>
-    </div> -->
   </div>
 </ion-content>
