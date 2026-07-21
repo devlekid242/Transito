@@ -11,6 +11,8 @@ import {
 import { Router } from '@angular/router';
 import { AgencyService } from '../../../services/agency.service';
 import { Agency } from '../../../models';
+import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
+
 
 interface AgencyCard {
   id: number;
@@ -28,7 +30,7 @@ interface AgencyCard {
   templateUrl: './agencies-list.page.html',
   styleUrls: ['./agencies-list.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, SharedHeaderComponent],
 })
 export class AgenciesListPage implements OnInit {
   searchQuery = '';

@@ -11,13 +11,15 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams, User } from '../../../models';
 import { TripService, UserService } from '../../../services';
+import { PushNotificationService } from '../../../services/PushNotificationService.service';
+import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, SharedHeaderComponent],
 })
 export class HomePage implements OnInit, OnDestroy {
   // Profil Utilisateur
@@ -42,14 +44,15 @@ export class HomePage implements OnInit, OnDestroy {
   currentPage = 1;
   pageSize = 10;
   totalResults = 0;
-
+  hasUnreadNotifications = false;
   private destroy$ = new Subject<void>();
 
   constructor(
     private navCtrl: NavController,
     private tripService: TripService,
     private userService: UserService,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private pushService: PushNotificationService
   ) {}
 
   ngOnInit() {
@@ -190,6 +193,13 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
+  openNotifications() {
+    // Réinitialiser le compteur lors de l'ouverture
+    this.pushService.unreadCount.next(0);
+    
+    this.navCtrl.navigateForward('/notifications');
+  }
+
   /**
    * Router vers le formulaire d'achat / réservation
    */
@@ -197,9 +207,6 @@ export class HomePage implements OnInit, OnDestroy {
     this.navCtrl.navigateForward(`/booking-form/${trip.id}`);
   }
 
-  openNotifications() {
-    this.navCtrl.navigateForward('/notifications');
-  }
 
   viewFavorites() {
     this.navCtrl.navigateForward('/favorite-trips');

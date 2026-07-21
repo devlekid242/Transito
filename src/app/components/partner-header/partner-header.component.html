@@ -12,7 +12,9 @@
       class="hover:bg-white/15 text-white transition-all duration-200 p-2.5 rounded-xl flex items-center justify-center active:scale-95 bg-white/5 backdrop-blur-sm relative border border-white/10"
     >
       <i class="fa-solid fa-bell text-base"></i>
+      <!-- La pastille ne s'affiche que si hasUnreadNotifications est true -->
       <span
+        *ngIf="hasUnreadNotifications"
         class="absolute top-2.5 right-2.5 w-2 h-2 bg-amber-400 rounded-full ring-2 ring-primary animate-pulse"
       ></span>
     </button>

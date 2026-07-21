@@ -6,22 +6,23 @@ import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models';
 import { environment } from 'src/environments/environment';
+import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.page.html',
   styleUrls: ['./user-profile.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, SharedHeaderComponent],
 })
 export class UserProfilePage implements OnInit {
   user: any = {
-    fullName: 'Jean Dupont',
-    email: 'jean.dupont@example.com',
-    phone: '+237 6XX XX XX XX',
-    identityCard: '123456789',
+    fullName: '',
+    email: '',
+    phone: '',
+    identityCard: '',
     avatar: '',
-    status: 'Passager Premium',
+    status: '',
   };
 
   preferences = {

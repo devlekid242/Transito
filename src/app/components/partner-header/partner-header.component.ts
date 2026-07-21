@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { IonicModule, NavController } from '@ionic/angular';
+import { PushNotificationService } from '../../services/PushNotificationService.service';
+
 
 @Component({
   selector: 'app-partner-header',
@@ -12,13 +14,30 @@ export class PartnerHeaderComponent {
   @Input() title: string = '';
   @Output() menuClicked = new EventEmitter<void>();
 
-  constructor(private navCtrl: NavController) {}
+  
+  hasUnreadNotifications: boolean = false;
+
+  constructor(
+    private navCtrl: NavController,
+    private pushService: PushNotificationService
+
+  ) {}
+
+  ngOnInit() {
+        // Écouter les nouvelles notifications pour l'affichage en temps réel
+    this.pushService.unreadCount.subscribe(count => {
+      this.hasUnreadNotifications = count > 0;
+    });
+  }
 
   goBack(): void {
     this.navCtrl.pop();
   }
 
-  openNotifications(): void {
+  openNotifications() {
+    // Réinitialiser le compteur lors de l'ouverture
+    this.pushService.unreadCount.next(0);
+    
     this.navCtrl.navigateForward('/notifications');
   }
 }

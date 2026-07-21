@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Transito</string>
+    <string name="title_activity_main">Transito</string>
+    <string name="package_name">transito.alwaysdata.net</string>
+    <string name="custom_url_scheme">transito.alwaysdata.net</string>
+</resources>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { PushNotificationService } from '../../services/PushNotificationService.service';
 
 @Component({
   selector: 'app-shared-header',
@@ -18,28 +19,32 @@ export class SharedHeaderComponent implements OnInit {
   @Input() showProfile: boolean = true;
 
   userName: string = '';
-  hasNotifications: boolean = true;
+  hasUnreadNotifications: boolean = false;
   notificationCount: number = 3;
 
   constructor(
     private auth: AuthService,
     private navCtrl: NavController,
     private router: Router,
+    private pushService: PushNotificationService
   ) {}
 
   ngOnInit() {
     const user = this.auth.getUser();
     this.userName = user?.fullName || 'Utilisateur';
+
+        // Écouter les nouvelles notifications pour l'affichage en temps réel
+    this.pushService.unreadCount.subscribe(count => {
+      this.hasUnreadNotifications = count > 0;
+    });
+  }
+  openNotifications() {
+    // Réinitialiser le compteur lors de l'ouverture
+    this.pushService.unreadCount.next(0);
+    
+    this.navCtrl.navigateForward('/notifications');
   }
 
-  openNotifications() {
-    const role = this.auth.getRole();
-    if (role === 'partner') {
-      this.router.navigate(['/partner-notifications']);
-    } else {
-      this.router.navigate(['/notifications']);
-    }
-  }
 
   openProfile() {
     const role = this.auth.getRole();

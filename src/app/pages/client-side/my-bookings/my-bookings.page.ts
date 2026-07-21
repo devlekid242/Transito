@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import {
   IonicModule,
   NavController,
-  LoadingController,
   AlertController,
   ModalController,
 } from '@ionic/angular';
@@ -13,6 +12,8 @@ import { takeUntil } from 'rxjs/operators';
 import { Reservation } from '../../../models';
 import { BookingService } from '../../../services';
 import { QrTicketModalComponent } from '../../../components/qr-ticket-modal/qr-ticket-modal.component';
+import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
+
 
 export type BookingFilterType = 'all' | 'active' | 'past' | 'cancelled';
 
@@ -21,7 +22,7 @@ export type BookingFilterType = 'all' | 'active' | 'past' | 'cancelled';
   templateUrl: './my-bookings.page.html',
   styleUrls: ['./my-bookings.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, SharedHeaderComponent],
 })
 export class MyBookingsPage implements OnInit, OnDestroy {
   // Données
@@ -60,7 +61,6 @@ export class MyBookingsPage implements OnInit, OnDestroy {
   constructor(
     private navCtrl: NavController,
     private bookingService: BookingService,
-    private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private modalCtrl: ModalController,
   ) {}
