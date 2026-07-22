@@ -76,9 +76,20 @@ export interface TicketValidationResponse {
   success: boolean;
   ticketNumber: string;
   passengerName: string;
+  passengerPhone?: string;
   boardingStatus: 'VALID' | 'ALREADY_BOARDED' | 'NOT_FOUND' | 'CANCELLED';
   message: string;
   boardingTime?: string;
+  // Champs enrichis renvoyés par TicketController::mapTicket() côté serveur.
+  origin?: string;
+  destination?: string;
+  agencyName?: string;
+  tripNumber?: string;
+  departureDate?: string;
+  departureTime?: string;
+  seatNumber?: string;
+  busLicensePlate?: string;
+  validatedByAgentName?: string;
 }
 
 export interface ManifestData {
@@ -181,11 +192,15 @@ export class PartnerApiService {
   /**
    * Récupère tous les trajets du partenaire
    */
-  getTrips(status?: 'active' | 'scheduled' | 'completed'): Observable<Trip[]> {
+  getTrips( date?: any, status?: 'active' | 'scheduled' | 'completed'): Observable<Trip[]> {
     let params = new HttpParams();
     if (status) {
       params = params.set('status', status.toUpperCase());
     }
+    if (date) {
+      params = params.set('departure_date', date);
+    }
+    // console.log(date);
     return this.http
       .get<any>(`${this.apiUrl}/trips`, { params })
       .pipe(unwrapCollection<Trip>());

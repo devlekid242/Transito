@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
+import Pusher, { Channel } from 'pusher-js';
 import { Notification } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
 import { environment } from '../../environments/environment';
-
 
 @Injectable({
   providedIn: 'root',
@@ -14,8 +14,73 @@ export class NotificationService {
   private notificationsSubject = new BehaviorSubject<Notification[]>([]);
   public notifications$ = this.notificationsSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  private pusher: Pusher | null = null;
+  private channel: Channel | null = null;
+  // Identifie la connexion active (utilisateur + token). Sert de garde
+  // anti-doublon : voir connectRealtime() ci-dessous.
+  private activeConnectionKey: string | null = null;
+
+  constructor(private http: HttpClient) {}
+
+  /**
+   * Ouvre la connexion Pusher et s'abonne au canal privé de l'utilisateur
+   * (`private-user-{id}`). À appeler juste après un login réussi, ou au
+   * boot si un token valide est déjà en mémoire (voir AuthService).
+   *
+   * L'authentification du canal passe par PusherAuthController côté API
+   * (`/api/pusher/auth`), qui vérifie que le JWT correspond bien au canal
+   * demandé.
+   *
+   * ⚠️ Idempotent par design : si cette méthode est appelée deux fois de
+   * suite pour le même (userId, token) — par exemple parce que deux endroits
+   * du code déclenchent la connexion au démarrage — le second appel est
+   * ignoré au lieu de couper la connexion WebSocket du premier appel avant la
+   * fin de son handshake (c'est cette situation qui provoquait l'erreur
+   * "WebSocket is closed before the connection is established").
+   * Un appel avec un token différent (ex: après refreshAccessToken) force en
+   * revanche une reconnexion propre.
+   */
+  connectRealtime(userId: number, token: string): void {
+    const key = `${userId}:${token}`;
+    if (this.pusher && this.activeConnectionKey === key) {
+      return; // déjà connecté (ou en cours de connexion) avec ces identifiants
+    }
+
+    this.disconnectRealtime();
+    this.activeConnectionKey = key;
+
     this.loadNotifications();
+
+    this.pusher = new Pusher(environment.pusher.key, {
+      cluster: environment.pusher.cluster,
+      authEndpoint: `${environment.apiUrl}/pusher/auth`,
+      auth: {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    });
+
+    this.channel = this.pusher.subscribe(`private-user-${userId}`);
+
+    this.channel.bind('new-notification', (payload: Notification) => {
+      this.addLocalNotification(payload);
+    });
+
+    this.channel.bind('pusher:subscription_error', (status: unknown) => {
+      console.error('Échec de la souscription au canal Pusher', status);
+    });
+  }
+
+  /** À appeler au logout pour ne plus écouter le canal de l'utilisateur déconnecté. */
+  disconnectRealtime(): void {
+    if (this.channel) {
+      this.channel.unbind_all();
+      this.channel = null;
+    }
+    if (this.pusher) {
+      this.pusher.disconnect();
+      this.pusher = null;
+    }
+    this.activeConnectionKey = null;
   }
 
   /**

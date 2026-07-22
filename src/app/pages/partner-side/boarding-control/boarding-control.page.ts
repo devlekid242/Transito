@@ -80,7 +80,9 @@ export class BoardingControlPage implements OnInit {
     this.loading = true;
     this.loadingTrips = true;
     this.errorMessage = '';
-    this.apiService.getTrips().subscribe(
+    const date = new Date().toLocaleDateString('fr-FR', {});
+    // console.log(date);
+    this.apiService.getTrips(date).subscribe(
       (trips) => {
         this.trips = trips || [];
         if (this.trips.length > 0) {

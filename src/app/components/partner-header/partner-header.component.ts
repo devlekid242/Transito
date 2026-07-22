@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { IonicModule, NavController } from '@ionic/angular';
-import { PushNotificationService } from '../../services/PushNotificationService.service';
+import { NotificationService } from '../../services/notification.service';
 
 
 @Component({
@@ -19,15 +19,15 @@ export class PartnerHeaderComponent {
 
   constructor(
     private navCtrl: NavController,
-    private pushService: PushNotificationService
+    private pushService: NotificationService
 
   ) {}
 
   ngOnInit() {
         // Écouter les nouvelles notifications pour l'affichage en temps réel
-    this.pushService.unreadCount.subscribe(count => {
-      this.hasUnreadNotifications = count > 0;
-    });
+    // const notifs = this.pushService.getUnreadNotifications();
+
+    // this.hasUnreadNotifications = notifs > 0;
   }
 
   goBack(): void {
@@ -36,7 +36,7 @@ export class PartnerHeaderComponent {
 
   openNotifications() {
     // Réinitialiser le compteur lors de l'ouverture
-    this.pushService.unreadCount.next(0);
+    // this.pushService.unreadCount.next(0);
     
     this.navCtrl.navigateForward('/notifications');
   }

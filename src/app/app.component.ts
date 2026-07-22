@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Platform } from '@ionic/angular';
-import { PushNotificationService } from './services/PushNotificationService.service';
+import { NativePushService } from './services/NativePushService.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -9,16 +10,28 @@ import { PushNotificationService } from './services/PushNotificationService.serv
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  
   constructor(
     private platform: Platform,
-    private pushService: PushNotificationService
+    private nativePush: NativePushService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
     this.platform.ready().then(() => {
-      // Activé globalement au démarrage de l'app !
-      this.pushService.initPush();
+      // NB : la connexion Pusher (NotificationService.connectRealtime) n'est
+      // PLUS déclenchée ici. Elle est entièrement pilotée par AuthService
+      // (constructeur pour une session déjà stockée au boot, applyAuthResponse
+      // pour un login, refreshAccessToken, logout). L'appeler aussi ici créait
+      // une double connexion quasi simultanée : le second appel coupait
+      // (disconnectRealtime) la connexion WebSocket du premier avant la fin de
+      // son handshake → "WebSocket is closed before the connection is
+      // established" dans la console.
+      //
+      // Seul le push natif (Capacitor/FCM) reste initialisé ici, car il doit
+      // attendre platform.ready() pour que le pont natif soit disponible.
+      if (this.authService.isAuthenticated()) {
+        this.nativePush.init();
+      }
     });
   }
 }

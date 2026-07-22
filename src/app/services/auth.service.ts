@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core'; // 👈 Ajouter Injector
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { PartnerPermissionService } from './partner-permission.service';
+import { NativePushService } from './NativePushService.service';
+import { NotificationService } from './notification.service';
 
 export interface UserProfile {
   id: number;
@@ -49,9 +51,27 @@ export class AuthService {
   constructor(
     private router: Router,
     private http: HttpClient,
-    private partnerPermission: PartnerPermissionService
+    private partnerPermission: PartnerPermissionService,
+    private injector: Injector, // 👈 Utiliser Injector pour récupérer les services de notif
   ) {
     this.loadFromStorage();
+
+    // ⚠️ On ne fait plus l'appel directement ici de manière synchrone
+    // setTimeout/queueMicrotask permet d'attendre la fin de l'instanciation d'AuthService
+    if (this.isAuthenticated() && this.user) {
+      setTimeout(() => {
+        this.getNotificationService().connectRealtime(this.user!.id, this.token!);
+      }, 0);
+    }
+  }
+
+  // 👈 Helpers pour récupérer NativePushService et NotificationService de manière lazy
+  private getNativePushService(): NativePushService {
+    return this.injector.get(NativePushService);
+  }
+
+  private getNotificationService(): NotificationService {
+    return this.injector.get(NotificationService);
   }
 
   private loadFromStorage() {
@@ -114,7 +134,7 @@ export class AuthService {
     localStorage.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken);
   }
 
-  private applyAuthResponse(response: AuthResponse): void {
+  private async applyAuthResponse(response: AuthResponse): Promise<void> {
     this.persistTokens(response.token, response.refresh_token);
 
     if (!response.user) return;
@@ -135,8 +155,12 @@ export class AuthService {
 
     const partnerRole = response.user.agent?.agentRole;
     if (partnerRole) {
-     this.partnerPermission.setPartnerRole(partnerRole as any);
+      this.partnerPermission.setPartnerRole(partnerRole as any);
     }
+
+    // Utilisation des getters lazy
+    await this.getNativePushService().init();
+    this.getNotificationService().connectRealtime(this.user.id, response.token);
   }
 
   async login(phoneNumber: string, password: string): Promise<boolean> {
@@ -148,7 +172,7 @@ export class AuthService {
         }),
       );
 
-      this.applyAuthResponse(response);
+      await this.applyAuthResponse(response);
       return true;
     } catch {
       return false;
@@ -230,6 +254,9 @@ export class AuthService {
       );
 
       this.persistTokens(response.token, response.refresh_token);
+      if (this.user) {
+        this.getNotificationService().connectRealtime(this.user.id, response.token);
+      }
       return response.token;
     } catch {
       this.logout(false);
@@ -237,7 +264,10 @@ export class AuthService {
     }
   }
 
-  logout(redirect = true) {
+  async logout(redirect = true) {
+    await this.getNativePushService().teardown();
+    this.getNotificationService().disconnectRealtime();
+
     this.token = null;
     this.refreshToken = null;
     this.user = null;
