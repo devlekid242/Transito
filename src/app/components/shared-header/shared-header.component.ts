@@ -1,11 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-// import { PushNotificationService } from '../../services/PushNotificationService.service';
 import { NotificationService } from '../../services/notification.service';
-
 
 @Component({
   selector: 'app-shared-header',
@@ -14,7 +13,7 @@ import { NotificationService } from '../../services/notification.service';
   standalone: true,
   imports: [IonicModule, CommonModule],
 })
-export class SharedHeaderComponent implements OnInit {
+export class SharedHeaderComponent implements OnInit, OnDestroy {
   @Input() title: string = '';
   @Input() showLogo: boolean = true;
   @Input() showNotifications: boolean = true;
@@ -22,31 +21,36 @@ export class SharedHeaderComponent implements OnInit {
 
   userName: string = '';
   hasUnreadNotifications: boolean = false;
-  notificationCount: number = 3;
+
+  private unreadSub?: Subscription;
 
   constructor(
     private auth: AuthService,
     private navCtrl: NavController,
     private router: Router,
-    private pushService: NotificationService
+    private pushService: NotificationService,
   ) {}
 
   ngOnInit() {
     const user = this.auth.getUser();
     this.userName = user?.fullName || 'Utilisateur';
 
-        // Écouter les nouvelles notifications pour l'affichage en temps réel
-    // this.pushService.unreadCount.subscribe(count => {
-    //   this.hasUnreadNotifications = count > 0;
-    // });
-  }
-  openNotifications() {
-    // Réinitialiser le compteur lors de l'ouverture
-    // this.pushService.unreadCount.next(0);
-    
-    this.navCtrl.navigateForward('/notifications');
+    // 👈 CORRIGÉ : c'était commenté avant, donc le badge ne s'allumait
+    // jamais. On s'abonne à unreadCount$ (mis à jour par connectRealtime,
+    // markAsRead, markAllAsRead, deleteNotification, et les évènements
+    // Pusher temps réel côté NotificationService).
+    this.unreadSub = this.pushService.unreadCount$.subscribe((count) => {
+      this.hasUnreadNotifications = count > 0;
+    });
   }
 
+  ngOnDestroy() {
+    this.unreadSub?.unsubscribe();
+  }
+
+  openNotifications() {
+    this.navCtrl.navigateForward('/notifications');
+  }
 
   openProfile() {
     const role = this.auth.getRole();
@@ -56,5 +60,4 @@ export class SharedHeaderComponent implements OnInit {
       this.router.navigate(['/tab/profil']);
     }
   }
-
 }

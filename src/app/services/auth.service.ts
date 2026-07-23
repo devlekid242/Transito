@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@angular/core'; // 👈 Ajouter Injector
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
@@ -13,6 +13,7 @@ export interface UserProfile {
   email: string | null;
   phoneNumber: string;
   role?: string;
+  agencyId?: number | null; // 👈 NOUVEAU : uniquement renseigné pour les comptes partenaire/agent
 }
 
 interface AuthResponse {
@@ -52,26 +53,37 @@ export class AuthService {
     private router: Router,
     private http: HttpClient,
     private partnerPermission: PartnerPermissionService,
-    private injector: Injector, // 👈 Utiliser Injector pour récupérer les services de notif
+    private injector: Injector,
   ) {
     this.loadFromStorage();
 
-    // ⚠️ On ne fait plus l'appel directement ici de manière synchrone
-    // setTimeout/queueMicrotask permet d'attendre la fin de l'instanciation d'AuthService
     if (this.isAuthenticated() && this.user) {
       setTimeout(() => {
         this.getNotificationService().connectRealtime(this.user!.id, this.token!);
+        this.subscribeAgencyChannelIfPartner();
       }, 0);
     }
   }
 
-  // 👈 Helpers pour récupérer NativePushService et NotificationService de manière lazy
   private getNativePushService(): NativePushService {
     return this.injector.get(NativePushService);
   }
 
   private getNotificationService(): NotificationService {
     return this.injector.get(NotificationService);
+  }
+
+  /**
+   * 👈 NOUVEAU : abonne le compte partenaire/agent au canal Pusher de son
+   * agence (`private-agency-{agencyId}`), en plus de son canal personnel.
+   * Sans cet appel, les notifications `agency_all` diffusées par le backend
+   * (NotificationBroadcastService) ne remontent jamais en temps réel dans
+   * l'app partenaire.
+   */
+  private subscribeAgencyChannelIfPartner(): void {
+    if (this.user?.role === 'partner' && this.user.agencyId) {
+      this.getNotificationService().subscribeToAgencyChannel(this.user.agencyId);
+    }
   }
 
   private loadFromStorage() {
@@ -143,12 +155,15 @@ export class AuthService {
       ? 'partner'
       : 'client';
 
+    const agencyId = response.user.agent?.agency?.id ?? null;
+
     this.user = {
       id: response.user.id,
       fullName: response.user.fullName,
       email: response.user.email,
       phoneNumber: response.user.phoneNumber,
       role,
+      agencyId,
     };
     localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(this.user));
     this.setRole(role);
@@ -158,9 +173,9 @@ export class AuthService {
       this.partnerPermission.setPartnerRole(partnerRole as any);
     }
 
-    // Utilisation des getters lazy
     await this.getNativePushService().init();
     this.getNotificationService().connectRealtime(this.user.id, response.token);
+    this.subscribeAgencyChannelIfPartner();
   }
 
   async login(phoneNumber: string, password: string): Promise<boolean> {
@@ -256,6 +271,7 @@ export class AuthService {
       this.persistTokens(response.token, response.refresh_token);
       if (this.user) {
         this.getNotificationService().connectRealtime(this.user.id, response.token);
+        this.subscribeAgencyChannelIfPartner();
       }
       return response.token;
     } catch {

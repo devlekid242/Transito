@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import Pusher, { Channel } from 'pusher-js';
 import { Notification } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
@@ -14,11 +15,15 @@ export class NotificationService {
   private notificationsSubject = new BehaviorSubject<Notification[]>([]);
   public notifications$ = this.notificationsSubject.asObservable();
 
+  // 👈 Exposé pour le badge du header (shared-header.component.ts) :
+  // nombre de notifications non lues, dérivé de notifications$.
+  public unreadCount$ = new BehaviorSubject<number>(0);
+
   private pusher: Pusher | null = null;
-  private channel: Channel | null = null;
-  // Identifie la connexion active (utilisateur + token). Sert de garde
-  // anti-doublon : voir connectRealtime() ci-dessous.
+  private channel: Channel | null = null;          // private-user-{id}
+  private agencyChannel: Channel | null = null;     // private-agency-{agencyId}, agents/partenaires uniquement
   private activeConnectionKey: string | null = null;
+  private activeAgencyId: number | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -27,18 +32,7 @@ export class NotificationService {
    * (`private-user-{id}`). À appeler juste après un login réussi, ou au
    * boot si un token valide est déjà en mémoire (voir AuthService).
    *
-   * L'authentification du canal passe par PusherAuthController côté API
-   * (`/api/pusher/auth`), qui vérifie que le JWT correspond bien au canal
-   * demandé.
-   *
-   * ⚠️ Idempotent par design : si cette méthode est appelée deux fois de
-   * suite pour le même (userId, token) — par exemple parce que deux endroits
-   * du code déclenchent la connexion au démarrage — le second appel est
-   * ignoré au lieu de couper la connexion WebSocket du premier appel avant la
-   * fin de son handshake (c'est cette situation qui provoquait l'erreur
-   * "WebSocket is closed before the connection is established").
-   * Un appel avec un token différent (ex: après refreshAccessToken) force en
-   * revanche une reconnexion propre.
+   * ⚠️ Idempotent par design : voir commentaire d'origine plus bas.
    */
   connectRealtime(userId: number, token: string): void {
     const key = `${userId}:${token}`;
@@ -66,30 +60,76 @@ export class NotificationService {
     });
 
     this.channel.bind('pusher:subscription_error', (status: unknown) => {
-      console.error('Échec de la souscription au canal Pusher', status);
+      console.error('Échec de la souscription au canal Pusher (user)', status);
+    });
+
+    console.log('we are connected to pusher server');
+  }
+
+  /**
+   * 👈 NOUVEAU : à appeler UNIQUEMENT pour les comptes partenaire/agent, juste
+   * après connectRealtime(), quand on connaît l'agencyId de l'agent
+   * (AuthService en dispose via response.user.agent.agency.id).
+   *
+   * S'abonne au canal `private-agency-{agencyId}` sur lequel
+   * NotificationBroadcastService (backend) diffuse les notifications
+   * `agency_all` scopées à CETTE agence (annonces internes, alertes agence,
+   * etc.). Sans cet abonnement, ces notifications ne sont jamais reçues
+   * en temps réel côté app partenaire — seul le push FCM natif les sortirait.
+   */
+  subscribeToAgencyChannel(agencyId: number): void {
+    if (!this.pusher) {
+      console.warn('subscribeToAgencyChannel appelé avant connectRealtime()');
+      return;
+    }
+    if (this.agencyChannel && this.activeAgencyId === agencyId) {
+      return; // déjà abonné à cette agence
+    }
+    if (this.agencyChannel) {
+      this.agencyChannel.unbind_all();
+      this.pusher.unsubscribe(`private-agency-${this.activeAgencyId}`);
+    }
+
+    this.activeAgencyId = agencyId;
+    this.agencyChannel = this.pusher.subscribe(`private-agency-${agencyId}`);
+
+    this.agencyChannel.bind('new-notification', (payload: Notification) => {
+      this.addLocalNotification(payload);
+    });
+
+    this.agencyChannel.bind('pusher:subscription_error', (status: unknown) => {
+      console.error('Échec de la souscription au canal Pusher (agence)', status);
     });
   }
 
-  /** À appeler au logout pour ne plus écouter le canal de l'utilisateur déconnecté. */
+  /** À appeler au logout pour ne plus écouter le(s) canal(aux) de l'utilisateur déconnecté. */
   disconnectRealtime(): void {
     if (this.channel) {
       this.channel.unbind_all();
       this.channel = null;
+    }
+    if (this.agencyChannel) {
+      this.agencyChannel.unbind_all();
+      this.agencyChannel = null;
     }
     if (this.pusher) {
       this.pusher.disconnect();
       this.pusher = null;
     }
     this.activeConnectionKey = null;
+    this.activeAgencyId = null;
+    this.notificationsSubject.next([]);
+    this.unreadCount$.next(0);
   }
 
   /**
    * Charger les notifications
    */
   private loadNotifications(): void {
-    this.getUnreadNotifications().subscribe((notifications) =>
-      this.notificationsSubject.next(notifications),
-    );
+    this.getUnreadNotifications().subscribe((notifications) => {
+      this.notificationsSubject.next(notifications);
+      this.unreadCount$.next(notifications.length);
+    });
   }
 
   /**
@@ -111,38 +151,67 @@ export class NotificationService {
   }
 
   /**
-   * Marquer une notification comme lue
+   * Marquer une notification comme lue.
+   * 👈 CORRIGÉ : met désormais à jour le state local (notifications$ +
+   * unreadCount$) au lieu de laisser la notif "lue" trainer côté front.
    */
   markAsRead(notificationId: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${notificationId}/read`, {});
+    return this.http.patch(`${this.apiUrl}/${notificationId}/read`, {}).pipe(
+      tap(() => {
+        const remaining = this.notificationsSubject.value.filter(
+          (n) => n.id !== notificationId,
+        );
+        this.notificationsSubject.next(remaining);
+        this.unreadCount$.next(remaining.length);
+      }),
+    );
   }
 
   /**
-   * Marquer toutes les notifications comme lues
+   * Marquer toutes les notifications comme lues.
+   * 👈 CORRIGÉ : vide le state local en conséquence.
    */
   markAllAsRead(): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/mark-all-read`, {});
+    return this.http.patch(`${this.apiUrl}/mark-all-read`, {}).pipe(
+      tap(() => {
+        this.notificationsSubject.next([]);
+        this.unreadCount$.next(0);
+      }),
+    );
   }
 
   /**
-   * Supprimer une notification
+   * Supprimer une notification.
+   * 👈 CORRIGÉ : retire l'entrée du state local après succès.
    */
   deleteNotification(notificationId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${notificationId}`);
+    return this.http.delete(`${this.apiUrl}/${notificationId}`).pipe(
+      tap(() => {
+        const remaining = this.notificationsSubject.value.filter(
+          (n) => n.id !== notificationId,
+        );
+        this.notificationsSubject.next(remaining);
+        this.unreadCount$.next(remaining.length);
+      }),
+    );
   }
 
   /**
-   * Obtenir le nombre de notifications non lues
+   * Obtenir le nombre de notifications non lues (depuis l'API, indépendant
+   * du state local — utile pour un premier chargement hors connexion Pusher).
    */
   getUnreadCount(): Observable<{ count: number }> {
     return this.http.get<{ count: number }>(`${this.apiUrl}/unread/count`);
   }
 
   /**
-   * Ajouter une notification à l'état local
+   * Ajouter une notification à l'état local (appelé aussi bien depuis le
+   * canal user que le canal agence).
    */
   addLocalNotification(notification: Notification): void {
     const current = this.notificationsSubject.value;
-    this.notificationsSubject.next([notification, ...current]);
+    const updated = [notification, ...current];
+    this.notificationsSubject.next(updated);
+    this.unreadCount$.next(updated.length);
   }
 }
