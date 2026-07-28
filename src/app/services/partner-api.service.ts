@@ -590,11 +590,7 @@ export class PartnerApiService {
           seatNumber: Number(t.seatNumber) || 0,
           ticketNumber: t.ticketNumber || `TKT-${t.id}`,
           boardingStatus:
-            t.status === 'Utilisé'
-              ? 'BOARDED'
-              : t.status === 'Absent'
-                ? 'NO_SHOW'
-                : 'PENDING',
+            t.status === 'Utilisé' ? 'BOARDED' : t.status === 'Absent' ? 'NO_SHOW' : t.status === 'Annulé' ? 'CANCELLED' : 'PENDING',
           phoneNumber: t.passengerPhone || t.phoneNumber || '',
           boardingPoint:
             t.boardingPoint || t.boardingLocation || trip.departureCity,

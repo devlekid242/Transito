@@ -210,6 +210,18 @@ export class MyBookingsPage implements OnInit, OnDestroy {
       return;
     }
 
+    // Défense en profondeur : `canCancel` (calculé côté serveur) est false
+    // aussi bien quand le voyage est trop proche (< 24h) que lorsqu'un billet
+    // de cette réservation a déjà été validé à l'embarquement. Dans les deux
+    // cas, on ne doit pas laisser l'utilisateur déclencher l'annulation.
+    if (booking?.canCancel === false) {
+      await this.showAlert(
+        'Information',
+        "Cette réservation ne peut plus être annulée (billet déjà embarqué ou délai dépassé).",
+      );
+      return;
+    }
+
     const alert = await this.alertCtrl.create({
       header: 'Annuler la réservation',
       message:
