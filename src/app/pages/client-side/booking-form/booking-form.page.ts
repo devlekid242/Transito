@@ -187,7 +187,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
           email: this.currentUser.email || '',
         },
       ];
-      this.phoneNumber = this.currentUser.phoneNumber || ''; // Pré-remplir le numéro de paiement
+      this.phoneNumber = this.currentUser.phoneNumber.replace('+242','') || ''; // Pré-remplir le numéro de paiement
       this.updateTotals();
     }
   }
