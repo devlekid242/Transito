@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { PartnerPermissionService } from './partner-permission.service';
+import { NativePushService } from './NativePushService.service';
+import { NotificationService } from './notification.service';
 
 export interface UserProfile {
   id: number;
@@ -11,6 +13,7 @@ export interface UserProfile {
   email: string | null;
   phoneNumber: string;
   role?: string;
+  agencyId?: number | null; // 👈 NOUVEAU : uniquement renseigné pour les comptes partenaire/agent
 }
 
 interface AuthResponse {
@@ -49,9 +52,38 @@ export class AuthService {
   constructor(
     private router: Router,
     private http: HttpClient,
-    private partnerPermission: PartnerPermissionService
+    private partnerPermission: PartnerPermissionService,
+    private injector: Injector,
   ) {
     this.loadFromStorage();
+
+    if (this.isAuthenticated() && this.user) {
+      setTimeout(() => {
+        this.getNotificationService().connectRealtime(this.user!.id, this.token!);
+        this.subscribeAgencyChannelIfPartner();
+      }, 0);
+    }
+  }
+
+  private getNativePushService(): NativePushService {
+    return this.injector.get(NativePushService);
+  }
+
+  private getNotificationService(): NotificationService {
+    return this.injector.get(NotificationService);
+  }
+
+  /**
+   * 👈 NOUVEAU : abonne le compte partenaire/agent au canal Pusher de son
+   * agence (`private-agency-{agencyId}`), en plus de son canal personnel.
+   * Sans cet appel, les notifications `agency_all` diffusées par le backend
+   * (NotificationBroadcastService) ne remontent jamais en temps réel dans
+   * l'app partenaire.
+   */
+  private subscribeAgencyChannelIfPartner(): void {
+    if (this.user?.role === 'partner' && this.user.agencyId) {
+      this.getNotificationService().subscribeToAgencyChannel(this.user.agencyId);
+    }
   }
 
   private loadFromStorage() {
@@ -114,7 +146,7 @@ export class AuthService {
     localStorage.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken);
   }
 
-  private applyAuthResponse(response: AuthResponse): void {
+  private async applyAuthResponse(response: AuthResponse): Promise<void> {
     this.persistTokens(response.token, response.refresh_token);
 
     if (!response.user) return;
@@ -123,20 +155,27 @@ export class AuthService {
       ? 'partner'
       : 'client';
 
+    const agencyId = response.user.agent?.agency?.id ?? null;
+
     this.user = {
       id: response.user.id,
       fullName: response.user.fullName,
       email: response.user.email,
       phoneNumber: response.user.phoneNumber,
       role,
+      agencyId,
     };
     localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(this.user));
     this.setRole(role);
 
     const partnerRole = response.user.agent?.agentRole;
     if (partnerRole) {
-     this.partnerPermission.setPartnerRole(partnerRole as any);
+      this.partnerPermission.setPartnerRole(partnerRole as any);
     }
+
+    await this.getNativePushService().init();
+    this.getNotificationService().connectRealtime(this.user.id, response.token);
+    this.subscribeAgencyChannelIfPartner();
   }
 
   async login(phoneNumber: string, password: string): Promise<boolean> {
@@ -148,7 +187,7 @@ export class AuthService {
         }),
       );
 
-      this.applyAuthResponse(response);
+      await this.applyAuthResponse(response);
       return true;
     } catch {
       return false;
@@ -230,6 +269,10 @@ export class AuthService {
       );
 
       this.persistTokens(response.token, response.refresh_token);
+      if (this.user) {
+        this.getNotificationService().connectRealtime(this.user.id, response.token);
+        this.subscribeAgencyChannelIfPartner();
+      }
       return response.token;
     } catch {
       this.logout(false);
@@ -237,7 +280,10 @@ export class AuthService {
     }
   }
 
-  logout(redirect = true) {
+  async logout(redirect = true) {
+    await this.getNativePushService().teardown();
+    this.getNotificationService().disconnectRealtime();
+
     this.token = null;
     this.refreshToken = null;
     this.user = null;

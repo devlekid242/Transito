@@ -101,9 +101,20 @@
             </div>
           </div>
 
-          <div *ngIf="validatedTicket.boardingTime">
-            <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Heure d'embarquement</p>
-            <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.boardingTime }}</p>
+          <div *ngIf="validatedTicket.passengerPhone">
+            <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Téléphone passager</p>
+            <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.passengerPhone }}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div *ngIf="validatedTicket.seatNumber">
+              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Siège</p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.seatNumber }}</p>
+            </div>
+            <div *ngIf="validatedTicket.boardingTime">
+              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Heure d'embarquement</p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.boardingTime }}</p>
+            </div>
           </div>
 
           <div *ngIf="validatedTicket.origin || validatedTicket.destination">
@@ -113,9 +124,36 @@
             </p>
           </div>
 
+          <div class="grid grid-cols-2 gap-3">
+            <div *ngIf="validatedTicket.departureDate">
+              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Date de départ</p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.departureDate }}</p>
+            </div>
+            <div *ngIf="validatedTicket.departureTime">
+              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Heure de départ</p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.departureTime }}</p>
+            </div>
+          </div>
+
           <div *ngIf="validatedTicket.agencyName">
             <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Agence</p>
             <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.agencyName }}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div *ngIf="validatedTicket.tripNumber">
+              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">N° Trajet</p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.tripNumber }}</p>
+            </div>
+            <div *ngIf="validatedTicket.busLicensePlate">
+              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Bus</p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.busLicensePlate }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="validatedTicket.validatedByAgentName" class="pt-2 border-t border-emerald-100">
+            <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Validé par</p>
+            <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.validatedByAgentName }}</p>
           </div>
         </div>
 

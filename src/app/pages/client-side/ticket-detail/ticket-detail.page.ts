@@ -182,6 +182,14 @@ export class TicketDetailPage implements OnInit {
     const status = booking.status || 'Confirmé';
     const isCancelled = status === 'Annulé';
     const rawDepartureTime = booking.trip?.departureTime;
+    // Le statut de la réservation (Confirmé/Expiré/Annulé) ne reflète pas
+    // qu'un billet individuel a déjà été scanné à l'embarquement : il faut
+    // vérifier explicitement le statut de chaque billet lié, sinon un billet
+    // déjà utilisé reste "annulable" côté front tant que le voyage n'est pas
+    // encore expiré.
+    const hasBoardedTicket = (booking.tickets || []).some(
+      (t: any) => t.status === 'Utilisé',
+    );
 
     this.ticket = {
       id: `TKT-${booking.id}`,
@@ -215,6 +223,7 @@ export class TicketDetailPage implements OnInit {
       canCancel:
         !isCancelled &&
         status !== 'Expiré' &&
+        !hasBoardedTicket &&
         (booking.canCancel ?? this.isCancellableFromRawDeparture(rawDepartureTime)),
     };
   }
@@ -241,10 +250,11 @@ export class TicketDetailPage implements OnInit {
       return;
     }
     if (!this.ticket.canCancel) {
-      await this.showAlert(
-        'Information',
-        'L’annulation doit être effectuée au moins 24h avant l’embarquement.',
-      );
+      const message =
+        this.ticket.status === 'Utilisé'
+          ? 'Ce billet a déjà été validé à l’embarquement, il ne peut plus être annulé.'
+          : 'L’annulation doit être effectuée au moins 24h avant l’embarquement.';
+      await this.showAlert('Information', message);
       return;
     }
     this.isCancelling = true;

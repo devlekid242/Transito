@@ -9,6 +9,7 @@ export interface Reservation {
   totalPrice: number;
   status: 'Confirmé' | 'En attente' | 'Annulé' | 'Expiré';
   bookingDate: string;
+  canCancel?: boolean;
   // Propriétés optionnelles - infos du trajet et agence
   trip?: {
     id: number;

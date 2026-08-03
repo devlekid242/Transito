@@ -19,7 +19,11 @@
         <h1
           class="text-2xl font-display-lg font-bold text-white tracking-tight"
         >
-          Bonjour @if(isLoading){<div class="h-5 bg-surface-container rounded-md w-40 animate-pulse" ></div>}@else{ {{ userName }} } 👋
+          @if(isLoading){
+            <div class="h-4 bg-surface-container rounded w-28 animate-pulse"></div>
+          }@else{
+            Bonjour {{ userName }} 👋
+          }
         </h1>
         <p class="text-white/80 text-body-md text-xs font-medium mt-1">
           Où voyagez-vous aujourd'hui ? Réservez en toute sécurité.

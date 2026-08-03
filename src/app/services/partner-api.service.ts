@@ -76,9 +76,20 @@ export interface TicketValidationResponse {
   success: boolean;
   ticketNumber: string;
   passengerName: string;
+  passengerPhone?: string;
   boardingStatus: 'VALID' | 'ALREADY_BOARDED' | 'NOT_FOUND' | 'CANCELLED';
   message: string;
   boardingTime?: string;
+  // Champs enrichis renvoyés par TicketController::mapTicket() côté serveur.
+  origin?: string;
+  destination?: string;
+  agencyName?: string;
+  tripNumber?: string;
+  departureDate?: string;
+  departureTime?: string;
+  seatNumber?: string;
+  busLicensePlate?: string;
+  validatedByAgentName?: string;
 }
 
 export interface ManifestData {
@@ -181,11 +192,15 @@ export class PartnerApiService {
   /**
    * Récupère tous les trajets du partenaire
    */
-  getTrips(status?: 'active' | 'scheduled' | 'completed'): Observable<Trip[]> {
+  getTrips( date?: any, status?: 'active' | 'scheduled' | 'completed'): Observable<Trip[]> {
     let params = new HttpParams();
     if (status) {
       params = params.set('status', status.toUpperCase());
     }
+    if (date) {
+      params = params.set('departure_date', date);
+    }
+    // console.log(date);
     return this.http
       .get<any>(`${this.apiUrl}/trips`, { params })
       .pipe(unwrapCollection<Trip>());
@@ -575,11 +590,7 @@ export class PartnerApiService {
           seatNumber: Number(t.seatNumber) || 0,
           ticketNumber: t.ticketNumber || `TKT-${t.id}`,
           boardingStatus:
-            t.status === 'Utilisé'
-              ? 'BOARDED'
-              : t.status === 'Absent'
-                ? 'NO_SHOW'
-                : 'PENDING',
+            t.status === 'Utilisé' ? 'BOARDED' : t.status === 'Absent' ? 'NO_SHOW' : t.status === 'Annulé' ? 'CANCELLED' : 'PENDING',
           phoneNumber: t.passengerPhone || t.phoneNumber || '',
           boardingPoint:
             t.boardingPoint || t.boardingLocation || trip.departureCity,

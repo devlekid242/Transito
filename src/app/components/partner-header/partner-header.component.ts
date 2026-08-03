@@ -1,33 +1,50 @@
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { IonicModule, NavController } from '@ionic/angular';
-import { PushNotificationService } from '../../services/PushNotificationService.service';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 
 @Component({
   selector: 'app-partner-header',
   templateUrl: './partner-header.component.html',
   styleUrls: ['./partner-header.component.scss'],
+  standalone: true,
   imports: [CommonModule, IonicModule]
 })
-export class PartnerHeaderComponent {
+export class PartnerHeaderComponent implements OnInit, OnDestroy  {
   @Input() title: string = '';
-  @Output() menuClicked = new EventEmitter<void>();
-
   
+  userName: string = '';
   hasUnreadNotifications: boolean = false;
 
+  private unreadSub?: Subscription;
+
   constructor(
+    private auth: AuthService,
     private navCtrl: NavController,
-    private pushService: PushNotificationService
+    private router: Router,
+    private pushService: NotificationService,
 
   ) {}
 
   ngOnInit() {
-        // Écouter les nouvelles notifications pour l'affichage en temps réel
-    this.pushService.unreadCount.subscribe(count => {
+    const user = this.auth.getUser();
+    this.userName = user?.fullName || 'Utilisateur';
+
+    // 👈 CORRIGÉ : c'était commenté avant, donc le badge ne s'allumait
+    // jamais. On s'abonne à unreadCount$ (mis à jour par connectRealtime,
+    // markAsRead, markAllAsRead, deleteNotification, et les évènements
+    // Pusher temps réel côté NotificationService).
+    this.unreadSub = this.pushService.unreadCount$.subscribe((count) => {
       this.hasUnreadNotifications = count > 0;
     });
+  }
+
+  ngOnDestroy() {
+    this.unreadSub?.unsubscribe();
   }
 
   goBack(): void {
@@ -36,7 +53,7 @@ export class PartnerHeaderComponent {
 
   openNotifications() {
     // Réinitialiser le compteur lors de l'ouverture
-    this.pushService.unreadCount.next(0);
+    // this.pushService.unreadCount.next(0);
     
     this.navCtrl.navigateForward('/notifications');
   }

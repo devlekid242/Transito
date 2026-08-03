@@ -14,6 +14,7 @@ import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/ske
 
 interface TicketData {
   passengerName: string;
+  passengerPhone?: string;
   ticketNumber: string;
   boardingStatusLabel: string;
   boardingTime?: string;
@@ -21,7 +22,31 @@ interface TicketData {
   origin?: string;
   destination?: string;
   agencyName?: string;
+  tripNumber?: string;
+  seatNumber?: string;
+  busLicensePlate?: string;
+  departureDate?: string;
+  departureTime?: string;
+  validatedByAgentName?: string;
 }
+
+const EMPTY_TICKET: TicketData = {
+  passengerName: '',
+  passengerPhone: '',
+  ticketNumber: '',
+  boardingStatusLabel: '',
+  boardingTime: '',
+  message: '',
+  origin: '',
+  destination: '',
+  agencyName: '',
+  tripNumber: '',
+  seatNumber: '',
+  busLicensePlate: '',
+  departureDate: '',
+  departureTime: '',
+  validatedByAgentName: '',
+};
 
 @Component({
   selector: 'app-ticket-validation',
@@ -43,17 +68,11 @@ export class TicketValidationPage implements OnInit, OnDestroy {
   private validationSub?: Subscription;
   loading: boolean = true;
 
-  validatedTicket: TicketData = {
-    passengerName: '',
-    ticketNumber: '',
-    boardingStatusLabel: '',
-    boardingTime: '',
-    message: '',
-    origin: '',
-    destination: '',
-    agencyName: '',
-  };
+  validatedTicket: TicketData = { ...EMPTY_TICKET };
 
+  // Ces flags ne servent qu'à l'affichage (masquer/afficher des boutons côté UI) :
+  // le serveur revérifie systématiquement le droit de valider et l'appartenance
+  // du billet à l'agence de l'agent lors de l'appel à /api/tickets/validate.
   canValidateTickets = false;
   isWharfAgent = false;
 
@@ -129,7 +148,6 @@ export class TicketValidationPage implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Validating ticket with code:', qr || ticketCode);
     this.scanState = 'scanning';
     this.validationSub?.unsubscribe();
     this.validationSub = this.apiService.validateTicket(String(qr), ticketCode).subscribe({
@@ -142,15 +160,22 @@ export class TicketValidationPage implements OnInit, OnDestroy {
 
         this.validatedTicket = {
           passengerName: response.passengerName || 'N/A',
+          passengerPhone: response.passengerPhone || '',
           ticketNumber: response.ticketNumber || ticketCode || 'N/A',
           boardingStatusLabel: this.getBoardingStatusLabel(
             response.boardingStatus,
           ),
           boardingTime: response.boardingTime || '',
           message: response.message || '',
-          origin: (response as any).origin || '',
-          destination: (response as any).destination || '',
-          agencyName: (response as any).agencyName || '',
+          origin: response.origin || '',
+          destination: response.destination || '',
+          agencyName: response.agencyName || '',
+          tripNumber: response.tripNumber || '',
+          seatNumber: response.seatNumber || '',
+          busLicensePlate: response.busLicensePlate || '',
+          departureDate: response.departureDate || '',
+          departureTime: response.departureTime || '',
+          validatedByAgentName: response.validatedByAgentName || '',
         };
         this.scanState = 'success';
       },
@@ -183,16 +208,7 @@ export class TicketValidationPage implements OnInit, OnDestroy {
   resetScanner(): void {
     this.scanState = 'idle';
     this.errorMessage = '';
-    this.validatedTicket = {
-      passengerName: '',
-      ticketNumber: '',
-      boardingStatusLabel: '',
-      boardingTime: '',
-      message: '',
-      origin: '',
-      destination: '',
-      agencyName: '',
-    };
+    this.validatedTicket = { ...EMPTY_TICKET };
     this.qrCodeInput = '';
   }
 

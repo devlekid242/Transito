@@ -11,7 +11,6 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams, User } from '../../../models';
 import { TripService, UserService } from '../../../services';
-import { PushNotificationService } from '../../../services/PushNotificationService.service';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 
 @Component({
@@ -52,7 +51,6 @@ export class HomePage implements OnInit, OnDestroy {
     private tripService: TripService,
     private userService: UserService,
     private alertCtrl: AlertController,
-    private pushService: PushNotificationService
   ) {}
 
   ngOnInit() {
@@ -195,7 +193,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   openNotifications() {
     // Réinitialiser le compteur lors de l'ouverture
-    this.pushService.unreadCount.next(0);
+    // this.pushService.unreadCount.next(0);
     
     this.navCtrl.navigateForward('/notifications');
   }

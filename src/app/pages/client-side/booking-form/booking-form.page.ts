@@ -54,6 +54,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
     agencyName: '',
     agencyLogo: '',
     serviceFee: 500,
+    busLicensePlate: '',
   };
 
   boardingPoints: any[] = [];
@@ -139,8 +140,13 @@ export class BookingFormPage implements OnInit, OnDestroy {
             departureTime: new Date(trip.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
             arrivalTime: new Date(trip.estimatedArrivalTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
             serviceFee: 500, // Frais de plateforme standardisés
-            agencyName: trip.agencyName,
-            agencyLogo: trip.agencyLogo,
+            // Champs optionnels selon ce que renvoie l'API trajet ; utilisés pour
+            // enrichir le reçu (nom d'agence, immatriculation du bus).
+            agencyName: (trip as any).agency?.name || (trip as any).agencyName || '',
+            busLicensePlate:
+              (trip as any).bus?.registrationNumber ||
+              (trip as any).busLicensePlate ||
+              '',
           };
 
           // Extraction JSON des points d'arrêt
@@ -351,11 +357,13 @@ export class BookingFormPage implements OnInit, OnDestroy {
                 ticketNumber:
                   backendTicket?.ticketNumber || `TKT-${this.bookingId}-${index + 1}`,
                 seat: backendTicket?.seat ?? index + 1,
-                qr: backendTicket?.qr || '',
+                qr: this.generateQrCode(backendTicket?.qr) || backendTicket?.qr || '',
                 passengerName: passenger.fullName,
                 passengerPhone: passenger.phoneNumber,
               };
             });
+
+            // Générer les codes QR pour chaque ticket
 
             this.stepNumber = 3; // Navigation vers le ticket
           }, 1000);
@@ -413,6 +421,10 @@ export class BookingFormPage implements OnInit, OnDestroy {
       cssClass: 'custom-alert',
     });
     await alert.present();
+  }
+
+  private generateQrCode(data: string): string {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data)}`;
   }
 
   private async confirmAlert(

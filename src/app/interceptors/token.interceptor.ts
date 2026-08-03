@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import {
   HttpEvent,
   HttpHandler,
@@ -12,26 +12,26 @@ import { AuthService } from '../services/auth.service';
 import { PartnerPermissionService } from '../services/partner-permission.service';
 import { environment } from '../../environments/environment';
 
-/**
- * Intercepteur HTTP universel pour authentification et rôles
- * Gère les deux types d'utilisateurs: CLIENT et PARTNER
- * - Ajoute le token Bearer à toutes les requêtes
- * - Ajoute les headers de rôles pour partenaires
- * - Ajoute Content-Type application/json si absent
- * - Gère le refresh token automatique en cas d'expiration (401)
- */
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   private refreshPromise: Promise<string | null> | null = null;
+  private authService!: AuthService;
 
   constructor(
-    private authService: AuthService,
+    private injector: Injector, // 👈 On injecte l'Injector à la place de AuthService
     private partnerPermissionService: PartnerPermissionService,
   ) {}
 
   /**
-   * Vérifier si la route est une authentification publique
+   * Récupère dynamiquement AuthService pour éviter la dépendance circulaire au démarrage
    */
+  private getAuth(): AuthService {
+    if (!this.authService) {
+      this.authService = this.injector.get(AuthService);
+    }
+    return this.authService;
+  }
+
   private isPublicAuthRoute(url: string): boolean {
     return (
       url.includes('/auth/login') ||
@@ -42,26 +42,19 @@ export class TokenInterceptor implements HttpInterceptor {
     );
   }
 
-  /**
-   * Déterminer le type d'utilisateur (client ou partner)
-   */
   private getUserType(): 'client' | 'partner' | 'guest' {
-    const role = this.authService.getRole();
+    const role = this.getAuth().getRole(); // 👈 Utilisation de getAuth()
     if (role === 'partner') return 'partner';
     if (role === 'client') return 'client';
     return 'guest';
   }
 
-  /**
-   * Cloner la requête avec tous les headers nécessaires
-   */
   private addAuthHeaders(req: HttpRequest<any>, token: string): HttpRequest<any> {
     const userType = this.getUserType();
     const headers: { [key: string]: string } = {
       Authorization: `Bearer ${token}`,
     };
 
-    // Ajouter les headers spécifiques au type d'utilisateur
     if (userType === 'partner') {
       const partnerRole = this.partnerPermissionService.getPartnerRole();
       headers['X-User-Role'] = 'partner';
@@ -71,7 +64,6 @@ export class TokenInterceptor implements HttpInterceptor {
       headers['X-User-Type'] = 'CLIENT';
     }
 
-    // Ajouter Content-Type si absence et que ce n'est pas FormData
     if (!(req.body instanceof FormData) && !req.headers.has('Content-Type')) {
       headers['Content-Type'] = 'application/json';
     }
@@ -86,7 +78,7 @@ export class TokenInterceptor implements HttpInterceptor {
     const isApiRequest = req.url.startsWith(environment.apiUrl);
     const shouldAttachToken = isApiRequest && !this.isPublicAuthRoute(req.url);
 
-    const token = this.authService.getToken();
+    const token = this.getAuth().getToken(); // 👈 Utilisation de getAuth()
     let authRequest = req;
 
     if (shouldAttachToken && token) {
@@ -95,24 +87,18 @@ export class TokenInterceptor implements HttpInterceptor {
 
     return next.handle(authRequest).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Ne pas faire de refresh si:
-        // - Ce n'est pas une erreur 401
-        // - Ce n'est pas une requête API
-        // - C'est une route d'authentification publique
-        // - Pas de refresh token disponible
         if (
           error.status !== 401 ||
           !isApiRequest ||
           this.isPublicAuthRoute(req.url) ||
-          !this.authService.getRefreshToken()
+          !this.getAuth().getRefreshToken() // 👈 Utilisation de getAuth()
         ) {
           return throwError(() => error);
         }
 
-        // Eviter les multiples refresh simultanés
         if (!this.refreshPromise) {
-          this.refreshPromise = this.authService
-            .refreshAccessToken()
+          this.refreshPromise = this.getAuth()
+            .refreshAccessToken() // 👈 Utilisation de getAuth()
             .finally(() => (this.refreshPromise = null));
         }
 
