@@ -14,6 +14,7 @@ export interface Trip {
   departureTimeOfDay: string;
   arrivalTimeOfDay: string;
   departureDate: string;
+  estimatedArrivalTime: string;
   category: 'VIP' | 'Classique' | 'Standard';
   maxSeats: number;
   availableSeats: number;

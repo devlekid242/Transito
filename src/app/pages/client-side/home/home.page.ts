@@ -75,7 +75,7 @@ export class HomePage implements OnInit, OnDestroy {
       .subscribe({
         next: (user) => {
           this.currentUser = user;
-          this.userName = user?.fullName || 'Utilisateur';
+          this.userName = user?.fullName;
         },
         error: (err) => {
           console.error('Erreur lors du chargement du profil:', err);

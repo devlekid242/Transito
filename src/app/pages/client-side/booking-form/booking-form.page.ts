@@ -51,6 +51,8 @@ export class BookingFormPage implements OnInit, OnDestroy {
     departureDate: '',
     departureTime: '',
     arrivalTime: '',
+    agencyName: '',
+    agencyLogo: '',
     serviceFee: 500,
   };
 
@@ -83,7 +85,6 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
   constructor(
     private navCtrl: NavController,
-    private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private route: ActivatedRoute,
     private tripService: TripService,
@@ -136,8 +137,10 @@ export class BookingFormPage implements OnInit, OnDestroy {
             destination: trip.arrivalCity,
             departureDate: new Date(trip.departureDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }),
             departureTime: new Date(trip.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-            arrivalTime: new Date(trip.arrivalTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            arrivalTime: new Date(trip.estimatedArrivalTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
             serviceFee: 500, // Frais de plateforme standardisés
+            agencyName: trip.agencyName,
+            agencyLogo: trip.agencyLogo,
           };
 
           // Extraction JSON des points d'arrêt
@@ -178,7 +181,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
           email: this.currentUser.email || '',
         },
       ];
-      this.phoneNumber = this.currentUser.phoneNumber || ''; // Pré-remplir le numéro de paiement
+      this.phoneNumber = this.currentUser.phoneNumber.replace("+242", "") || ''; // Pré-remplir le numéro de paiement
       this.updateTotals();
     }
   }
@@ -255,7 +258,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
       passengers: this.passengers,
       baggages: this.baggages,
       totalPrice: this.totalAmountToPay,
-      paymentPhone: this.phoneNumber,
+      paymentPhone: '+242'+this.phoneNumber,
       paymentMethod: this.selectedOperator,
       boardingPoint: this.selectedBoardingPoint,
       deboardingPoint: this.selectedDeboardingPoint,
