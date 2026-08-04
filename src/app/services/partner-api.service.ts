@@ -584,14 +584,25 @@ export class PartnerApiService {
         .pipe(unwrapCollection<any>()),
     }).pipe(
       map(({ trip, tickets }) => {
-        const processedPassengers = tickets.map((t: any) => ({
-          id: t.id,
-          name: t.passengerName || t.name || 'Invité',
-          seatNumber: Number(t.seatNumber) || 0,
-          ticketNumber: t.ticketNumber || `TKT-${t.id}`,
-          boardingStatus:
-            t.status === 'Utilisé' ? 'BOARDED' : t.status === 'Absent' ? 'NO_SHOW' : t.status === 'Annulé' ? 'CANCELLED' : 'PENDING',
-          phoneNumber: t.passengerPhone || t.phoneNumber || '',
+        const processedPassengers = tickets.map((t: any) => {
+          const statusCode = String(t.statusCode || t.status || '').toLowerCase();
+          let boardingStatus: 'BOARDED' | 'PENDING' | 'NO_SHOW' | 'CANCELLED' = 'PENDING';
+
+          if (statusCode === 'embarque' || statusCode === 'boarded' || statusCode === 'utilisé' || statusCode === 'used') {
+            boardingStatus = 'BOARDED';
+          } else if (statusCode === 'annule' || statusCode === 'cancelled') {
+            boardingStatus = 'CANCELLED';
+          } else if (statusCode === 'absent' || statusCode === 'no_show' || statusCode === 'no-show') {
+            boardingStatus = 'NO_SHOW';
+          }
+
+          return {
+            id: t.id,
+            name: t.passengerName || t.name || 'Invité',
+            seatNumber: Number(t.seatNumber) || 0,
+            ticketNumber: t.ticketNumber || `TKT-${t.id}`,
+            boardingStatus,
+            phoneNumber: t.passengerPhone || t.phoneNumber || '',
           boardingPoint:
             t.boardingPoint || t.boardingLocation || trip.departureCity,
           deboardingPoint:
