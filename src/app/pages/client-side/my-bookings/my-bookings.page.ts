@@ -104,23 +104,22 @@ export class MyBookingsPage implements OnInit, OnDestroy {
 
   /**
    * Séparer les réservations par segment : en cours, passées, annulées.
-   * Le statut renvoyé par l'API (`Confirmé` | `En attente` | `Annulé` | `Expiré`)
-   * fait foi — une réservation annulée reste dans le segment "Annulés" même si
-   * sa date de voyage est encore à venir ou déjà passée.
+   * Le statut renvoyé par l'API (`Confirmé` | `En attente` | `Annulé` | `Remboursé` | `Expiré`)
+   * fait foi — une réservation annulée ou remboursée reste dans le segment "Annulés"
+   * même si sa date de voyage est encore à venir ou déjà passée.
    */
   private separateBookings() {
     const now = new Date();
+    const isCancelled = (b: Reservation) => b.status === 'Annulé' || b.status === 'Remboursé';
 
-    this.cancelledBookings = this.bookings.filter(
-      (b) => b.status === 'Annulé',
-    );
+    this.cancelledBookings = this.bookings.filter(isCancelled);
 
     this.activeBookings = this.bookings.filter(
-      (b) => b.status !== 'Annulé' && new Date(b.bookingDate) > now,
+      (b) => !isCancelled(b) && new Date(b.bookingDate) > now,
     );
 
     this.pastBookings = this.bookings.filter(
-      (b) => b.status !== 'Annulé' && new Date(b.bookingDate) <= now,
+      (b) => !isCancelled(b) && new Date(b.bookingDate) <= now,
     );
 
     this.applyFilter(this.filterType);
@@ -177,9 +176,9 @@ export class MyBookingsPage implements OnInit, OnDestroy {
     }
   }
 
-  /** Un billet annulé n'a plus ni détail, ni QR, ni possibilité d'être scanné. */
+  /** Un billet annulé ou remboursé n'a plus ni détail, ni QR, ni possibilité d'être scanné. */
   isCancelled(booking: Reservation): boolean {
-    return booking?.status === 'Annulé';
+    return booking?.status === 'Annulé' || booking?.status === 'Remboursé';
   }
 
   /** Le voyage n'a pas encore eu lieu — utilisé pour choisir la carte "billet actif" vs carte compacte. */

@@ -7,7 +7,7 @@ export interface Reservation {
   passengerPhone: string;
   seatNumber: string;
   totalPrice: number;
-  status: 'Confirmé' | 'En attente' | 'Annulé' | 'Expiré';
+  status: 'Confirmé' | 'En attente' | 'Annulé' | 'Expiré' | 'Remboursé';
   bookingDate: string;
   canCancel?: boolean;
   // Propriétés optionnelles - infos du trajet et agence

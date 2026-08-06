@@ -49,7 +49,7 @@ export class LoginPage {
 
     const success = await this.authService.login(fullPhoneNumber, this.password);
     this.loading = false;
-
+    console.log(success);
     if (success) {
       const role =
         this.authService.getRole() ||

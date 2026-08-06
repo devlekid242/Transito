@@ -15,7 +15,7 @@ export interface Ticket {
   price: number;
   busLicensePlate: string;
   qrCode?: string;
-  status: 'Actif' | 'Utilisé' | 'Annulé' | 'Expiré';
+  status: 'Actif' | 'Utilisé' | 'Annulé' | 'Expiré' | 'Remboursé' ;
   createdAt: string;
   updatedAt: string;
 }

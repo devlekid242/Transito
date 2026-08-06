@@ -90,13 +90,13 @@ export class TicketDetailPage implements OnInit {
   }
 
   /**
-   * Un billet annulé (réservation remboursée) devient définitivement inutilisable :
+   * Un billet annulé ou remboursé devient définitivement inutilisable :
    * pas de QR code, pas d'impression, pas de nouvelle annulation possible.
    * On se base sur le statut renvoyé par l'API (source de vérité), pas sur une
    * simple absence de données.
    */
   get isCancelled(): boolean {
-    return this.ticket.status === 'Annulé';
+    return this.ticket.status === 'Annulé' || this.ticket.status === 'Remboursé';
   }
 
   private async loadTicket(itemId: number) {
@@ -134,7 +134,7 @@ export class TicketDetailPage implements OnInit {
 
   private mapTicket(ticket: Ticket) {
     const status = ticket.status;
-    const isCancelled = status === 'Annulé';
+    const isCancelled = status === 'Annulé' || status === 'Remboursé';
 
     this.ticket = {
       id: ticket.ticketNumber,
@@ -159,14 +159,7 @@ export class TicketDetailPage implements OnInit {
       passengerName: ticket.passengerName || '',
       passengerPhone: ticket.passengerPhone || '',
       price: ticket.price || 0,
-      createdAt: new Date(ticket.createdAt).toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      createdAt: new Date(ticket.createdAt).toLocaleDateString('fr-FR'),
       status: ticket.status,
       // Important : on calcule l'éligibilité à partir de l'heure de départ brute
       // (ISO), AVANT tout formatage local, et jamais pour un billet déjà annulé
@@ -180,7 +173,7 @@ export class TicketDetailPage implements OnInit {
 
   private mapBookingAsTicket(booking: any) {
     const status = booking.status || 'Confirmé';
-    const isCancelled = status === 'Annulé';
+    const isCancelled = status === 'Annulé' || status === 'Remboursé';
     const rawDepartureTime = booking.trip?.departureTime;
     // Le statut de la réservation (Confirmé/Expiré/Annulé) ne reflète pas
     // qu'un billet individuel a déjà été scanné à l'embarquement : il faut
@@ -276,13 +269,10 @@ export class TicketDetailPage implements OnInit {
             handler: async () => {
               try {
                 await this.bookingService.cancelBooking(Number(this.ticketId)).toPromise();
-                this.ticket = {
-                  ...this.ticket,
-                  status: 'Annulé',
-                  canCancel: false,
-                  qrCode: '',
-                };
-                this.qrCodeUrl = '';
+                // Reload ticket data from backend to get the actual status (could be 'Annulé' or 'Remboursé')
+                if (this.ticketId) {
+                  await this.loadTicket(this.ticketId);
+                }
                 await this.showAlert(
                   'Annulation réussie',
                   'Votre réservation a été annulée. Le remboursement est en cours de traitement.',

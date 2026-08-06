@@ -603,12 +603,13 @@ export class PartnerApiService {
             ticketNumber: t.ticketNumber || `TKT-${t.id}`,
             boardingStatus,
             phoneNumber: t.passengerPhone || t.phoneNumber || '',
-          boardingPoint:
-            t.boardingPoint || t.boardingLocation || trip.departureCity,
-          deboardingPoint:
-            t.deboardingPoint || t.destinationCity || trip.arrivalCity,
-          price: Number(t.price) || undefined,
-        }));
+            boardingPoint:
+              t.boardingPoint || t.boardingLocation || trip.departureCity,
+            deboardingPoint:
+              t.deboardingPoint || t.destinationCity || trip.arrivalCity,
+            price: Number(t.price) || undefined,
+          };
+        });
 
         const total = processedPassengers.length;
         const boarded = processedPassengers.filter(
