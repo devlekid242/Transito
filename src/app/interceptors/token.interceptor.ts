@@ -35,10 +35,13 @@ export class TokenInterceptor implements HttpInterceptor {
   private isPublicAuthRoute(url: string): boolean {
     return (
       url.includes('/auth/login') ||
+      url.includes('/auth/request-otp') ||
+      url.includes('/auth/verify-otp') ||
       url.includes('/auth/register') ||
       url.includes('/auth/refresh') ||
       url.includes('/auth/forgot') ||
-      url.includes('/auth/verify')
+      url.includes('/auth/verify') ||
+      url.includes('/auth/complete-profile')
     );
   }
 

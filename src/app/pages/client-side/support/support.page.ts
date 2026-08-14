@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, AlertController, LoadingController } from '@ionic/angular';
+import { IonicModule, NavController, AlertController, LoadingController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { SupportService, SupportTicket } from '../../../services/support.service';
 
 @Component({
@@ -11,12 +11,11 @@ import { SupportService, SupportTicket } from '../../../services/support.service
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule],
 })
-export class SupportPage implements OnInit {
-  name = '';
-  email = '';
+export class SupportPage implements OnInit, ViewWillEnter, ViewWillLeave {
+  // 👈 CORRIGÉ : name / email retirés (jamais envoyés au back, voir
+  // support.page.html) pour éviter de faire croire qu'ils sont utilisés.
   subject = '';
   message = '';
-  contactMethod: 'whatsapp' | 'phone' = 'whatsapp';
   isSubmitting = false;
 
   supportNumber = '+237612345678';
@@ -29,6 +28,12 @@ export class SupportPage implements OnInit {
   ) {}
 
   ngOnInit() {}
+
+  ionViewWillEnter() {}
+
+  ionViewWillLeave() {
+    this.isSubmitting = false;
+  }
 
   async sendRequest() {
     if (!this.subject.trim() || !this.message.trim()) {
@@ -54,11 +59,8 @@ export class SupportPage implements OnInit {
         this.isSubmitting = false;
         loader.dismiss();
         await this.showAlert('Succès', 'Votre demande a bien été envoyée au support.');
-        this.name = '';
-        this.email = '';
         this.subject = '';
         this.message = '';
-        this.contactMethod = 'whatsapp';
         this.navCtrl.back();
       },
       error: async (err) => {

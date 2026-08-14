@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, AlertController } from '@ionic/angular';
+import { IonicModule, NavController, AlertController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AgencyService } from '../../../services/agency.service';
@@ -30,7 +30,7 @@ interface DisplayTrip {
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule]
 })
-export class AgencyProfilePage implements OnInit {
+export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   activeTab: 'trips' | 'points' = 'trips';
   agency: Agency | null = null;
   allTrips: DisplayTrip[] = [];
@@ -62,6 +62,14 @@ export class AgencyProfilePage implements OnInit {
 
   ngOnInit() {
     this.loadAgencyProfile();
+  }
+
+  ionViewWillEnter() {
+    this.loadAgencyProfile();
+  }
+
+  ionViewWillLeave() {
+    this.isLoading = false;
   }
 
   loadAgencyProfile() {

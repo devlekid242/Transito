@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentLog, PaymentRequest, PaymentResponse } from '../models';
-import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment';
+import { unwrapCollection } from 'src/app/shared/rxjs-operators';
+import { environment } from 'src/environments/environment';
+import { IdempotencyService } from 'src/app/services/idempotency.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,15 +12,17 @@ import { environment } from '../../environments/environment';
 export class PaymentService {
   private apiUrl = `${environment.apiUrl}/payments`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private idempotency: IdempotencyService) {}
 
   /**
    * Initier un paiement
    */
   initiatePayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {
+    const key = this.idempotency.create('payment');
     return this.http.post<PaymentResponse>(
       `${this.apiUrl}/initiate`,
       paymentRequest,
+      { headers: { 'Idempotency-Key': key } },
     );
   }
 

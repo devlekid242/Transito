@@ -13,63 +13,42 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class LoginPage {
   phoneNumber = '';
-  password = '';
   error = '';
   loading = false;
-  showPassword = false;
 
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
   ) {}
 
-  async login() {
+  private normalizePhone(value: string): string {
+    const digits = value.replace(/\D/g, '');
+    if (digits.startsWith('242')) return `+${digits}`;
+    return `+242${digits}`;
+  }
+
+  async requestOtp(): Promise<void> {
     this.error = '';
-    
-    // 1. Nettoyage de la saisie (suppression des espaces vides)
-    let formattedPhone = this.phoneNumber.trim();
-
-    // Sécurité au cas où l'utilisateur colle un numéro contenant déjà l'indicatif
-    if (formattedPhone.startsWith('+242')) {
-      formattedPhone = formattedPhone.substring(4);
-    } else if (formattedPhone.startsWith('242')) {
-      formattedPhone = formattedPhone.substring(3);
-    }
-
-    // 2. Vérification des champs requis
-    if (!formattedPhone || !this.password) {
-      this.error = 'Veuillez saisir votre numéro et mot de passe.';
+    const phone = this.normalizePhone(this.phoneNumber);
+    if (!/^\+242\d{9}$/.test(phone)) {
+      this.error = 'Veuillez saisir un numéro congolais valide.';
       return;
     }
 
     this.loading = true;
-
-    // 3. Reconstitution automatique avec le préfixe figé pour la BDD / l'API
-    const fullPhoneNumber = '+242' + formattedPhone;
-
-    const success = await this.authService.login(fullPhoneNumber, this.password);
+    const success = await this.authService.requestLoginOtp(phone);
     this.loading = false;
-    console.log(success);
+
     if (success) {
-      const role =
-        this.authService.getRole() ||
-        this.authService.getUser()?.role ||
-        'client';
-      if (role === 'partner') {
-        this.navCtrl.navigateRoot('/tabs/partner-dashboard');
-      } else {
-        this.navCtrl.navigateRoot('/tabs/home');
-      }
+      this.navCtrl.navigateForward('/auth/verify-login', {
+        queryParams: { phone },
+      });
     } else {
-      this.error = 'Échec de la connexion. Réessayez plus tard.';
+      this.error = 'Impossible d’envoyer le code OTP. Veuillez réessayer.';
     }
   }
 
-  goToRegister() {
-    this.navCtrl.navigateForward('/auth/register');
-  }
-
-  goToForgot() {
-    this.navCtrl.navigateForward('/auth/forgot');
+  goToProfessionalLogin(): void {
+    this.navCtrl.navigateForward('/auth/pro-login');
   }
 }

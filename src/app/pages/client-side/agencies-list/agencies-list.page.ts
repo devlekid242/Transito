@@ -7,6 +7,8 @@ import {
   InfiniteScrollCustomEvent,
   LoadingController,
   AlertController,
+  ViewWillEnter,   // 👈 nouveau
+  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AgencyService } from '../../../services/agency.service';
@@ -32,7 +34,7 @@ interface AgencyCard {
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule, SharedHeaderComponent],
 })
-export class AgenciesListPage implements OnInit {
+export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   searchQuery = '';
   currentPage = 1;
   pageSize = 10;
@@ -52,6 +54,14 @@ export class AgenciesListPage implements OnInit {
 
   ngOnInit() {
     this.loadAgencies();
+  }
+
+  ionViewWillEnter() {
+    this.loadAgencies();
+  }
+
+  ionViewWillLeave() {
+    this.isLoading = false;
   }
 
   private async loadAgencies(page: number = 1, event?: InfiniteScrollCustomEvent) {

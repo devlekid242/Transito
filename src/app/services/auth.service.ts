@@ -17,8 +17,11 @@ export interface UserProfile {
 }
 
 interface AuthResponse {
-  token: string;
-  refresh_token: string;
+  token?: string;
+  refresh_token?: string;
+  requiresProfile?: boolean;
+  registrationToken?: string;
+
   user?: {
     id: number;
     fullName: string;
@@ -147,6 +150,9 @@ export class AuthService {
   }
 
   private async applyAuthResponse(response: AuthResponse): Promise<void> {
+    if (!response.token || !response.refresh_token) {
+      throw new Error('Réponse d’authentification incomplète.');
+    }
     this.persistTokens(response.token, response.refresh_token);
 
     if (!response.user) return;
@@ -176,6 +182,69 @@ export class AuthService {
     await this.getNativePushService().init();
     this.getNotificationService().connectRealtime(this.user.id, response.token);
     this.subscribeAgencyChannelIfPartner();
+  }
+
+  async requestLoginOtp(phoneNumber: string): Promise<boolean> {
+    try {
+      await firstValueFrom(this.http.post(`${this.apiBaseUrl}/auth/request-otp`, { phoneNumber }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async verifyLoginOtp(phoneNumber: string, code: string): Promise<{
+    success: boolean;
+    requiresProfile: boolean;
+    registrationToken?: string;
+  }> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/verify-otp`, {
+          phoneNumber,
+          code,
+        }),
+      );
+
+      // Un compte existant est authentifié immédiatement.
+      if (response.user && response.token && response.refresh_token) {
+        await this.applyAuthResponse(response);
+        return { success: true, requiresProfile: false };
+      }
+
+      // Nouveau numéro : l’OTP est validé, mais aucun token de session n’est encore créé.
+      if (response.requiresProfile || response.registrationToken) {
+        return {
+          success: true,
+          requiresProfile: true,
+          registrationToken: response.registrationToken,
+        };
+      }
+
+      return { success: false, requiresProfile: false };
+    } catch {
+      return { success: false, requiresProfile: false };
+    }
+  }
+
+  async completeClientProfile(registrationToken: string, fullName: string): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/complete-profile`, {
+          registrationToken,
+          fullName,
+        }),
+      );
+
+      if (!response.token || !response.refresh_token || !response.user) {
+        return false;
+      }
+
+      await this.applyAuthResponse(response);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async login(phoneNumber: string, password: string): Promise<boolean> {
@@ -268,14 +337,14 @@ export class AuthService {
         }),
       );
 
-      this.persistTokens(response.token, response.refresh_token);
+      this.persistTokens(String(response.token), String(response.refresh_token));
       if (this.user) {
-        this.getNotificationService().connectRealtime(this.user.id, response.token);
+        this.getNotificationService().connectRealtime(this.user.id, String(response.token));
         this.subscribeAgencyChannelIfPartner();
       }
-      return response.token;
+      return String(response.token);
     } catch {
-      this.logout(false);
+      this.logout();
       return null;
     }
   }

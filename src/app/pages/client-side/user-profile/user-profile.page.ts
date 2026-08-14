@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, LoadingController, AlertController } from '@ionic/angular';
+import { IonicModule, NavController, LoadingController, AlertController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models';
@@ -15,7 +15,7 @@ import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-h
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule, SharedHeaderComponent],
 })
-export class UserProfilePage implements OnInit {
+export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   user: any = {
     fullName: '',
     email: '',
@@ -43,6 +43,14 @@ export class UserProfilePage implements OnInit {
 
   ngOnInit() {
     this.loadUserProfile();
+  }
+
+  ionViewWillEnter() {
+    this.loadUserProfile();
+  }
+
+  ionViewWillLeave() {
+    this.isLoading = false;
   }
 
   private async loadUserProfile() {

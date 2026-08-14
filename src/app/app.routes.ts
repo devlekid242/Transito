@@ -19,6 +19,21 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'pro-login',
+        loadComponent: () =>
+          import('./pages/auth/pro-login/pro-login.page').then((m) => m.ProLoginPage),
+      },
+      {
+        path: 'verify-login',
+        loadComponent: () =>
+          import('./pages/auth/verify-login/verify-login.page').then((m) => m.VerifyLoginPage),
+      },
+      {
+        path: 'complete-profile',
+        loadComponent: () =>
+          import('./pages/auth/complete-profile/complete-profile.page').then((m) => m.CompleteProfilePage),
+      },
+      {
         path: 'forgot',
         loadComponent: () => import('./pages/auth/forgot/forgot.page').then((m) => m.ForgotPage),
       },
@@ -91,7 +106,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'support',
+    path: 'support-new',
     canActivate: [AuthGuard],
     loadComponent: () =>
       import('./pages/client-side/support/support.page').then(
@@ -139,7 +154,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'support-tickets',
+    path: 'support',
     canActivate: [AuthGuard],
     loadComponent: () =>
       import('./pages/client-side/support-tickets/support-tickets.page').then(
@@ -150,8 +165,8 @@ export const routes: Routes = [
     path: 'support-ticket-detail/:id',
     canActivate: [AuthGuard],
     loadComponent: () =>
-      import('./pages/client-side/support-tickets/support-tickets.page').then(
-        (m) => m.SupportTicketsPage,
+      import('./pages/client-side/support-ticket-detail/support-ticket-detail.page').then(
+        (m) => m.SupportTicketDetailPage,
       ),
   },
   {

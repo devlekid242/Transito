@@ -6,6 +6,8 @@ import {
   NavController,
   LoadingController,
   AlertController,
+  ViewWillEnter,
+  ViewWillLeave,  
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models';
@@ -17,7 +19,7 @@ import { User } from '../../../models';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule],
 })
-export class SettingsPage implements OnInit {
+export class SettingsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   notificationsEnabled = true;
   language = 'Français';
   currency = 'FCFA';
@@ -34,6 +36,14 @@ export class SettingsPage implements OnInit {
 
   ngOnInit() {
     this.loadSettings();
+  }
+
+  ionViewWillEnter() {
+    this.loadSettings();
+  }
+
+  ionViewWillLeave() {
+    this.isLoading = false;
   }
 
   private async loadSettings() {

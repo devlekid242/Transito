@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import {
   IonicModule,
   NavController,
-  LoadingController,
   AlertController,
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import {
   SupportService,
@@ -18,17 +19,22 @@ import {
   standalone: true,
   imports: [IonicModule, CommonModule],
 })
-export class SupportTicketsPage implements OnInit {
+export class SupportTicketsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   tickets: SupportTicket[] = [];
   filteredTickets: SupportTicket[] = [];
   isLoading = false;
-  selectedFilter: 'all' | 'open' | 'in-progress' | 'resolved' | 'closed' =
-    'all';
+  selectedFilter: 'all' | 'open' | 'answered' | 'pending' | 'closed' = 'all';
+
+  // Utilisés uniquement pour générer les placeholders du skeleton (*ngFor).
+  // Les valeurs n'ont pas de signification, seule la longueur du tableau compte.
+  readonly skeletonSummaryItems = [1, 2, 3, 4];
+  readonly skeletonTicketItems = [1, 2, 3, 4];
+  // Largeurs (px) variées pour que les pastilles de filtres ne soient pas alignées.
+  readonly skeletonFilterItems = [70, 90, 110, 100];
 
   constructor(
     private navCtrl: NavController,
     private supportService: SupportService,
-    private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
   ) {}
 
@@ -36,12 +42,16 @@ export class SupportTicketsPage implements OnInit {
     this.loadTickets();
   }
 
-  private async loadTickets() {
+  ionViewWillEnter() {
+    this.loadTickets();
+  }
+
+  ionViewWillLeave() {
+    this.isLoading = false;
+  }
+
+  private loadTickets() {
     this.isLoading = true;
-    const loader = await this.loadingCtrl.create({
-      message: 'Chargement des tickets...',
-    });
-    await loader.present();
 
     this.supportService.getMyTickets().subscribe({
       next: (tickets) => {
@@ -52,12 +62,10 @@ export class SupportTicketsPage implements OnInit {
         });
         this.applyFilter();
         this.isLoading = false;
-        loader.dismiss();
       },
       error: (err) => {
         console.error('Erreur chargement tickets:', err);
         this.isLoading = false;
-        loader.dismiss();
         this.showAlert('Erreur', 'Impossible de charger les tickets');
       },
     });
@@ -68,36 +76,34 @@ export class SupportTicketsPage implements OnInit {
       case 'open':
         this.filteredTickets = this.tickets.filter((t) => t.status === 'open');
         break;
-      case 'in-progress':
-        this.filteredTickets = this.tickets.filter(
-          (t) => t.status === 'in_progress',
-        );
+      case 'answered':
+        this.filteredTickets = this.tickets.filter((t) => t.status === 'answered');
         break;
-      case 'resolved':
-        this.filteredTickets = this.tickets.filter(
-          (t) => t.status === 'resolved',
-        );
+      case 'pending':
+        this.filteredTickets = this.tickets.filter((t) => t.status === 'pending');
         break;
       case 'closed':
-        this.filteredTickets = this.tickets.filter(
-          (t) => t.status === 'closed',
-        );
+        this.filteredTickets = this.tickets.filter((t) => t.status === 'closed');
         break;
       default:
         this.filteredTickets = this.tickets;
     }
   }
 
-  setFilter(filter: 'all' | 'open' | 'in-progress' | 'resolved' | 'closed') {
+  setFilter(filter: 'all' | 'open' | 'answered' | 'pending' | 'closed') {
     this.selectedFilter = filter;
     this.applyFilter();
+  }
+
+  countByStatus(status: SupportTicket['status']): number {
+    return this.tickets.filter((t) => t.status === status).length;
   }
 
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       open: 'Ouvert',
-      'in-progress': 'En cours',
-      resolved: 'Résolu',
+      answered: 'Répondu',
+      pending: 'En attente',
       closed: 'Fermé',
     };
     return labels[status] || status;
@@ -107,9 +113,9 @@ export class SupportTicketsPage implements OnInit {
     switch (status) {
       case 'open':
         return 'primary';
-      case 'in-progress':
+      case 'pending':
         return 'warning';
-      case 'resolved':
+      case 'answered':
         return 'success';
       case 'closed':
         return 'medium';
@@ -122,9 +128,9 @@ export class SupportTicketsPage implements OnInit {
     switch (status) {
       case 'open':
         return 'mail';
-      case 'in-progress':
+      case 'pending':
         return 'schedule';
-      case 'resolved':
+      case 'answered':
         return 'check_circle';
       case 'closed':
         return 'done_all';
@@ -163,7 +169,7 @@ export class SupportTicketsPage implements OnInit {
   }
 
   createNewTicket() {
-    this.navCtrl.navigateForward('/support');
+    this.navCtrl.navigateForward('/support-new');
   }
 
   goBack() {

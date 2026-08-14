@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, LoadingController, AlertController, ToastController } from '@ionic/angular';
+import { IonicModule, NavController, LoadingController, AlertController, ToastController , ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
 import { environment } from 'src/environments/environment';
 
@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule],
 })
-export class EditProfilePhotoPage implements OnInit {
+export class EditProfilePhotoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   currentPhoto: string = '';
   previewPhoto: string = '';
   selectedFile: File | null = null;
@@ -28,6 +28,14 @@ export class EditProfilePhotoPage implements OnInit {
 
   ngOnInit() {
     this.loadCurrentPhoto();
+  }
+
+  ionViewWillEnter() {
+    this.loadCurrentPhoto();
+  }
+
+  ionViewWillLeave() {
+    this.isUploading = false;
   }
 
   private loadCurrentPhoto() {
@@ -75,14 +83,9 @@ export class EditProfilePhotoPage implements OnInit {
     }
 
     this.isUploading = true;
-    const loader = await this.loadingCtrl.create({
-      message: 'Téléchargement en cours...',
-    });
-    await loader.present();
 
     this.userService.updateProfilePhoto(this.selectedFile).subscribe({
       next: async (response) => {
-        await loader.dismiss();
         this.isUploading = false;
         await this.showToast('Photo de profil mise à jour avec succès');
         this.currentPhoto = this.previewPhoto;
@@ -92,7 +95,6 @@ export class EditProfilePhotoPage implements OnInit {
         }, 1500);
       },
       error: async (err) => {
-        await loader.dismiss();
         this.isUploading = false;
         console.error('Erreur lors du téléchargement:', err);
         await this.showAlert('Erreur', 'Impossible de télécharger la photo. Veuillez réessayer.');

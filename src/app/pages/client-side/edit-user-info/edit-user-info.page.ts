@@ -13,6 +13,8 @@ import {
   LoadingController,
   AlertController,
   ToastController,
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models';
@@ -24,7 +26,7 @@ import { User } from '../../../models';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
 })
-export class EditUserInfoPage implements OnInit {
+export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   userForm!: FormGroup;
   currentUser: User | null = null;
   isLoading = false;
@@ -46,6 +48,16 @@ export class EditUserInfoPage implements OnInit {
     this.loadUserData();
   }
 
+  ionViewWillEnter() {
+    this.initializeForm();
+    this.loadUserData();
+  }
+
+  ionViewWillLeave() {
+    this.isLoading = false;
+    this.isSaving = false;
+  }
+
   /**
    * Champs strictement alignés sur App\Entity\User (voir Groups(['user:write']))
    */
@@ -54,7 +66,7 @@ export class EditUserInfoPage implements OnInit {
       // Informations de base
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      phoneNumber: ['', [Validators.required, Validators.minLength(10)]],
+      // phoneNumber: ['', [Validators.required, Validators.minLength(10)]],
 
       // Localisation (villeResidence / quartier - NotBlank côté entité)
       villeResidence: ['', [Validators.required]],
@@ -74,7 +86,7 @@ export class EditUserInfoPage implements OnInit {
         this.userForm.patchValue({
           fullName: user.fullName,
           email: user.email || '',
-          phoneNumber: user.phoneNumber,
+          // phoneNumber: user.phoneNumber,
           villeResidence: user.villeResidence || '',
           quartier: user.quartier || '',
           emergencyContactName: user.emergencyContactName || '',

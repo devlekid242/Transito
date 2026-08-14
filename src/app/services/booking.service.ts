@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { BookingRequest, Reservation } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
 import { environment } from '../../environments/environment';
+import { IdempotencyService } from './idempotency.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,13 +12,13 @@ import { environment } from '../../environments/environment';
 export class BookingService {
   private apiUrl = `${environment.apiUrl}/bookings`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private idempotency: IdempotencyService) {}
 
   /**
    * Créer une nouvelle réservation
    */
   createBooking(booking: BookingRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, booking);
+    return this.http.post(`${this.apiUrl}`, booking, { headers: { 'Idempotency-Key': this.idempotency.create('booking') } });
   }
 
   /**
@@ -58,7 +59,7 @@ export class BookingService {
    * Annuler une réservation
    */
   cancelBooking(bookingId: number, reason?: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${bookingId}/cancel`, { reason });
+    return this.http.post(`${this.apiUrl}/${bookingId}/cancel`, { reason }, { headers: { 'Idempotency-Key': this.idempotency.create(`booking-cancel-${bookingId}`) } });
   }
 
   /**

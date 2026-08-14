@@ -7,6 +7,8 @@ import {
   LoadingController,
   AlertController,
   ModalController,
+  ViewWillEnter,   // 👈 nouveau
+  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { TicketService } from '../../../services/ticket.service';
 import { BookingService } from '../../../services/booking.service';
@@ -40,7 +42,7 @@ interface TicketInfo {
   standalone: true,
   imports: [IonicModule, CommonModule],
 })
-export class TicketDetailPage implements OnInit {
+export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
   ticket: TicketInfo = {
     id: 'TKT-0000',
     ticketNumber: 'TKT-0000',
@@ -87,6 +89,23 @@ export class TicketDetailPage implements OnInit {
     } else {
       this.isLoading = false;
     }
+  }
+
+  ionViewWillEnter() {
+    const ticketIdParam = this.route.snapshot.paramMap.get('id');
+    const itemId = ticketIdParam ? Number(ticketIdParam) : null;
+
+    ticketIdParam && !isNaN(Number(itemId)) ? (this.ticketId = itemId) : null;
+
+    if (itemId) {
+      this.loadTicket(itemId);
+    } else {
+      this.isLoading = false;
+    }
+  }
+
+  ionViewWillLeave() {
+    this.isLoading = false;
   }
 
   /**

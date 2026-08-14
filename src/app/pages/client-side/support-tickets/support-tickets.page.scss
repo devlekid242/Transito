@@ -21,9 +21,48 @@ button[class*='rounded-full'] {
   }
 }
 
-// Style du spinner
-ion-spinner {
-  color: var(--color-primary);
+// ---------------------------------------------------------------------------
+// Skeleton loader (remplace l'ancien ion-spinner)
+// ---------------------------------------------------------------------------
+
+// Carte englobante d'un item en cours de chargement : même gabarit qu'une
+// vraie carte (surface + bordure) mais sans contenu, pour éviter tout saut
+// de mise en page (layout shift) une fois les données arrivées.
+.skeleton-card {
+  background-color: var(--color-surface-container-lowest);
+}
+
+// Bloc individuel (ligne de texte, icône, pastille…) avec effet de balayage
+// "shimmer" plutôt qu'un simple pulse, plus lisible visuellement.
+.skeleton-block {
+  display: inline-block;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-variant) 25%,
+    var(--color-surface-container) 37%,
+    var(--color-surface-variant) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+// Respecte les préférences d'accessibilité : pas d'animation si l'utilisateur
+// a désactivé les mouvements dans son système.
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+    background: var(--color-surface-variant);
+  }
 }
 
 // Animation de transition

@@ -6,6 +6,8 @@ import {
   InfiniteScrollCustomEvent,
   NavController,
   AlertController,
+  ViewWillEnter,   // 👈 nouveau
+  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,7 +22,7 @@ import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-h
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, SharedHeaderComponent],
 })
-export class HomePage implements OnInit, OnDestroy {
+export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave {
   // Profil Utilisateur
   currentUser: User | null = null;
   userName: string = 'Utilisateur';
@@ -61,6 +63,19 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  ionViewWillEnter() {
+    // Se déclenche à CHAQUE fois que la page redevient active :
+    // premier chargement, retour depuis /search-results, changement d'onglet...
+    this.loadUserProfile();
+    this.loadInitialData();
+  }
+
+  ionViewWillLeave() {
+    // Optionnel : remettre l'UI dans un état propre en quittant,
+    // pour éviter de voir un vieux spinner clignoter au retour.
+    this.isSearching = false;
   }
 
   /**

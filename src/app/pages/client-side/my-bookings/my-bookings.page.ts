@@ -6,6 +6,8 @@ import {
   NavController,
   AlertController,
   ModalController,
+  ViewWillEnter,   // 👈 nouveau
+  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -24,7 +26,7 @@ export type BookingFilterType = 'all' | 'active' | 'past' | 'cancelled';
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule, SharedHeaderComponent],
 })
-export class MyBookingsPage implements OnInit, OnDestroy {
+export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave {
   // Données
   bookings: Reservation[] = [];
   activeBookings: Reservation[] = [];
@@ -72,6 +74,18 @@ export class MyBookingsPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+    ionViewWillEnter() {
+    // Se déclenche à CHAQUE fois que la page redevient active :
+    // premier chargement, retour depuis /search-results, changement d'onglet...
+    this.loadBookings();
+  }
+
+  ionViewWillLeave() {
+    // Optionnel : remettre l'UI dans un état propre en quittant,
+    // pour éviter de voir un vieux spinner clignoter au retour.
+    this.isLoading = false;
   }
 
   /**

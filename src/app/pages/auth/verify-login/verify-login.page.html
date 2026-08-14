@@ -1,0 +1,51 @@
+<ion-content [fullscreen]="true" class="bg-background">
+  <div class="min-h-full px-6 py-12 bg-background flex flex-col justify-center max-w-md mx-auto">
+    <button routerLink="/auth/login" class="self-start text-on-surface-variant mb-8">
+      <i class="fa-solid fa-arrow-left mr-2"></i>Modifier le numéro
+    </button>
+
+    <div class="mb-8">
+      <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">
+        <i class="fa-solid fa-message-sms text-xl"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold text-secondary">Vérifiez votre numéro</h1>
+      <p class="text-sm text-on-surface-variant mt-2">Code envoyé au <strong>{{ phoneNumber }}</strong>.</p>
+    </div>
+
+    <div class="space-y-2 mb-5">
+      <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Code OTP</label>
+      <input
+        [(ngModel)]="code"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        placeholder="000000"
+        class="w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 text-center text-2xl tracking-[0.4em] outline-none focus:border-primary"
+        (keyup.enter)="verify()"
+      />
+    </div>
+
+    <p class="text-xs text-on-surface-variant leading-5 mb-5">
+      Nous vérifions d'abord votre numéro. Si votre compte existe déjà, vous serez connecté immédiatement. Sinon, nous vous demanderons votre nom complet à l'étape suivante.
+    </p>
+
+    <div *ngIf="error" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl mb-4">{{ error }}</div>
+
+    <button
+      (click)="verify()"
+      [disabled]="loading"
+      class="w-full bg-primary text-white font-bold py-4 rounded-2xl disabled:opacity-60"
+    >
+      <span *ngIf="!loading">Vérifier le code</span>
+      <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
+    </button>
+
+    <button
+      (click)="resend()"
+      [disabled]="countdown>0||loading"
+      class="w-full mt-4 text-primary font-bold"
+    >
+      {{ countdown>0 ? 'Renvoyer dans '+countdown+'s' : 'Renvoyer le code' }}
+    </button>
+  </div>
+</ion-content>
