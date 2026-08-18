@@ -10,7 +10,7 @@ export const environment = {
   baseApiUrl: 'http://192.168.100.5:8000',
   apiTimeout: 30000,
   pusher: {
-    key: '9fd9732315c0fe4be887',   // PUSHER_APP_KEY — public, sans risque
+    key: '9fd9732315c0fe4be887', // PUSHER_APP_KEY — public, sans risque
     cluster: 'mt1',
   },
 };

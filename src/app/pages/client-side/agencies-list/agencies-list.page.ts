@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { AgencyService } from '../../../services/agency.service';
 import { Agency } from '../../../models';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
+import { environment } from 'src/environments/environment';
 
 
 interface AgencyCard {
@@ -40,6 +41,8 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   pageSize = 10;
   hasMore = true;
   isLoading = false;
+
+  readonly baseApiUrl = environment.baseApiUrl;
 
   allAgencies: AgencyCard[] = [];
   filteredAgencies: AgencyCard[] = [];
@@ -124,7 +127,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
       name: agency.name,
       rating: agency.rating ?? 0,
       reviewsCount: agency.totalReviews ?? 0,
-      logoUrl: agency.logo ?? null,
+      logoUrl: agency.logoUrl ?? null,
       verified: agency.isVerified ?? false,
       destinations: [agency.city, agency.address]
         .filter(Boolean)

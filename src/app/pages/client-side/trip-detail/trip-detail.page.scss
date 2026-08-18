@@ -1,0 +1,14 @@
+/* Ombre douce cohérente avec home.page / search-results.page */
+.soft-shadow {
+  box-shadow: 0 12px 34px -10px rgba(15, 23, 42, 0.04),
+              0 4px 12px -4px rgba(15, 23, 42, 0.02);
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse-subtle 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

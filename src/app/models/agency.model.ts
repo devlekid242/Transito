@@ -9,8 +9,8 @@ export interface Agency {
   city: string;
   rating: number;
   totalReviews: number;
-  logo?: string;
-  coverImage?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;

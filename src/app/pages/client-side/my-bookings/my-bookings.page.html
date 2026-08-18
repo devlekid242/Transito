@@ -410,8 +410,19 @@
               <!-- Note de remboursement : uniquement pour les billets annulés.  -->
               <!-- Pas de QR ni de "Détails" ici : le billet est définitivement  -->
               <!-- invalide et ne peut plus être consulté ni scanné.             -->
+              <!-- 3 cas distincts, cf. hasRefund()/isRefundCompleted() :        -->
+              <!-- annulation système/sans paiement -> pas de remboursement dû,  -->
+              <!-- annulation après paiement -> remboursement en cours,          -->
+              <!-- puis remboursement effectué.                                 -->
               <div
-                *ngIf="isCancelled(booking) && booking.status !== 'Remboursé'"
+                *ngIf="isCancelled(booking) && !hasRefund(booking)"
+                class="rounded-xl bg-slate-100 border border-slate-200/70 text-slate-600 text-[11px] px-3.5 py-2.5 flex items-center gap-2"
+              >
+                <i class="fa-solid fa-circle-info text-[11px]"></i>
+                <span>Réservation annulée : le paiement n'avait pas été finalisé, aucun remboursement n'est nécessaire.</span>
+              </div>
+              <div
+                *ngIf="isCancelled(booking) && hasRefund(booking) && !isRefundCompleted(booking)"
                 class="rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-[11px] px-3.5 py-2.5 flex items-center gap-2"
               >
 
@@ -419,7 +430,7 @@
                 <span>Remboursement en cours de traitement par notre équipe.</span>
               </div>
               <div
-                *ngIf="isCancelled(booking) && booking.status === 'Remboursé'"
+                *ngIf="isCancelled(booking) && hasRefund(booking) && isRefundCompleted(booking)"
                 class="rounded-xl bg-green-100 border border-green-200/70 text-green-800 text-[11px] px-3.5 py-2.5 flex items-center gap-2"
               >
 

@@ -227,7 +227,7 @@
                 >
                   <img
                     *ngIf="trip.agencyLogo"
-                    [src]="trip.agencyLogo"
+                    [src]="baseApiUrl + trip.agencyLogo"
                     alt="Logo"
                     class="w-full h-full object-cover rounded-xl"
                   />
@@ -340,7 +340,7 @@
                 (click)="selectTrip(trip); $event.stopPropagation()"
                 class="bg-primary text-on-primary font-bold text-xs px-5 py-2.5 rounded-xl uppercase tracking-wider shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5"
               >
-                <span>Réserver</span>
+                <span>Voir détails</span>
                 <i class="fa-solid fa-arrow-right text-[10px]"></i>
               </button>
             </div>

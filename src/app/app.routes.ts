@@ -90,6 +90,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'trip-detail/:id',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/client-side/trip-detail/trip-detail.page').then(
+        (m) => m.TripDetailPage,
+      ),
+  },
+  {
     path: 'notifications',
     canActivate: [AuthGuard],
     loadComponent: () =>

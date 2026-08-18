@@ -195,6 +195,24 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
     return booking?.status === 'Annulé' || booking?.status === 'Remboursé';
   }
 
+  /**
+   * Un remboursement n'est dû QUE si un paiement avait réellement été
+   * effectué avant l'annulation (voir BookingController::cancel(), champ
+   * `refund` non-null uniquement dans ce cas). Sans ça : annulation système
+   * pour paiement jamais abouti (échec/expiration), ou annulation du client
+   * avant tout paiement — dans les deux cas, rien n'a été débité.
+   */
+  hasRefund(booking: Reservation): boolean {
+    return !!(booking as any)?.refund;
+  }
+
+  isRefundCompleted(booking: Reservation): boolean {
+    return (
+      booking?.status === 'Remboursé' ||
+      (booking as any)?.refund?.status === 'REFUNDED'
+    );
+  }
+
   /** Le voyage n'a pas encore eu lieu — utilisé pour choisir la carte "billet actif" vs carte compacte. */
   isUpcoming(booking: Reservation): boolean {
     return !!booking?.bookingDate && new Date(booking.bookingDate) > new Date();

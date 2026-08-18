@@ -8,6 +8,7 @@ import { AgencyService } from '../../../services/agency.service';
 import { TripService } from '../../../services/trip.service';
 import { Agency, AgencyPoint } from '../../../models/agency.model';
 import { Trip as ApiTrip } from '../../../models/trip.model';
+import { environment } from 'src/environments/environment';
 
 interface DisplayTrip {
   id: number;
@@ -36,6 +37,8 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   allTrips: DisplayTrip[] = [];
   displayedTrips: DisplayTrip[] = [];
   points: AgencyPoint[] = [];
+
+  readonly baseApiUrl = environment.baseApiUrl;
 
   // Pilote le skeleton loader dans le template
   isLoading = true;

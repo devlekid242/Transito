@@ -30,35 +30,67 @@
     <main class="px-5 -mt-14 relative z-20 flex flex-col gap-stack-lg">
       <!-- ===================== SKELETON LOADER ===================== -->
       <div *ngIf="isLoading" class="flex flex-col gap-stack-lg">
-        <!-- Skeleton carte profil -->
-        <div
-          class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20 flex flex-col items-center text-center gap-3"
+        <!-- Skeleton : carte d'en-tête de profil -->
+        <section
+          class="bg-surface-container-lowest rounded-[2rem] p-6 interactive-shadow border border-outline-variant/20 flex flex-row justify-around gap-3 items-center text-center"
         >
-          <div class="w-24 h-24 rounded-full bg-surface-container animate-pulse"></div>
-          <div class="h-5 bg-surface-container rounded w-36 animate-pulse"></div>
-          <div class="h-3 bg-surface-container rounded w-44 animate-pulse"></div>
-          <div class="h-6 bg-surface-container rounded-full w-28 animate-pulse mt-1"></div>
-        </div>
-
-        <!-- Skeleton actions rapides -->
-        <div class="grid grid-cols-3 gap-3">
-          <div *ngFor="let item of [1,2,3]" class="bg-surface-container-lowest rounded-2xl p-4 soft-shadow border border-outline-variant/20 flex flex-col items-center gap-2">
-            <div class="w-12 h-12 rounded-full bg-surface-container animate-pulse"></div>
-            <div class="h-3 bg-surface-container rounded w-12 animate-pulse"></div>
+          <div
+            class="w-24 h-24 rounded-full bg-surface-container border-4 border-surface-container-lowest shadow-md animate-pulse shrink-0"
+          ></div>
+          <div class="flex flex-col items-center gap-2">
+            <div
+              class="h-5 bg-surface-container rounded w-32 animate-pulse"
+            ></div>
+            <div
+              class="h-3 bg-surface-container rounded w-40 animate-pulse"
+            ></div>
+            <div
+              class="h-3 bg-surface-container rounded w-28 animate-pulse"
+            ></div>
+            <div
+              class="h-3 bg-surface-container rounded w-36 animate-pulse"
+            ></div>
           </div>
-        </div>
+        </section>
 
-        <!-- Skeleton carte compte -->
-        <div class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20 flex flex-col gap-4">
-          <div class="h-4 bg-surface-container rounded w-40 animate-pulse"></div>
-          <div *ngFor="let item of [1,2,3]" class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-surface-container animate-pulse"></div>
-            <div class="space-y-2 flex-1">
-              <div class="h-3.5 bg-surface-container rounded w-32 animate-pulse"></div>
-              <div class="h-3 bg-surface-container rounded w-24 animate-pulse"></div>
+        <!-- Skeleton : carte "Mon compte" (4 lignes, comme le rendu final) -->
+        <section
+          class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20"
+        >
+          <div
+            class="flex items-center gap-2 mb-2 pb-3 border-b border-surface-container-low"
+          >
+            <div
+              class="w-4 h-4 rounded bg-surface-container animate-pulse"
+            ></div>
+            <div
+              class="h-4 bg-surface-container rounded w-28 animate-pulse"
+            ></div>
+          </div>
+          <div class="flex flex-col divide-y divide-surface-container-low">
+            <div
+              *ngFor="let item of [1,2,3,4]"
+              class="py-4 flex items-center gap-3"
+            >
+              <div
+                class="w-10 h-10 rounded-xl bg-surface-container animate-pulse shrink-0"
+              ></div>
+              <div class="flex-1 space-y-2">
+                <div
+                  class="h-3.5 bg-surface-container rounded w-32 animate-pulse"
+                ></div>
+                <div
+                  class="h-3 bg-surface-container rounded w-44 animate-pulse"
+                ></div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <!-- Skeleton : bouton de déconnexion -->
+        <div
+          class="w-full h-[52px] bg-surface-container rounded-2xl animate-pulse"
+        ></div>
       </div>
 
       <!-- ===================== CONTENU ===================== -->
@@ -85,7 +117,9 @@
             </div>
           </div>
           <div>
-            <h1 class="text-xl font-headline-sm font-extrabold text-on-surface tracking-tight mb-1">
+            <h1
+              class="text-xl font-headline-sm font-extrabold text-on-surface tracking-tight mb-1"
+            >
               {{ user.fullName }}
             </h1>
             <p class="text-xs font-medium text-on-surface-variant mb-1">
@@ -103,9 +137,13 @@
         <section
           class="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow border border-outline-variant/20"
         >
-          <div class="flex items-center gap-2 mb-2 pb-3 border-b border-surface-container-low">
+          <div
+            class="flex items-center gap-2 mb-2 pb-3 border-b border-surface-container-low"
+          >
             <i class="fa-solid fa-shield-halved text-secondary text-sm"></i>
-            <h2 class="text-sm font-headline-sm font-extrabold text-on-surface tracking-tight">
+            <h2
+              class="text-sm font-headline-sm font-extrabold text-on-surface tracking-tight"
+            >
               Mon compte
             </h2>
           </div>
@@ -131,7 +169,9 @@
                   </p>
                 </div>
               </div>
-              <i class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"></i>
+              <i
+                class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"
+              ></i>
             </li>
 
             <!-- <li
@@ -175,9 +215,11 @@
                   </p>
                 </div>
               </div>
-              <i class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"></i>
+              <i
+                class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"
+              ></i>
             </li>
-            
+
             <li
               (click)="openSupport()"
               class="py-4 flex items-center justify-between hover:bg-surface-container-low px-2 -mx-2 rounded-xl transition-colors cursor-pointer group"
@@ -197,7 +239,9 @@
                   </p>
                 </div>
               </div>
-              <i class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"></i>
+              <i
+                class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"
+              ></i>
             </li>
             <li
               (click)="openSettings()"
@@ -210,15 +254,15 @@
                   <i class="fa-solid fa-gear text-sm"></i>
                 </div>
                 <div>
-                  <h3 class="text-sm font-bold text-on-surface">
-                    Paramètres
-                  </h3>
+                  <h3 class="text-sm font-bold text-on-surface">Paramètres</h3>
                   <p class="text-[11px] font-medium text-on-surface-variant/70">
                     Gérez vos préférences et vos paramètres
                   </p>
                 </div>
               </div>
-              <i class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"></i>
+              <i
+                class="fa-solid fa-chevron-right text-on-surface-variant/50 text-xs"
+              ></i>
             </li>
           </ul>
         </section>

@@ -48,7 +48,7 @@
         <img
           alt="Photo de couverture de l'agence"
           class="w-full h-full object-cover"
-          [src]="agency?.coverImage || 'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&w=1200&q=80'" />
+          [src]="agency?.bannerUrl ? baseApiUrl + agency?.bannerUrl  : 'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&w=1200&q=80'" />
         <div class="absolute inset-0 bg-gradient-to-t from-secondary/95 via-secondary/40 to-transparent"></div>
         <div class="absolute -right-10 -top-10 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
 
@@ -57,7 +57,7 @@
             <img
               alt="Logo de l'agence"
               class="w-full h-full object-contain rounded-xl"
-              [src]="agency?.logo || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=120&q=80'" />
+              [src]="agency?.logoUrl ? baseApiUrl + agency?.logoUrl  : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=120&q=80'" />
             <div
               *ngIf="agency?.isVerified"
               class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-primary flex items-center justify-center border-2 border-surface-container-lowest shadow-sm"
@@ -141,8 +141,8 @@
               <div class="flex justify-between items-start mb-3">
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-secondary font-title-lg font-bold text-sm uppercase shadow-inner border border-outline-variant/10 overflow-hidden">
-                    <img *ngIf="agency?.logo" [src]="agency?.logo" alt="Logo" class="w-full h-full object-cover" />
-                    <i *ngIf="!agency?.logo" class="fa-solid fa-bus"></i>
+                    <img *ngIf="agency?.logoUrl" [src]="baseApiUrl + agency?.logoUrl" alt="Logo" class="w-full h-full object-cover" />
+                    <i *ngIf="!agency?.logoUrl" class="fa-solid fa-bus"></i>
                   </div>
                   <div>
                     <h3 class="font-bold text-sm text-on-surface tracking-tight">{{ agency?.name }}</h3>

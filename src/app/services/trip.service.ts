@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Trip, TripSearchParams, TripResponse } from '../models';
+import { Trip, TripSearchParams, TripResponse, TripDetail } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
 import { environment } from 'src/environments/environment';
 
@@ -41,8 +41,8 @@ export class TripService {
       .pipe(unwrapCollection<Trip, TripResponse>(false));
   }
 
-  /** 
-   * Obtenir tout les trajete disponible a venir 
+  /**
+   * Obtenir tout les trajete disponible a venir
    */
 
   getUncomingTrips(): Observable<Trip[]> {
@@ -51,7 +51,6 @@ export class TripService {
       .pipe(unwrapCollection<Trip>());
   }
 
-
   /**
    * Obtenir les détails d'un trajet
    */
@@ -59,6 +58,9 @@ export class TripService {
     return this.http.get<Trip>(`${this.apiUrl}/${tripId}`);
   }
 
+  getTripDetails(tripId: number | string): Observable<TripDetail> {
+    return this.http.get<TripDetail>(`${this.apiUrl}/${tripId}`);
+  }
   /**
    * Obtenir les villes de départ
    */

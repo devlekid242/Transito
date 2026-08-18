@@ -62,6 +62,14 @@ export class BookingFormPage implements OnInit, OnDestroy {
   deboardingPoints: any[] = [];
   selectedDeboardingPoint = '';
 
+  // Gestion des sièges : le client peut choisir précisément ses places ou laisser
+  // le backend attribuer automatiquement les premières places disponibles.
+  seatCapacity = 0;
+  takenSeats: number[] = [];
+  selectedSeatNumbers: number[] = [];
+  seatSelectionMode: 'auto' | 'manual' = 'auto';
+  isSeatLoading = false;
+
   ticketSubtotal = 0;
   totalAmountToPay = 0;
   bookingId: number | null = null;
@@ -162,6 +170,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
           this.selectedDeboardingPoint =
             this.deboardingPoints[0].name || this.deboardingPoints[0];
 
+          this.initializeSeatSelection(trip);
           this.updateTotals();
           this.isLoading = false;
         },
@@ -205,7 +214,82 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
   removePassenger(index: number) {
     this.passengers.splice(index, 1);
+    if (this.seatSelectionMode === 'manual' && this.selectedSeatNumbers.length > this.passengers.length) {
+      this.selectedSeatNumbers = this.selectedSeatNumbers.slice(0, this.passengers.length);
+    }
     this.updateTotals();
+  }
+
+  private initializeSeatSelection(trip: Trip) {
+    const rawCapacity =
+      (trip as any).bus?.capacity ??
+      (trip as any).busCapacity ??
+      (trip as any).capacity ??
+      0;
+
+    this.seatCapacity = Number(rawCapacity) || 0;
+    this.takenSeats = [];
+    this.selectedSeatNumbers = [];
+    this.seatSelectionMode = 'auto';
+
+    if (this.seatCapacity > 0) {
+      this.loadSeatAvailability();
+    }
+  }
+
+  loadSeatAvailability() {
+    if (!this.tripId || this.seatCapacity < 1) return;
+
+    this.isSeatLoading = true;
+    const allSeats = Array.from({ length: this.seatCapacity }, (_, index) => String(index + 1));
+
+    this.bookingService
+      .validateSeats(this.tripId, allSeats)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.takenSeats = Array.isArray(response?.takenSeats)
+            ? response.takenSeats.map((seat: any) => Number(seat)).filter((seat: number) => Number.isFinite(seat))
+            : [];
+          this.isSeatLoading = false;
+        },
+        error: () => {
+          // L'écran reste utilisable en attribution automatique. Le contrôle
+          // définitif des places appartient au backend lors de la création.
+          this.takenSeats = [];
+          this.isSeatLoading = false;
+        },
+      });
+  }
+
+  isSeatTaken(seat: number): boolean {
+    return this.takenSeats.includes(seat);
+  }
+
+  isSeatSelected(seat: number): boolean {
+    return this.selectedSeatNumbers.includes(seat);
+  }
+
+  toggleSeat(seat: number) {
+    if (this.seatSelectionMode !== 'manual' || this.isSeatTaken(seat) || this.isPaymentLoading) return;
+
+    if (this.isSeatSelected(seat)) {
+      this.selectedSeatNumbers = this.selectedSeatNumbers.filter((value) => value !== seat);
+      return;
+    }
+
+    if (this.selectedSeatNumbers.length >= this.passengers.length) {
+      return;
+    }
+
+    this.selectedSeatNumbers = [...this.selectedSeatNumbers, seat].sort((a, b) => a - b);
+  }
+
+  setSeatSelectionMode(mode: 'auto' | 'manual') {
+    this.seatSelectionMode = mode;
+    if (mode === 'auto') {
+      this.selectedSeatNumbers = [];
+    }
   }
 
   // --- Gestion des bagages (Aligné avec l'entité Baggage) ---
@@ -255,23 +339,43 @@ export class BookingFormPage implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.isPaymentLoading) return;
+
+    if (this.seatSelectionMode === 'manual') {
+      if (this.selectedSeatNumbers.length !== this.passengers.length) {
+        await this.showAlert(
+          'Places',
+          `Veuillez sélectionner exactement ${this.passengers.length} place(s), soit une place par passager.`,
+        );
+        return;
+      }
+
+      if (this.selectedSeatNumbers.some((seat) => this.isSeatTaken(seat))) {
+        await this.showAlert(
+          'Place indisponible',
+          'Une des places sélectionnées vient d’être prise. Actualisez les disponibilités puis réessayez.',
+        );
+        this.loadSeatAvailability();
+        return;
+      }
+    }
+
     this.isPaymentLoading = true;
     this.paymentStep = 'initiate';
 
-    // Construction du payload aligné sur la méthode API create_booking
-    const bookingRequest: BookingRequest = {
+    const bookingRequest: BookingRequest & { seatNumbers?: number[] } = {
       tripId: this.trip!.id,
       passengers: this.passengers,
       baggages: this.baggages,
       totalPrice: this.totalAmountToPay,
-      paymentPhone: '+242'+this.phoneNumber,
+      paymentPhone: '+242' + this.phoneNumber.replace(/^\+242/, ''),
       paymentMethod: this.selectedOperator,
       boardingPoint: this.selectedBoardingPoint,
       deboardingPoint: this.selectedDeboardingPoint,
+      ...(this.seatSelectionMode === 'manual' ? { seatNumbers: this.selectedSeatNumbers } : {}),
     };
 
-    // Étape 1 : Créer la réservation d'abord
-    this.bookingService
+    const createBooking = () => this.bookingService
       .createBooking(bookingRequest)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -320,6 +424,32 @@ export class BookingFormPage implements OnInit, OnDestroy {
           );
         },
       });
+
+    // Revalider juste avant la création pour éviter d'envoyer un siège déjà pris.
+    // Ce contrôle est informatif : le backend reste l'autorité finale et protège
+    // la réservation contre les courses concurrentes.
+    if (this.seatSelectionMode === 'manual') {
+      this.bookingService
+        .validateSeats(this.trip!.id, this.selectedSeatNumbers.map(String))
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            if (response?.allAvailable !== true) {
+              this.isPaymentLoading = false;
+              this.loadSeatAvailability();
+              this.showAlert('Place indisponible', 'Une place sélectionnée n’est plus disponible. Veuillez en choisir une autre.');
+              return;
+            }
+            createBooking();
+          },
+          error: async (err) => {
+            this.isPaymentLoading = false;
+            await this.showAlert('Disponibilité', err?.error?.error || 'Impossible de vérifier les places. Veuillez réessayer.');
+          },
+        });
+    } else {
+      createBooking();
+    }
   }
 
   private confirmPaymentTransaction() {
@@ -342,7 +472,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
               ticketNumber: `TKT-${this.bookingId}`,
               ticketClass: this.trip?.category,
               transactionId: this.transactionId,
-              paymentStatus: 'Confirmé',
+              paymentStatus: confirmResponse?.status,
             };
 
             // Un billet par passager : on associe la donnée backend (siège, QR, n° billet)

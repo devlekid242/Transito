@@ -14,6 +14,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams, User } from '../../../models';
 import { TripService, UserService } from '../../../services';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +27,8 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
   // Profil Utilisateur
   currentUser: User | null = null;
   userName: string = 'Utilisateur';
+
+  readonly baseApiUrl = environment.baseApiUrl;
 
   // Structure des filtres de recherche
   searchParams: TripSearchParams = {
@@ -214,10 +217,12 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
   }
 
   /**
-   * Router vers le formulaire d'achat / réservation
+   * Router vers la page de détail du voyage (points d'embarquement/débarquement,
+   * places, horaires...). La réservation elle-même est déclenchée depuis cette
+   * page de détail, pas directement depuis la liste.
    */
   selectTrip(trip: Trip) {
-    this.navCtrl.navigateForward(`/booking-form/${trip.id}`);
+    this.navCtrl.navigateForward(`/trip-detail/${trip.id}`);
   }
 
 

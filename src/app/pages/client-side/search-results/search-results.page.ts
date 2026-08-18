@@ -7,6 +7,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams } from '../../../models';
 import { TripService } from '../../../services';
+import { environment } from 'src/environments/environment';
 
 /** Forme de travail du panneau de filtres avancés (brouillon, appliqué seulement au clic sur "Appliquer"). */
 interface FilterDraft {
@@ -34,6 +35,8 @@ export class SearchResultsPage implements OnInit, OnDestroy {
     arrivalCity: '',
     departureDate: '',
   };
+
+  readonly baseApiUrl = environment.baseApiUrl;
 
   // Résumé textuel pour le bandeau d'en-tête (trajet, date, passager)
   searchSummary = {
@@ -361,8 +364,13 @@ export class SearchResultsPage implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Router vers la page de détail du voyage (points d'embarquement/débarquement,
+   * places, horaires...). La réservation elle-même est déclenchée depuis cette
+   * page de détail, pas directement depuis la liste de résultats.
+   */
   bookTrip(trip: Trip) {
-    this.navCtrl.navigateForward(`/booking-form/${trip.id}`, {
+    this.navCtrl.navigateForward(`/trip-detail/${trip.id}`, {
       state: { trip },
     });
   }

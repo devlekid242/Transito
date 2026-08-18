@@ -122,11 +122,17 @@
                 <div
                   class="w-12 h-12 rounded-xl overflow-hidden bg-surface-container-low flex items-center justify-center border border-outline-variant/10 shadow-inner shrink-0"
                 >
-                  <img
+                  <!-- <img
                     *ngIf="agency.logoUrl"
                     [src]="agency.logoUrl"
                     [alt]="agency.name"
                     class="w-full h-full object-cover"
+                  /> -->
+                  <img
+                    *ngIf="agency.logoUrl"
+                    [src]="baseApiUrl + agency.logoUrl"
+                    alt="Logo"
+                    class="w-full h-full object-cover rounded-xl"
                   />
                   <i
                     *ngIf="!agency.logoUrl"
