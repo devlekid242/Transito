@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 /**
  * 👈 CORRIGÉ : les statuts déclarés ici ('in_progress' | 'resolved') ne
@@ -80,29 +80,30 @@ export class SupportService {
    * `/close` et `/reopen` existent pour un client.
    */
   closeTicket(ticketId: number, reason?: string): Observable<SupportTicket> {
-    return this.http.post<SupportTicket>(`${this.apiUrl}/${ticketId}/close`, { reason });
+    return this.http.post<SupportTicket>(`${this.apiUrl}/${ticketId}/close`, {
+      reason,
+    });
   }
 
   /**
    * Rouvre le ticket.
    */
   reopenTicket(ticketId: number): Observable<SupportTicket> {
-    return this.http.post<SupportTicket>(`${this.apiUrl}/${ticketId}/reopen`, {});
+    return this.http.post<SupportTicket>(
+      `${this.apiUrl}/${ticketId}/reopen`,
+      {},
+    );
   }
 
   /**
    * Add response/reply to ticket
    */
-  addResponse(
-    ticketId: number,
-    message: string,
-  ): Observable<{ id: number }> {
+  addResponse(ticketId: number, message: string): Observable<{ id: number }> {
     return this.http.post<{ id: number }>(
       `${this.apiUrl}/${ticketId}/responses`,
       { message },
     );
   }
-
 
   // Récupérer les détails d'un ticket avec le fil de discussion
   getTicketDetails(id: number): Observable<any> {

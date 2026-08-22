@@ -1,9 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, LoadingController, AlertController, ToastController , ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import {
+  IonicModule,
+  NavController,
+  LoadingController,
+  AlertController,
+  ToastController,
+  ViewWillEnter,
+  ViewWillLeave,
+} from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-edit-profile-photo',
@@ -12,7 +20,9 @@ import { environment } from 'src/environments/environment';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule],
 })
-export class EditProfilePhotoPage implements OnInit, ViewWillEnter, ViewWillLeave {
+export class EditProfilePhotoPage
+  implements OnInit, ViewWillEnter, ViewWillLeave
+{
   currentPhoto: string = '';
   previewPhoto: string = '';
   selectedFile: File | null = null;
@@ -41,7 +51,9 @@ export class EditProfilePhotoPage implements OnInit, ViewWillEnter, ViewWillLeav
   private loadCurrentPhoto() {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
-        this.currentPhoto = user.profilePhotoUrl ? environment.baseApiUrl + user.profilePhotoUrl : '/assets/images/default-avatar.png';
+        this.currentPhoto = user.profilePhotoUrl
+          ? environment.baseApiUrl + user.profilePhotoUrl
+          : '/assets/images/default-avatar.png';
         this.previewPhoto = this.currentPhoto;
       },
       error: (err) => {
@@ -61,7 +73,10 @@ export class EditProfilePhotoPage implements OnInit, ViewWillEnter, ViewWillLeav
 
       // Vérifier la taille (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        this.showAlert('Erreur', 'La taille de l\'image ne doit pas dépasser 5MB');
+        this.showAlert(
+          'Erreur',
+          "La taille de l'image ne doit pas dépasser 5MB",
+        );
         return;
       }
 
@@ -97,7 +112,10 @@ export class EditProfilePhotoPage implements OnInit, ViewWillEnter, ViewWillLeav
       error: async (err) => {
         this.isUploading = false;
         console.error('Erreur lors du téléchargement:', err);
-        await this.showAlert('Erreur', 'Impossible de télécharger la photo. Veuillez réessayer.');
+        await this.showAlert(
+          'Erreur',
+          'Impossible de télécharger la photo. Veuillez réessayer.',
+        );
       },
     });
   }

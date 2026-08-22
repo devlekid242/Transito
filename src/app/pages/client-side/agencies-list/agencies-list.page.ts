@@ -7,15 +7,14 @@ import {
   InfiniteScrollCustomEvent,
   LoadingController,
   AlertController,
-  ViewWillEnter,   // 👈 nouveau
-  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
+  ViewWillEnter, // 👈 nouveau
+  ViewWillLeave, // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AgencyService } from '../../../services/agency.service';
 import { Agency } from '../../../models';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
-import { environment } from 'src/environments/environment';
-
+import { environment } from 'src/environments/environment.prod';
 
 interface AgencyCard {
   id: number;
@@ -67,7 +66,10 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
     this.isLoading = false;
   }
 
-  private async loadAgencies(page: number = 1, event?: InfiniteScrollCustomEvent) {
+  private async loadAgencies(
+    page: number = 1,
+    event?: InfiniteScrollCustomEvent,
+  ) {
     this.isLoading = true;
     if (page === 1) {
       this.agencyService.getAgencies(page, this.pageSize).subscribe({
@@ -120,7 +122,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   private extractAgencyList(response: any): AgencyCard[] {
     const apiAgencies: Agency[] = Array.isArray(response)
       ? response
-      : response?.data ?? response?.['hydra:member'] ?? [];
+      : (response?.data ?? response?.['hydra:member'] ?? []);
 
     return apiAgencies.map((agency) => ({
       id: agency.id,
@@ -129,9 +131,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
       reviewsCount: agency.totalReviews ?? 0,
       logoUrl: agency.logoUrl ?? null,
       verified: agency.isVerified ?? false,
-      destinations: [agency.city, agency.address]
-        .filter(Boolean)
-        .join(', '),
+      destinations: [agency.city, agency.address].filter(Boolean).join(', '),
       tags: agency.isVerified ? ['Vérifiée'] : ['Standard'],
     }));
   }

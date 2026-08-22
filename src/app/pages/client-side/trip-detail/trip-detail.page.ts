@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TripDetail, TripPoint } from '../../../models';
 import { TripService } from '../../../services';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-trip-detail',
@@ -85,12 +85,18 @@ export class TripDetailPage implements OnInit, OnDestroy {
     if (!this.trip) return;
 
     if (!this.trip.availableSeats || this.trip.availableSeats <= 0) {
-      await this.showAlert('Complet', 'Ce voyage ne dispose plus de places disponibles.');
+      await this.showAlert(
+        'Complet',
+        'Ce voyage ne dispose plus de places disponibles.',
+      );
       return;
     }
 
     if (!this.selectedBoardingPoint || !this.selectedDeboardingPoint) {
-      await this.showAlert('Sélection requise', "Veuillez choisir un point d'embarquement et de débarquement.");
+      await this.showAlert(
+        'Sélection requise',
+        "Veuillez choisir un point d'embarquement et de débarquement.",
+      );
       return;
     }
 
@@ -118,7 +124,7 @@ export class TripDetailPage implements OnInit, OnDestroy {
       const [depH, depM] = departure.split(':').map(Number);
       const [arrH, arrM] = arrival.split(':').map(Number);
 
-      let diffMinutes = (arrH * 60 + arrM) - (depH * 60 + depM);
+      let diffMinutes = arrH * 60 + arrM - (depH * 60 + depM);
       if (diffMinutes < 0) diffMinutes += 24 * 60;
 
       const hours = Math.floor(diffMinutes / 60);
@@ -133,7 +139,11 @@ export class TripDetailPage implements OnInit, OnDestroy {
   formatDisplayDate(dateStr: string): string {
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      return date.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
     } catch {
       return dateStr;
     }

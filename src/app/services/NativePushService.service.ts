@@ -8,9 +8,7 @@ import {
   ActionPerformed,
   Token,
 } from '@capacitor/push-notifications';
-import { environment } from '../../environments/environment';
-
-
+import { environment } from '../../environments/environment.prod';
 
 /**
  * Push natif (Capacitor / FCM) : c'est LUI qui fait apparaître une
@@ -92,9 +90,12 @@ export class NativePushService {
       return;
     }
     this.http
-      .post(`${environment.apiUrl}/devices/unregister`, { token: this.currentToken })
+      .post(`${environment.apiUrl}/devices/unregister`, {
+        token: this.currentToken,
+      })
       .subscribe({
-        error: (err) => console.error('Échec de désenregistrement du device token', err),
+        error: (err) =>
+          console.error('Échec de désenregistrement du device token', err),
       });
     await PushNotifications.removeAllListeners();
     this.currentToken = null;
@@ -106,7 +107,8 @@ export class NativePushService {
       .post(`${environment.apiUrl}/devices/register`, { token, platform })
       .subscribe({
         next: () => console.log('Device token enregistré côté API'),
-        error: (err) => console.error('Échec de l’enregistrement du device token', err),
+        error: (err) =>
+          console.error('Échec de l’enregistrement du device token', err),
       });
   }
 
@@ -122,7 +124,10 @@ export class NativePushService {
       case 'BOOKING':
       case 'TICKET':
         if (payload?.reservationId || payload?.ticketId) {
-          this.router.navigate(['/ticket', payload.reservationId || payload.ticketId]);
+          this.router.navigate([
+            '/ticket',
+            payload.reservationId || payload.ticketId,
+          ]);
         } else {
           this.router.navigate(['/tabs/reservation']);
         }

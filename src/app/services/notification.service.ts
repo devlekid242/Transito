@@ -5,7 +5,7 @@ import { tap } from 'rxjs/operators';
 import Pusher, { Channel } from 'pusher-js';
 import { Notification } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +20,8 @@ export class NotificationService {
   public unreadCount$ = new BehaviorSubject<number>(0);
 
   private pusher: Pusher | null = null;
-  private channel: Channel | null = null;          // private-user-{id}
-  private agencyChannel: Channel | null = null;     // private-agency-{agencyId}, agents/partenaires uniquement
+  private channel: Channel | null = null; // private-user-{id}
+  private agencyChannel: Channel | null = null; // private-agency-{agencyId}, agents/partenaires uniquement
   private activeConnectionKey: string | null = null;
   private activeAgencyId: number | null = null;
 
@@ -98,7 +98,10 @@ export class NotificationService {
     });
 
     this.agencyChannel.bind('pusher:subscription_error', (status: unknown) => {
-      console.error('Échec de la souscription au canal Pusher (agence)', status);
+      console.error(
+        'Échec de la souscription au canal Pusher (agence)',
+        status,
+      );
     });
   }
 

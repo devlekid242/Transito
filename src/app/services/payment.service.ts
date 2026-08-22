@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentLog, PaymentRequest, PaymentResponse } from '../models';
 import { unwrapCollection } from 'src/app/shared/rxjs-operators';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 import { IdempotencyService } from 'src/app/services/idempotency.service';
 
 @Injectable({
@@ -12,7 +12,10 @@ import { IdempotencyService } from 'src/app/services/idempotency.service';
 export class PaymentService {
   private apiUrl = `${environment.apiUrl}/payments`;
 
-  constructor(private http: HttpClient, private idempotency: IdempotencyService) {}
+  constructor(
+    private http: HttpClient,
+    private idempotency: IdempotencyService,
+  ) {}
 
   /**
    * Initier un paiement

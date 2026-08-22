@@ -1,11 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, LoadingController, AlertController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import {
+  IonicModule,
+  NavController,
+  LoadingController,
+  AlertController,
+  ViewWillEnter,
+  ViewWillLeave,
+} from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 
 @Component({
@@ -62,10 +69,12 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
           fullName: profile.fullName,
           email: profile.email,
           phone: profile.phoneNumber,
-          quartier : (profile as any).quartier || 'Non renseigné',
+          quartier: (profile as any).quartier || 'Non renseigné',
           villeResidence: (profile as any).villeResidence || 'Non renseigné',
           identityCard: (profile as any).identityNumber || 'Non renseigné',
-          avatar: profile.profilePhotoUrl ? environment.baseApiUrl + profile.profilePhotoUrl : this.user.avatar,
+          avatar: profile.profilePhotoUrl
+            ? environment.baseApiUrl + profile.profilePhotoUrl
+            : this.user.avatar,
           status: profile.role || 'Utilisateur',
         };
         this.isLoading = false;
@@ -97,8 +106,6 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   openNotifications() {
     this.navCtrl.navigateForward('/notifications');
   }
-
-
 
   managePassword() {
     this.navCtrl.navigateForward('/change-password');

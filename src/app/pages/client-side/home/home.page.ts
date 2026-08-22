@@ -6,24 +6,32 @@ import {
   InfiniteScrollCustomEvent,
   NavController,
   AlertController,
-  ViewWillEnter,   // 👈 nouveau
-  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
+  ViewWillEnter, // 👈 nouveau
+  ViewWillLeave, // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams, User } from '../../../models';
 import { TripService, UserService } from '../../../services';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, SharedHeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonicModule,
+    SharedHeaderComponent,
+  ],
 })
-export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave {
+export class HomePage
+  implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
+{
   // Profil Utilisateur
   currentUser: User | null = null;
   userName: string = 'Utilisateur';
@@ -114,7 +122,7 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
         this.isLoading = false;
       })
       .catch((err) => {
-        console.error('Erreur globale d\'initialisation:', err);
+        console.error("Erreur globale d'initialisation:", err);
         this.isLoading = false;
       });
   }
@@ -165,7 +173,10 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
             resolve();
           },
           error: (err) => {
-            console.error('Erreur lors de la récupération des plannings de voyage:', err);
+            console.error(
+              'Erreur lors de la récupération des plannings de voyage:',
+              err,
+            );
             reject(err);
           },
         });
@@ -186,17 +197,26 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
    */
   async searchTrips() {
     if (!this.searchParams.departureCity) {
-      await this.showAlert('Champ requis', 'Veuillez sélectionner une ville de départ.');
+      await this.showAlert(
+        'Champ requis',
+        'Veuillez sélectionner une ville de départ.',
+      );
       return;
     }
 
     if (!this.searchParams.arrivalCity) {
-      await this.showAlert('Champ requis', 'Veuillez sélectionner une ville de destination.');
+      await this.showAlert(
+        'Champ requis',
+        'Veuillez sélectionner une ville de destination.',
+      );
       return;
     }
 
     if (!this.searchParams.departureDate) {
-      await this.showAlert('Champ requis', 'Veuillez spécifier votre date de voyage.');
+      await this.showAlert(
+        'Champ requis',
+        'Veuillez spécifier votre date de voyage.',
+      );
       return;
     }
 
@@ -212,7 +232,7 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
   openNotifications() {
     // Réinitialiser le compteur lors de l'ouverture
     // this.pushService.unreadCount.next(0);
-    
+
     this.navCtrl.navigateForward('/notifications');
   }
 
@@ -224,7 +244,6 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
   selectTrip(trip: Trip) {
     this.navCtrl.navigateForward(`/trip-detail/${trip.id}`);
   }
-
 
   viewFavorites() {
     this.navCtrl.navigateForward('/favorite-trips');
@@ -252,13 +271,13 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
     try {
       const [depH, depM] = departure.split(':').map(Number);
       const [arrH, arrM] = arrival.split(':').map(Number);
-      
-      let diffMinutes = (arrH * 60 + arrM) - (depH * 60 + depM);
+
+      let diffMinutes = arrH * 60 + arrM - (depH * 60 + depM);
       if (diffMinutes < 0) diffMinutes += 24 * 60; // Gestion du passage de minuit si applicable
-      
+
       const hours = Math.floor(diffMinutes / 60);
       const minutes = diffMinutes % 60;
-      
+
       return minutes > 0 ? `${hours}h ${minutes}min` : `${hours}h`;
     } catch (e) {
       return 'N/A';

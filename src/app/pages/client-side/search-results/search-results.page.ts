@@ -1,13 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule, InfiniteScrollCustomEvent, NavController, AlertController  } from '@ionic/angular';
+import {
+  IonicModule,
+  InfiniteScrollCustomEvent,
+  NavController,
+  AlertController,
+} from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams } from '../../../models';
 import { TripService } from '../../../services';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 /** Forme de travail du panneau de filtres avancés (brouillon, appliqué seulement au clic sur "Appliquer"). */
 interface FilterDraft {
@@ -28,7 +33,6 @@ interface FilterDraft {
   imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
 })
 export class SearchResultsPage implements OnInit, OnDestroy {
-
   // Paramètres de recherche unifiés
   searchParams: TripSearchParams = {
     departureCity: '',
@@ -86,30 +90,37 @@ export class SearchResultsPage implements OnInit, OnDestroy {
     private navCtrl: NavController,
     private tripService: TripService,
     private alertCtrl: AlertController,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      this.searchParams = {
-        departureCity: params['departure'] || '',
-        arrivalCity: params['arrival'] || '',
-        departureDate: params['date'] || '',
-      };
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        this.searchParams = {
+          departureCity: params['departure'] || '',
+          arrivalCity: params['arrival'] || '',
+          departureDate: params['date'] || '',
+        };
 
-      this.searchSummary.origin = this.searchParams.departureCity || 'Congo';
-      this.searchSummary.destination = this.searchParams.arrivalCity || 'Destination';
-      this.searchSummary.date = this.searchParams.departureDate ? this.formatDisplayDate(this.searchParams.departureDate) : "Aujourd'hui";
-      this.searchSummary.passengersCount = params['passengers'] ? parseInt(params['passengers'], 10) : 1;
-      this.searchSummary.passengerName = params['passengerName'] || '';
-      this.searchSummary.passengerPhone = params['passengerPhone'] || '';
+        this.searchSummary.origin = this.searchParams.departureCity || 'Congo';
+        this.searchSummary.destination =
+          this.searchParams.arrivalCity || 'Destination';
+        this.searchSummary.date = this.searchParams.departureDate
+          ? this.formatDisplayDate(this.searchParams.departureDate)
+          : "Aujourd'hui";
+        this.searchSummary.passengersCount = params['passengers']
+          ? parseInt(params['passengers'], 10)
+          : 1;
+        this.searchSummary.passengerName = params['passengerName'] || '';
+        this.searchSummary.passengerPhone = params['passengerPhone'] || '';
 
-      if (this.searchParams.departureCity && this.searchParams.arrivalCity) {
-        this.performSearch();
-      } else {
-        this.isLoading = false;
-      }
-    });
+        if (this.searchParams.departureCity && this.searchParams.arrivalCity) {
+          this.performSearch();
+        } else {
+          this.isLoading = false;
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -130,8 +141,11 @@ export class SearchResultsPage implements OnInit, OnDestroy {
       departureCity: this.searchParams.departureCity,
       arrivalCity: this.searchParams.arrivalCity,
       departureDate: this.searchParams.departureDate,
-      category: this.categoryFilter || '' as any,
-      maxPrice: this.maxPriceFilter !== null ? this.maxPriceFilter.toString() : '' as any
+      category: this.categoryFilter || ('' as any),
+      maxPrice:
+        this.maxPriceFilter !== null
+          ? this.maxPriceFilter.toString()
+          : ('' as any),
     };
 
     this.tripService
@@ -154,7 +168,10 @@ export class SearchResultsPage implements OnInit, OnDestroy {
           this.isLoading = false;
           this.isSearching = false;
           this.noResults = true;
-          await this.showAlert('Indisponibilité', 'Impossible de récupérer les lignes de trajets pour le moment.');
+          await this.showAlert(
+            'Indisponibilité',
+            'Impossible de récupérer les lignes de trajets pour le moment.',
+          );
         },
       });
   }
@@ -176,7 +193,9 @@ export class SearchResultsPage implements OnInit, OnDestroy {
     }
 
     if (this.agencyFilter.length) {
-      filtered = filtered.filter((t) => this.agencyFilter.includes(String(t.agencyName)));
+      filtered = filtered.filter((t) =>
+        this.agencyFilter.includes(String(t.agencyName)),
+      );
     }
 
     switch (filter) {
@@ -184,14 +203,20 @@ export class SearchResultsPage implements OnInit, OnDestroy {
         filtered.sort((a, b) => a.pricePerSeat - b.pricePerSeat);
         break;
       case 'earliest':
-        filtered.sort((a, b) => (a.departureTime || '').localeCompare(b.departureTime || ''));
+        filtered.sort((a, b) =>
+          (a.departureTime || '').localeCompare(b.departureTime || ''),
+        );
         break;
       case 'vip':
         filtered = filtered.filter((t) => t.category === 'VIP');
-        filtered.sort((a, b) => (a.departureTime || '').localeCompare(b.departureTime || ''));
+        filtered.sort((a, b) =>
+          (a.departureTime || '').localeCompare(b.departureTime || ''),
+        );
         break;
       default:
-        filtered.sort((a, b) => (a.departureTime || '').localeCompare(b.departureTime || ''));
+        filtered.sort((a, b) =>
+          (a.departureTime || '').localeCompare(b.departureTime || ''),
+        );
     }
 
     this.displayedTrips = filtered;
@@ -264,7 +289,8 @@ export class SearchResultsPage implements OnInit, OnDestroy {
   }
 
   selectCategoryDraft(category: any) {
-    this.filterDraft.category = this.filterDraft.category === category ? '' : category;
+    this.filterDraft.category =
+      this.filterDraft.category === category ? '' : category;
   }
 
   toggleAgencyDraft(agency: string) {
@@ -298,13 +324,18 @@ export class SearchResultsPage implements OnInit, OnDestroy {
     this.searchParams.departureDate = this.filterDraft.departureDate;
 
     this.searchSummary.origin = this.filterDraft.departureCity || 'Congo';
-    this.searchSummary.destination = this.filterDraft.arrivalCity || 'Destination';
+    this.searchSummary.destination =
+      this.filterDraft.arrivalCity || 'Destination';
     this.searchSummary.date = this.filterDraft.departureDate
       ? this.formatDisplayDate(this.filterDraft.departureDate)
       : "Aujourd'hui";
     this.searchSummary.passengersCount = this.filterDraft.passengers;
 
-    this.categoryFilter = (this.filterDraft.category || null) as 'VIP' | 'Classique' | 'Standard' | null;
+    this.categoryFilter = (this.filterDraft.category || null) as
+      | 'VIP'
+      | 'Classique'
+      | 'Standard'
+      | null;
     this.maxPriceFilter = this.filterDraft.maxPrice;
     this.agencyFilter = [...this.filterDraft.agencies];
 
@@ -335,8 +366,11 @@ export class SearchResultsPage implements OnInit, OnDestroy {
       departureCity: this.searchParams.departureCity,
       arrivalCity: this.searchParams.arrivalCity,
       departureDate: this.searchParams.departureDate,
-      category: this.categoryFilter || '' as any,
-      maxPrice: this.maxPriceFilter !== null ? this.maxPriceFilter.toString() : '' as any
+      category: this.categoryFilter || ('' as any),
+      maxPrice:
+        this.maxPriceFilter !== null
+          ? this.maxPriceFilter.toString()
+          : ('' as any),
     };
 
     this.tripService
@@ -345,7 +379,8 @@ export class SearchResultsPage implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           const newTrips = (response.data || []).filter(
-            (t: Trip) => !this.allTripsFromSearch.some((existing) => existing.id === t.id)
+            (t: Trip) =>
+              !this.allTripsFromSearch.some((existing) => existing.id === t.id),
           );
 
           this.allTripsFromSearch = [...this.allTripsFromSearch, ...newTrips];
@@ -381,7 +416,7 @@ export class SearchResultsPage implements OnInit, OnDestroy {
       const [depH, depM] = departure.split(':').map(Number);
       const [arrH, arrM] = arrival.split(':').map(Number);
 
-      let diffMinutes = (arrH * 60 + arrM) - (depH * 60 + depM);
+      let diffMinutes = arrH * 60 + arrM - (depH * 60 + depM);
       if (diffMinutes < 0) diffMinutes += 24 * 60;
 
       const hours = Math.floor(diffMinutes / 60);
@@ -396,7 +431,10 @@ export class SearchResultsPage implements OnInit, OnDestroy {
   private formatDisplayDate(dateStr: string): string {
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      return date.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+      });
     } catch {
       return dateStr;
     }

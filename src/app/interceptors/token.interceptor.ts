@@ -10,7 +10,7 @@ import { Observable, from, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { PartnerPermissionService } from '../services/partner-permission.service';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -52,7 +52,10 @@ export class TokenInterceptor implements HttpInterceptor {
     return 'guest';
   }
 
-  private addAuthHeaders(req: HttpRequest<any>, token: string): HttpRequest<any> {
+  private addAuthHeaders(
+    req: HttpRequest<any>,
+    token: string,
+  ): HttpRequest<any> {
     const userType = this.getUserType();
     const headers: { [key: string]: string } = {
       Authorization: `Bearer ${token}`,

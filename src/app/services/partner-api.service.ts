@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, catchError, of, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 import { unwrapCollection } from '../shared/rxjs-operators';
 
 // export interface Trip {
@@ -192,7 +192,10 @@ export class PartnerApiService {
   /**
    * Récupère tous les trajets du partenaire
    */
-  getTrips( date?: any, status?: 'active' | 'scheduled' | 'completed'): Observable<Trip[]> {
+  getTrips(
+    date?: any,
+    status?: 'active' | 'scheduled' | 'completed',
+  ): Observable<Trip[]> {
     let params = new HttpParams();
     if (status) {
       params = params.set('status', status.toUpperCase());
@@ -245,7 +248,10 @@ export class PartnerApiService {
   /**
    * Valide un ticket via QR code
    */
-  validateTicket(qrCode: string , TicketCode?: string): Observable<TicketValidationResponse> {
+  validateTicket(
+    qrCode: string,
+    TicketCode?: string,
+  ): Observable<TicketValidationResponse> {
     return this.http.patch<TicketValidationResponse>(
       `${this.apiUrl}/tickets/validate`,
       { qrCodeToken: qrCode, ticketCode: TicketCode },
@@ -585,14 +591,26 @@ export class PartnerApiService {
     }).pipe(
       map(({ trip, tickets }) => {
         const processedPassengers = tickets.map((t: any) => {
-          const statusCode = String(t.statusCode || t.status || '').toLowerCase();
-          let boardingStatus: 'BOARDED' | 'PENDING' | 'NO_SHOW' | 'CANCELLED' = 'PENDING';
+          const statusCode = String(
+            t.statusCode || t.status || '',
+          ).toLowerCase();
+          let boardingStatus: 'BOARDED' | 'PENDING' | 'NO_SHOW' | 'CANCELLED' =
+            'PENDING';
 
-          if (statusCode === 'embarque' || statusCode === 'boarded' || statusCode === 'utilisé' || statusCode === 'used') {
+          if (
+            statusCode === 'embarque' ||
+            statusCode === 'boarded' ||
+            statusCode === 'utilisé' ||
+            statusCode === 'used'
+          ) {
             boardingStatus = 'BOARDED';
           } else if (statusCode === 'annule' || statusCode === 'cancelled') {
             boardingStatus = 'CANCELLED';
-          } else if (statusCode === 'absent' || statusCode === 'no_show' || statusCode === 'no-show') {
+          } else if (
+            statusCode === 'absent' ||
+            statusCode === 'no_show' ||
+            statusCode === 'no-show'
+          ) {
             boardingStatus = 'NO_SHOW';
           }
 

@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 import { PartnerPermissionService } from './partner-permission.service';
 import { NativePushService } from './NativePushService.service';
 import { NotificationService } from './notification.service';
@@ -62,7 +62,10 @@ export class AuthService {
 
     if (this.isAuthenticated() && this.user) {
       setTimeout(() => {
-        this.getNotificationService().connectRealtime(this.user!.id, this.token!);
+        this.getNotificationService().connectRealtime(
+          this.user!.id,
+          this.token!,
+        );
         this.subscribeAgencyChannelIfPartner();
       }, 0);
     }
@@ -85,7 +88,9 @@ export class AuthService {
    */
   private subscribeAgencyChannelIfPartner(): void {
     if (this.user?.role === 'partner' && this.user.agencyId) {
-      this.getNotificationService().subscribeToAgencyChannel(this.user.agencyId);
+      this.getNotificationService().subscribeToAgencyChannel(
+        this.user.agencyId,
+      );
     }
   }
 
@@ -186,14 +191,19 @@ export class AuthService {
 
   async requestLoginOtp(phoneNumber: string): Promise<boolean> {
     try {
-      await firstValueFrom(this.http.post(`${this.apiBaseUrl}/auth/request-otp`, { phoneNumber }));
+      await firstValueFrom(
+        this.http.post(`${this.apiBaseUrl}/auth/request-otp`, { phoneNumber }),
+      );
       return true;
     } catch {
       return false;
     }
   }
 
-  async verifyLoginOtp(phoneNumber: string, code: string): Promise<{
+  async verifyLoginOtp(
+    phoneNumber: string,
+    code: string,
+  ): Promise<{
     success: boolean;
     requiresProfile: boolean;
     registrationToken?: string;
@@ -227,13 +237,19 @@ export class AuthService {
     }
   }
 
-  async completeClientProfile(registrationToken: string, fullName: string): Promise<boolean> {
+  async completeClientProfile(
+    registrationToken: string,
+    fullName: string,
+  ): Promise<boolean> {
     try {
       const response = await firstValueFrom(
-        this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/complete-profile`, {
-          registrationToken,
-          fullName,
-        }),
+        this.http.post<AuthResponse>(
+          `${this.apiBaseUrl}/auth/complete-profile`,
+          {
+            registrationToken,
+            fullName,
+          },
+        ),
       );
 
       if (!response.token || !response.refresh_token || !response.user) {
@@ -337,9 +353,15 @@ export class AuthService {
         }),
       );
 
-      this.persistTokens(String(response.token), String(response.refresh_token));
+      this.persistTokens(
+        String(response.token),
+        String(response.refresh_token),
+      );
       if (this.user) {
-        this.getNotificationService().connectRealtime(this.user.id, String(response.token));
+        this.getNotificationService().connectRealtime(
+          this.user.id,
+          String(response.token),
+        );
         this.subscribeAgencyChannelIfPartner();
       }
       return String(response.token);

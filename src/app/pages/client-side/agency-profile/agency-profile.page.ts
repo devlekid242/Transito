@@ -1,14 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, AlertController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import {
+  IonicModule,
+  NavController,
+  AlertController,
+  ViewWillEnter,
+  ViewWillLeave,
+} from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AgencyService } from '../../../services/agency.service';
 import { TripService } from '../../../services/trip.service';
 import { Agency, AgencyPoint } from '../../../models/agency.model';
 import { Trip as ApiTrip } from '../../../models/trip.model';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 interface DisplayTrip {
   id: number;
@@ -29,7 +35,7 @@ interface DisplayTrip {
   templateUrl: './agency-profile.page.html',
   styleUrls: ['./agency-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
 })
 export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   activeTab: 'trips' | 'points' = 'trips';
@@ -96,7 +102,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       error: async () => {
         this.isLoading = false;
         await this.showError('Impossible de charger le profil de l’agence.');
-      }
+      },
     });
   }
 
@@ -109,7 +115,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       },
       error: () => {
         this.showError('Impossible de charger les trajets de cette agence.');
-      }
+      },
     });
   }
 
@@ -120,7 +126,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       },
       error: () => {
         this.points = [];
-      }
+      },
     });
   }
 
@@ -129,7 +135,10 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   }
 
   loadMoreTrips(event?: any) {
-    const nextChunk = this.allTrips.slice(this.currentOffset, this.currentOffset + this.itemsPerPage);
+    const nextChunk = this.allTrips.slice(
+      this.currentOffset,
+      this.currentOffset + this.itemsPerPage,
+    );
     this.displayedTrips = [...this.displayedTrips, ...nextChunk];
     this.currentOffset += nextChunk.length;
 
@@ -202,7 +211,10 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     const lat = (this.selectedPoint as any)?.latitude;
     const lng = (this.selectedPoint as any)?.longitude;
     if (lat != null && lng != null) {
-      window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+        '_blank',
+      );
     }
   }
 
@@ -250,7 +262,10 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       return value;
     }
 
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   private computeDuration(start?: string, end?: string): string {
@@ -301,7 +316,11 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       return 'Demain';
     }
 
-    return date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
   }
 
   private async showError(message: string) {
