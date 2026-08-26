@@ -119,6 +119,10 @@
     font-family: var(--font-sans);
     background-color: var(--color-background);
   }
+
+  ion-header {
+    padding-top: var(--ion-safe-area-top, env(safe-area-inset-top));
+  }
 }
 
 @layer utilities {

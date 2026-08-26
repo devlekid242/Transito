@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonHeader, IonSpinner, NavController, LoadingController, AlertController } from '@ionic/angular';
+import {
+  IonContent,
+  IonHeader,
+  IonSpinner,
+  NavController,
+  LoadingController,
+  AlertController,
+} from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { TripService } from '../../../services/trip.service';
 import { BookingService } from '../../../services/booking.service';
@@ -79,7 +86,8 @@ export class SeatSelectionPage implements OnInit {
       minibus: { rows: 8, columns: 2 }, // 16 sièges
     };
 
-    const config = busConfig[this.busType as keyof typeof busConfig] || busConfig.standard;
+    const config =
+      busConfig[this.busType as keyof typeof busConfig] || busConfig.standard;
 
     for (let row = 1; row <= config.rows; row++) {
       for (let col = 0; col < config.columns; col++) {
@@ -90,7 +98,9 @@ export class SeatSelectionPage implements OnInit {
           number: seatNumber,
           row,
           column,
-          status: bookedSeatsNumbers.includes(seatNumber) ? 'occupied' : 'available',
+          status: bookedSeatsNumbers.includes(seatNumber)
+            ? 'occupied'
+            : 'available',
           type: row === 1 ? 'premium' : 'normal',
         };
 
@@ -113,11 +123,16 @@ export class SeatSelectionPage implements OnInit {
     const isSelected = this.selectedSeats.some((s) => s.number === seat.number);
 
     if (isSelected) {
-      this.selectedSeats = this.selectedSeats.filter((s) => s.number !== seat.number);
+      this.selectedSeats = this.selectedSeats.filter(
+        (s) => s.number !== seat.number,
+      );
       seat.status = 'available';
     } else {
       if (this.selectedSeats.length >= 6) {
-        this.showAlert('Limite atteinte', 'Vous pouvez sélectionner maximum 6 sièges');
+        this.showAlert(
+          'Limite atteinte',
+          'Vous pouvez sélectionner maximum 6 sièges',
+        );
         return;
       }
       this.selectedSeats.push(seat);
@@ -133,7 +148,10 @@ export class SeatSelectionPage implements OnInit {
   }
 
   getTotalPrice(): number {
-    return this.selectedSeats.reduce((sum, seat) => sum + this.getSeatPrice(seat), 0);
+    return this.selectedSeats.reduce(
+      (sum, seat) => sum + this.getSeatPrice(seat),
+      0,
+    );
   }
 
   confirmSeats() {
@@ -171,10 +189,10 @@ export class SeatSelectionPage implements OnInit {
   }
 
   getSeatIcon(seat: Seat): string {
-    if (seat.status === 'occupied') return 'close';
-    if (seat.status === 'selected') return 'checkmark';
-    if (seat.type === 'wheelchair') return 'accessibility';
-    return 'event_seat';
+    if (seat.status === 'occupied') return 'fa-solid fa-xmark';
+    if (seat.status === 'selected') return 'fa-solid fa-check';
+    if (seat.type === 'wheelchair') return 'fa-solid fa-wheelchair';
+    return 'fa-solid fa-chair';
   }
 
   getSeatColor(seat: Seat): string {

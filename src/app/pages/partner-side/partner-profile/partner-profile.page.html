@@ -3,31 +3,33 @@
 <ion-content class="bg-background">
   <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
 
-  <main *ngIf="!loading" class="w-full max-w-[480px] px-container-padding mx-auto flex flex-col gap-4 py-6 pb-24">
-
+  <main
+    *ngIf="!loading"
+    class="w-full max-w-[480px] px-container-padding mx-auto flex flex-col gap-4 py-6 pb-24"
+  >
     <!-- 🎨 EN-TÊTE DU PROFIL - Avatar + Infos Principales -->
     <section
       class="relative -mx-container-padding px-container-padding bg-gradient-to-br from-primary/5 via-secondary/5 to-tertiary/5 rounded-b-2xl py-8"
     >
       <div class="flex flex-col items-center text-center gap-4">
         <!-- Avatar -->
+        <div
+          class="relative w-24 h-24 rounded-full overflow-hidden mb-4 border-4 border-surface-container-lowest shadow-md cursor-pointer group"
+          (click)="editProfilePhoto()"
+        >
+          <img
+            alt="Photo de profil utilisateur"
+            class="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+            [src]="userProfile.profilePhotoUrl || '/assets/images/default-avatar.png'"
+          />
           <div
-            class="relative w-24 h-24 rounded-full overflow-hidden mb-4 border-4 border-surface-container-lowest shadow-md cursor-pointer group"
-            (click)="editProfilePhoto()"
+            class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
           >
-            <img
-              alt="Photo de profil utilisateur"
-              class="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
-              [src]="userProfile.profilePhotoUrl || '/assets/images/default-avatar.png'"
-            />
-            <div
-              class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
-            >
-              <i
-                class="fa-solid fa-camera text-white opacity-0 group-hover:opacity-100 transition-opacity text-lg"
-              ></i>
-            </div>
+            <i
+              class="fa-solid fa-camera text-white opacity-0 group-hover:opacity-100 transition-opacity text-lg"
+            ></i>
           </div>
+        </div>
 
         <!-- Nom et Rôle -->
         <div class="space-y-2">
@@ -37,11 +39,11 @@
           <div class="flex items-center justify-center gap-2 flex-wrap">
             <!-- Badge Rôle -->
             <span
-              class="inline-flex items-center gap-1 bg-primary/15 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase"
+              class="inline-flex items-center gap-1.5 bg-primary/15 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase"
             >
-              <span class="material-symbols-outlined text-[14px]"
-                >{{ roleIcons[userProfile.agent?.agentRole] || 'person' }}</span
-              >
+              <i
+                [class]="(roleIcons[userProfile.agent?.agentRole] || 'fa-solid fa-user') + ' text-[12px]'"
+              ></i>
               {{ roleLabels[userProfile.agent?.agentRole] ||
               userProfile.agent?.agentRole || 'Agent' }}
             </span>
@@ -52,11 +54,11 @@
               'bg-emerald-50 text-emerald-700 border border-emerald-200': userProfile.isActive,
               'bg-red-50 text-red-700 border border-red-200': !userProfile.isActive
             }"
-              class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase"
             >
-              <span class="material-symbols-outlined text-[14px]"
-                >{{ userProfile.isActive ? 'check_circle' : 'cancel' }}</span
-              >
+              <i
+                [class]="(userProfile.isActive ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark') + ' text-[12px]'"
+              ></i>
               {{ userProfile.isActive ? 'Actif' : 'Inactif' }}
             </span>
           </div>
@@ -71,7 +73,7 @@
       <div
         class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
       >
-        <span class="material-symbols-outlined text-primary">person</span>
+        <i class="fa-solid fa-user text-primary text-base"></i>
         <h2 class="text-base font-bold text-on-surface">
           Informations Personnelles
         </h2>
@@ -113,17 +115,17 @@
             </div>
             <span
               *ngIf="userProfile.emailVerified"
-              class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200 flex items-center gap-1"
+              class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5"
             >
-              <span class="material-symbols-outlined text-[12px]">verified</span
-              >Vérifié
+              <i class="fa-solid fa-circle-check text-[10px]"></i>
+              Vérifié
             </span>
             <span
               *ngIf="!userProfile.emailVerified"
-              class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-200 flex items-center gap-1"
+              class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-200 flex items-center gap-1.5"
             >
-              <span class="material-symbols-outlined text-[12px]">pending</span
-              >En attente
+              <i class="fa-solid fa-clock text-[10px]"></i>
+              En attente
             </span>
           </div>
         </div>
@@ -143,17 +145,17 @@
             </div>
             <span
               *ngIf="userProfile.phoneVerified"
-              class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200 flex items-center gap-1"
+              class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5"
             >
-              <span class="material-symbols-outlined text-[12px]">verified</span
-              >Vérifié
+              <i class="fa-solid fa-circle-check text-[10px]"></i>
+              Vérifié
             </span>
             <span
               *ngIf="!userProfile.phoneVerified"
-              class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-200 flex items-center gap-1"
+              class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-200 flex items-center gap-1.5"
             >
-              <span class="material-symbols-outlined text-[12px]">pending</span
-              >En attente
+              <i class="fa-solid fa-clock text-[10px]"></i>
+              En attente
             </span>
           </div>
         </div>
@@ -167,7 +169,7 @@
       <div
         class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
       >
-        <span class="material-symbols-outlined text-tertiary">location_on</span>
+        <i class="fa-solid fa-location-dot text-tertiary text-base"></i>
         <h2 class="text-base font-bold text-on-surface">Localisation</h2>
       </div>
 
@@ -201,7 +203,7 @@
       <div
         class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
       >
-        <span class="material-symbols-outlined text-secondary">tune</span>
+        <i class="fa-solid fa-sliders text-secondary text-base"></i>
         <h2 class="text-base font-bold text-on-surface">Préférences</h2>
       </div>
 
@@ -236,9 +238,7 @@
             <div
               class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"
             >
-              <span class="material-symbols-outlined text-[18px]"
-                >notifications</span
-              >
+              <i class="fa-solid fa-bell text-[16px]"></i>
             </div>
             <div>
               <p class="text-sm font-semibold text-on-surface">Notifications</p>
@@ -253,32 +253,6 @@
             color="primary"
           ></ion-toggle>
         </div>
-
-        <!-- Mode Sombre -->
-        <!-- <div
-          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"
-            >
-              <span class="material-symbols-outlined text-[18px]"
-                >dark_mode</span
-              >
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-on-surface">Mode Sombre</p>
-              <p class="text-[10px] text-on-surface-variant">
-                Interface sombre
-              </p>
-            </div>
-          </div>
-          <ion-toggle
-            [checked]="userProfile.prefDarkMode"
-            (ionChange)="toggleDarkMode($event)"
-            color="primary"
-          ></ion-toggle>
-        </div> -->
       </div>
     </section>
 
@@ -289,7 +263,7 @@
       <div
         class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
       >
-        <span class="material-symbols-outlined text-red-600">security</span>
+        <i class="fa-solid fa-shield-halved text-red-600 text-base"></i>
         <h2 class="text-base font-bold text-on-surface">Sécurité</h2>
       </div>
 
@@ -302,7 +276,7 @@
             <div
               class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"
             >
-              <span class="material-symbols-outlined text-[18px]">key</span>
+              <i class="fa-solid fa-key text-[16px]"></i>
             </div>
             <div>
               <p class="text-sm font-semibold text-on-surface">Mot de passe</p>
@@ -318,34 +292,6 @@
             Changer
           </button>
         </div>
-
-        <!-- Authentification 2FA -->
-        <!-- <div
-          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600"
-            >
-              <span class="material-symbols-outlined text-[18px]"
-                >verified_user</span
-              >
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-on-surface">
-                Authentification 2FA
-              </p>
-              <p class="text-[10px] text-on-surface-variant">
-                Sécurité renforcée
-              </p>
-            </div>
-          </div>
-          <ion-toggle
-            [checked]="securitySettings.is2FAEnabled"
-            (ionChange)="toggle2FA($event)"
-            color="primary"
-          ></ion-toggle>
-        </div> -->
       </div>
     </section>
 
@@ -356,9 +302,7 @@
       <div
         class="flex items-center gap-2 mb-4 pb-3 border-b border-surface-variant/50"
       >
-        <span class="material-symbols-outlined text-tertiary"
-          >calendar_today</span
-        >
+        <i class="fa-solid fa-calendar-days text-tertiary text-base"></i>
         <h2 class="text-base font-bold text-on-surface">Informations Compte</h2>
       </div>
 
@@ -386,18 +330,6 @@
             >{{ formatDate(userProfile.updatedAt) }}</span
           >
         </div>
-
-        <!-- ID Utilisateur -->
-        <!-- <div
-          class="flex items-center justify-between p-3 bg-surface-container rounded-lg"
-        >
-          <span class="text-on-surface-variant font-medium"
-            >ID Utilisateur:</span
-          >
-          <span class="font-mono text-xs text-on-surface"
-            >#{{ userProfile.id }}</span
-          >
-        </div> -->
       </div>
     </section>
 
@@ -406,7 +338,7 @@
       (click)="logout()"
       class="w-full py-3 rounded-xl text-red-600 bg-red-50 border border-red-200/50 hover:bg-red-100/50 text-base font-bold flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95"
     >
-      <span class="material-symbols-outlined">logout</span>
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
       Déconnexion
     </button>
   </main>

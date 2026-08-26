@@ -1,6 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonHeader, NavController, LoadingController, AlertController , ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import {
+  IonContent,
+  IonHeader,
+  NavController,
+  LoadingController,
+  AlertController,
+  ViewWillEnter,
+  ViewWillLeave,
+} from '@ionic/angular';
 import { PaymentService } from '../../../services/payment.service';
 import { PaymentLog } from '../../../models';
 
@@ -11,7 +19,9 @@ import { PaymentLog } from '../../../models';
   standalone: true,
   imports: [IonContent, IonHeader, CommonModule],
 })
-export class PaymentHistoryPage implements OnInit, ViewWillEnter, ViewWillLeave {
+export class PaymentHistoryPage
+  implements OnInit, ViewWillEnter, ViewWillLeave
+{
   payments: PaymentLog[] = [];
   filteredPayments: PaymentLog[] = [];
   isLoading = false;
@@ -41,9 +51,11 @@ export class PaymentHistoryPage implements OnInit, ViewWillEnter, ViewWillLeave 
     this.isLoading = true;
 
     this.paymentService.getPaymentHistory().subscribe({
-      next: (payments : PaymentLog[]) => {
+      next: (payments: PaymentLog[]) => {
         this.payments = payments.sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         });
         this.calculateTotal();
         this.applyFilter();
@@ -52,7 +64,10 @@ export class PaymentHistoryPage implements OnInit, ViewWillEnter, ViewWillLeave 
       error: (err) => {
         console.error('Erreur chargement historique:', err);
         this.isLoading = false;
-        this.showAlert('Erreur', 'Impossible de charger l\'historique des paiements');
+        this.showAlert(
+          'Erreur',
+          "Impossible de charger l'historique des paiements",
+        );
       },
     });
   }
@@ -66,13 +81,19 @@ export class PaymentHistoryPage implements OnInit, ViewWillEnter, ViewWillLeave 
   applyFilter() {
     switch (this.selectedFilter) {
       case 'completed':
-        this.filteredPayments = this.payments.filter((p) => p.status === 'SUCCESS');
+        this.filteredPayments = this.payments.filter(
+          (p) => p.status === 'SUCCESS',
+        );
         break;
       case 'failed':
-        this.filteredPayments = this.payments.filter((p) => p.status === 'Échoué');
+        this.filteredPayments = this.payments.filter(
+          (p) => p.status === 'Échoué',
+        );
         break;
       case 'refunded':
-        this.filteredPayments = this.payments.filter((p) => p.status === 'Remboursé');
+        this.filteredPayments = this.payments.filter(
+          (p) => p.status === 'Remboursé',
+        );
         break;
       default:
         this.filteredPayments = this.payments;
@@ -102,30 +123,31 @@ export class PaymentHistoryPage implements OnInit, ViewWillEnter, ViewWillLeave 
   getStatusIcon(status: string): string {
     switch (status) {
       case 'Complété':
-        return 'check_circle';
+      case 'SUCCESS':
+        return 'fa-solid fa-circle-check';
       case 'Échoué':
-        return 'cancel';
+        return 'fa-solid fa-circle-xmark';
       case 'Remboursé':
-        return 'undo';
+        return 'fa-solid fa-rotate-left';
       case 'Initié':
-        return 'schedule';
+        return 'fa-solid fa-clock';
       default:
-        return 'info';
+        return 'fa-solid fa-circle-info';
     }
   }
 
   getPaymentMethodIcon(method: string): string {
     switch (method) {
       case 'Card':
-        return 'credit_card';
+        return 'fa-solid fa-credit-card';
       case 'Mobile Money':
-        return 'smartphone';
+        return 'fa-solid fa-mobile-screen-button';
       case 'Bank Transfer':
-        return 'account_balance';
+        return 'fa-solid fa-building-columns';
       case 'Cash':
-        return 'local_atm';
+        return 'fa-solid fa-money-bill-wave';
       default:
-        return 'payment';
+        return 'fa-solid fa-receipt';
     }
   }
 
@@ -136,7 +158,10 @@ export class PaymentHistoryPage implements OnInit, ViewWillEnter, ViewWillLeave 
 
   downloadReceipt(payment: PaymentLog) {
     // Générer et télécharger le reçu
-    this.showAlert('Reçu', `Reçu pour transaction #${payment.transactionId} généré`);
+    this.showAlert(
+      'Reçu',
+      `Reçu pour transaction #${payment.transactionId} généré`,
+    );
   }
 
   goBack() {

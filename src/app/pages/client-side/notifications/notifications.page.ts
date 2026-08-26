@@ -5,8 +5,8 @@ import {
   IonContent,
   NavController,
   AlertController,
-  ViewWillEnter,   // 👈 nouveau
-  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
+  ViewWillEnter, // 👈 nouveau
+  ViewWillLeave, // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { NotificationService } from '../../../services/notification.service';
 import { Notification } from '../../../models';
@@ -16,10 +16,8 @@ import { Notification } from '../../../models';
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule]
+  imports: [IonContent, CommonModule, FormsModule],
 })
-
-
 export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   notifications: Notification[] = [];
   isLoading = false;
@@ -61,7 +59,10 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
       error: async (err) => {
         console.error('Erreur chargement notifications :', err);
         this.isLoading = false;
-        await this.showAlert('Erreur', 'Impossible de charger les notifications.');
+        await this.showAlert(
+          'Erreur',
+          'Impossible de charger les notifications.',
+        );
       },
     });
   }
@@ -99,7 +100,10 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
         console.error('Erreur marquer tout lu :', err);
         this.notifications = previousState;
         this.isMarkingAllRead = false;
-        await this.showAlert('Erreur', 'Impossible de marquer les notifications comme lues.');
+        await this.showAlert(
+          'Erreur',
+          'Impossible de marquer les notifications comme lues.',
+        );
       },
       complete: () => {
         this.isMarkingAllRead = false;
@@ -117,7 +121,10 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
     this.notificationService.markAsRead(notification.id).subscribe({
       error: (err) => {
-        console.error(`Erreur marquer notification ${notification.id} lue :`, err);
+        console.error(
+          `Erreur marquer notification ${notification.id} lue :`,
+          err,
+        );
         notification.isRead = false;
       },
       complete: () => {
@@ -153,15 +160,15 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   getNotificationIcon(notification: Notification): string {
     switch (notification.type) {
       case 'Paiement':
-        return 'receipt_long';
+        return 'fa-solid fa-receipt';
       case 'Voyage':
-        return 'directions_bus';
+        return 'fa-solid fa-bus';
       case 'Promotion':
-        return 'local_offer';
+        return 'fa-solid fa-tag';
       case 'Réservation':
-        return 'confirmation_number';
+        return 'fa-solid fa-ticket';
       default:
-        return 'notifications';
+        return 'fa-solid fa-bell';
     }
   }
 

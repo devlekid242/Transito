@@ -1,29 +1,41 @@
 <ion-content [fullscreen]="true" class="bg-background">
-  <div class="w-full max-w-[480px] bg-surface min-h-screen relative pb-28 mx-auto shadow-sm">
-
+  <div
+    class="w-full max-w-[480px] bg-surface min-h-screen relative pb-28 mx-auto shadow-sm"
+  >
     <!-- En-tête standardisé -->
-    <header class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200">
-      <button (click)="goBack()" aria-label="Menu" class="text-primary hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full flex items-center justify-center active-scale">
-        <span class="material-symbols-outlined">arrow_back</span>
+    <header
+      class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200"
+    >
+      <button
+        (click)="goBack()"
+        aria-label="Menu"
+        class="text-primary hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full flex items-center justify-center active-scale"
+      >
+        <i class="fa-solid fa-arrow-left text-lg"></i>
       </button>
-      <span class="font-sans text-lg font-bold text-secondary tracking-tight">Notifications</span>
+      <span class="font-sans text-lg font-bold text-secondary tracking-tight"
+        >Notifications</span
+      >
       <div class="w-10"></div>
     </header>
 
     <!-- Zone principale -->
-    <main class="w-full px-container-padding pt-stack-md flex flex-col gap-stack-lg">
-      
+    <main
+      class="w-full px-container-padding pt-stack-md flex flex-col gap-stack-lg"
+    >
       <!-- En-tête de section -->
       <section class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-on-surface m-0">
-          Notifications
-        </h2>
-        <button (click)="markAllAsRead()"
-                [disabled]="isMarkingAllRead || notifications.length === 0"
-                class="text-xs font-semibold text-primary hover:underline bg-transparent disabled:opacity-50 disabled:pointer-events-none flex items-center gap-1.5">
+        <h2 class="text-xl font-bold text-on-surface m-0">Notifications</h2>
+        <button
+          (click)="markAllAsRead()"
+          [disabled]="isMarkingAllRead || notifications.length === 0"
+          class="text-xs font-semibold text-primary hover:underline bg-transparent disabled:opacity-50 disabled:pointer-events-none flex items-center gap-1.5"
+        >
           <span *ngIf="!isMarkingAllRead">Marquer tout lu</span>
           <span *ngIf="isMarkingAllRead" class="flex items-center gap-1.5">
-            <span class="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent"></span>
+            <span
+              class="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent"
+            ></span>
             Marquage...
           </span>
         </button>
@@ -31,32 +43,48 @@
 
       <!-- Skeleton loader pendant le chargement initial -->
       <section *ngIf="isLoading" class="flex flex-col gap-3 mt-2">
-        <article *ngFor="let item of [1,2,3,4]"
-          class="bg-surface-container-lowest border border-surface-variant rounded-lg p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-full bg-surface-container animate-pulse flex-shrink-0"></div>
+        <article
+          *ngFor="let item of [1,2,3,4]"
+          class="bg-surface-container-lowest border border-surface-variant rounded-lg p-4 flex items-start gap-3"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-surface-container animate-pulse flex-shrink-0"
+          ></div>
           <div class="flex-1 space-y-2">
-            <div class="h-3.5 bg-surface-container rounded w-3/4 animate-pulse"></div>
-            <div class="h-3 bg-surface-container rounded w-full animate-pulse"></div>
-            <div class="h-2.5 bg-surface-container rounded w-1/4 animate-pulse"></div>
+            <div
+              class="h-3.5 bg-surface-container rounded w-3/4 animate-pulse"
+            ></div>
+            <div
+              class="h-3 bg-surface-container rounded w-full animate-pulse"
+            ></div>
+            <div
+              class="h-2.5 bg-surface-container rounded w-1/4 animate-pulse"
+            ></div>
           </div>
         </article>
       </section>
 
       <!-- Liste de notifications interactive -->
       <section *ngIf="!isLoading" class="flex flex-col gap-3 mt-2">
-        <article *ngFor="let notification of notifications"
+        <article
+          *ngFor="let notification of notifications"
           [ngClass]="notification.isRead ? 'border-surface-variant' : 'border-primary/40 bg-primary-container/10'"
-          class="bg-surface-container-lowest border rounded-lg p-4 flex items-start gap-3 transition-all">
-          
+          class="bg-surface-container-lowest border rounded-lg p-4 flex items-start gap-3 transition-all"
+        >
           <!-- Icône de notification dynamique -->
-          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary flex-shrink-0">
-            <span class="material-symbols-outlined text-[20px]">{{ getNotificationIcon(notification) }}</span>
+          <div
+            class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary flex-shrink-0"
+          >
+            <i [class]="getNotificationIcon(notification) + ' text-[18px]'"></i>
           </div>
-          
+
           <div class="flex-1">
             <div class="flex justify-between items-start gap-2">
               <div>
-                <p [ngClass]="notification.isRead ? 'text-on-surface-variant' : 'text-on-surface font-medium'" class="text-sm m-0 leading-tight mb-1">
+                <p
+                  [ngClass]="notification.isRead ? 'text-on-surface-variant' : 'text-on-surface font-medium'"
+                  class="text-sm m-0 leading-tight mb-1"
+                >
                   {{ notification.title }}
                 </p>
                 <p class="text-xs text-on-surface-variant mb-2">
@@ -66,24 +94,33 @@
                   {{ formatTime(notification.createdAt) }}
                 </p>
               </div>
-              
-              <button (click)="viewDetails(notification); markAsRead(notification)"
-                      [disabled]="isMarking(notification)"
-                      class="text-xs font-bold text-primary flex-shrink-0 bg-transparent py-1 hover:underline disabled:opacity-60 flex items-center gap-1.5">
+
+              <button
+                (click)="viewDetails(notification); markAsRead(notification)"
+                [disabled]="isMarking(notification)"
+                class="text-xs font-bold text-primary flex-shrink-0 bg-transparent py-1 hover:underline disabled:opacity-60 flex items-center gap-1.5"
+              >
                 <span *ngIf="!isMarking(notification)">Voir</span>
-                <span *ngIf="isMarking(notification)" class="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent"></span>
+                <span
+                  *ngIf="isMarking(notification)"
+                  class="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent"
+                ></span>
               </button>
             </div>
           </div>
         </article>
 
         <!-- Message si liste vide -->
-        <div *ngIf="notifications.length === 0" class="p-12 text-center text-on-surface-variant">
-          <span class="material-symbols-outlined text-4xl mb-2 text-surface-container inline-block">notifications_off</span>
+        <div
+          *ngIf="notifications.length === 0"
+          class="p-12 text-center text-on-surface-variant"
+        >
+          <i
+            class="fa-solid fa-bell-slash text-4xl mb-2 text-surface-container inline-block"
+          ></i>
           <p>Aucune notification pour le moment.</p>
         </div>
       </section>
     </main>
-
   </div>
 </ion-content>

@@ -2,6 +2,13 @@ import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet, Platform } from '@ionic/angular';
 import { NativePushService } from './services/NativePushService.service';
 import { AuthService } from './services/auth.service';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
+
+if (Capacitor.isNativePlatform()) {
+  StatusBar.setOverlaysWebView({ overlay: false });
+  StatusBar.setStyle({ style: Style.Dark });
+}
 
 @Component({
   selector: 'app-root',

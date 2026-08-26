@@ -1,5 +1,7 @@
 <ion-header class="ion-no-border">
-  <div class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200">
+  <div
+    class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200"
+  >
     <button
       (click)="goBack()"
       class="flex items-center gap-base text-secondary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded-lg active:scale-95"
@@ -7,19 +9,32 @@
       <span class="fa-solid fa-arrow-left"></span>
       <span class="text-body-md font-semibold">Retour</span>
     </button>
-    <span class="font-title-lg text-title-lg text-secondary tracking-tight">Historique paiements</span>
+    <span class="font-title-lg text-title-lg text-secondary tracking-tight"
+      >Historique paiements</span
+    >
     <div class="w-8"></div>
   </div>
 </ion-header>
 
 <ion-content class="bg-background" *ngIf="!isLoading">
   <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-28">
-    <main class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto">
-      
-      <section class="bg-primary rounded-xl p-stack-md shadow-md border border-outline/10">
-        <p class="text-label-md text-surface-variant uppercase tracking-wider mb-1">Total dépensé</p>
-        <h2 class="text-display-lg text-on-primary font-bold">{{ totalSpent | number: '0.0-0' }} FCFA</h2>
-        <p class="text-label-md text-surface-variant opacity-90 mt-2">sur {{ payments.length }} transactions</p>
+    <main
+      class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto"
+    >
+      <section
+        class="bg-primary rounded-xl p-stack-md shadow-md border border-outline/10"
+      >
+        <p
+          class="text-label-md text-surface-variant uppercase tracking-wider mb-1"
+        >
+          Total dépensé
+        </p>
+        <h2 class="text-display-lg text-on-primary font-bold">
+          {{ totalSpent | number: '0.0-0' }} FCFA
+        </h2>
+        <p class="text-label-md text-surface-variant opacity-90 mt-2">
+          sur {{ payments.length }} transactions
+        </p>
       </section>
 
       <section class="flex gap-stack-sm overflow-x-auto pb-2 scrollbar-none">
@@ -73,41 +88,52 @@
         >
           <div class="flex items-start justify-between mb-stack-sm">
             <div class="flex items-center gap-stack-sm flex-1">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                   [ngClass]="{
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                [ngClass]="{
                      'bg-emerald-50 text-emerald-600': payment.status === 'SUCCESS',
                      'bg-rose-50 text-rose-600': payment.status === 'Échoué',
                      'bg-amber-50 text-amber-600': payment.status === 'Remboursé',
                      'bg-slate-100 text-slate-600': payment.status === 'Initié'
-                   }">
-                <span class="material-symbols-outlined text-[22px]">
-                  {{ getStatusIcon(payment.status) }}
-                </span>
+                   }"
+              >
+                <i [class]="getStatusIcon(payment.status) + ' text-[18px]'"></i>
               </div>
 
               <div class="flex-1">
-                <h3 class="font-title-lg text-body-md font-semibold text-on-surface">{{ payment.paymentMethod }}</h3>
-                <p class="text-label-md text-on-surface-variant/80 font-mono tracking-tight">
+                <h3
+                  class="font-title-lg text-body-md font-semibold text-on-surface"
+                >
+                  {{ payment.paymentMethod }}
+                </h3>
+                <p
+                  class="text-label-md text-on-surface-variant/80 font-mono tracking-tight"
+                >
                   {{ payment?.reference }}
                 </p>
               </div>
             </div>
 
-            <span class="text-label-md font-bold px-2.5 py-1 rounded-full border"
-                  [ngClass]="{
+            <span
+              class="text-label-md font-bold px-2.5 py-1 rounded-full border"
+              [ngClass]="{
                     'bg-emerald-50 text-emerald-700 border-emerald-200': payment.status === 'SUCCESS',
                     'bg-rose-50 text-rose-700 border-rose-200': payment.status === 'Échoué',
                     'bg-amber-50 text-amber-700 border-amber-200': payment.status === 'Remboursé',
                     'bg-slate-100 text-slate-700 border-slate-200': payment.status === 'Initié'
-                  }">
+                  }"
+            >
               {{ payment.status }}
             </span>
           </div>
 
-          <div class="flex justify-between items-end pt-base border-t border-surface-low mt-1">
+          <div
+            class="flex justify-between items-end pt-base border-t border-surface-low mt-1"
+          >
             <div class="flex flex-col gap-base">
               <p class="text-label-md text-on-surface-variant">
-                {{ payment.createdAt | date: 'dd/MM/yyyy' }} à {{ payment.createdAt | date: 'HH:mm' }}
+                {{ payment.createdAt | date: 'dd/MM/yyyy' }} à {{
+                payment.createdAt | date: 'HH:mm' }}
               </p>
             </div>
             <p class="text-price-lg font-bold text-on-surface tracking-tight">
@@ -116,18 +142,30 @@
           </div>
         </div>
 
-        <div *ngIf="filteredPayments.length === 0" class="text-center py-12 bg-surface-container-low/30 rounded-xl border border-dashed border-surface-variant">
-          <span class="material-symbols-outlined text-4xl text-outline/60 block mb-2">receipt_long</span>
-          <p class="text-on-surface-variant text-body-md">Aucun paiement trouvé</p>
+        <div
+          *ngIf="filteredPayments.length === 0"
+          class="text-center py-12 bg-surface-container-low/30 rounded-xl border border-dashed border-surface-variant"
+        >
+          <i
+            class="fa-solid fa-receipt text-4xl text-outline/60 block mb-2"
+          ></i>
+          <p class="text-on-surface-variant text-body-md">
+            Aucun paiement trouvé
+          </p>
         </div>
       </section>
 
-      <section class="bg-secondary-container rounded-xl p-stack-md flex gap-stack-sm border border-surface-variant/30">
-        <span class="material-symbols-outlined text-secondary flex-shrink-0">info</span>
+      <section
+        class="bg-secondary-container rounded-xl p-stack-md flex gap-stack-sm border border-surface-variant/30"
+      >
+        <i
+          class="fa-solid fa-circle-info text-secondary flex-shrink-0 text-lg mt-0.5"
+        ></i>
         <div class="text-body-md text-on-surface">
           <p class="font-semibold mb-0.5">Historique complet</p>
           <p class="text-label-md text-on-surface-variant">
-            Retrouvez tous vos paiements et téléchargez vos reçus fiscaux ou justificatifs de trajet.
+            Retrouvez tous vos paiements et téléchargez vos reçus fiscaux ou
+            justificatifs de trajet.
           </p>
         </div>
       </section>
@@ -137,84 +175,114 @@
 
 <ion-content class="bg-background" *ngIf="isLoading">
   <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-28">
-    <div class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto animate-pulse">
-      
-      <div class="bg-surface-container-low rounded-xl p-stack-md border border-surface-variant/40">
+    <div
+      class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto animate-pulse"
+    >
+      <div
+        class="bg-surface-container-low rounded-xl p-stack-md border border-surface-variant/40"
+      >
         <div class="h-3 w-24 bg-surface-variant rounded-full mb-2.5"></div>
         <div class="h-8 w-44 bg-surface-variant rounded-lg mb-3"></div>
         <div class="h-3 w-32 bg-surface-variant/60 rounded-full"></div>
       </div>
 
       <div class="flex gap-stack-sm overflow-x-auto pb-2">
-        <div class="h-8 w-20 bg-surface-container rounded-full flex-shrink-0"></div>
-        <div class="h-8 w-24 bg-surface-container rounded-full flex-shrink-0"></div>
-        <div class="h-8 w-24 bg-surface-container rounded-full flex-shrink-0"></div>
-        <div class="h-8 w-24 bg-surface-container rounded-full flex-shrink-0"></div>
+        <div
+          class="h-8 w-20 bg-surface-container rounded-full flex-shrink-0"
+        ></div>
+        <div
+          class="h-8 w-24 bg-surface-container rounded-full flex-shrink-0"
+        ></div>
+        <div
+          class="h-8 w-24 bg-surface-container rounded-full flex-shrink-0"
+        ></div>
+        <div
+          class="h-8 w-24 bg-surface-container rounded-full flex-shrink-0"
+        ></div>
       </div>
 
       <div class="flex flex-col gap-stack-sm">
-        
-        <div class="bg-surface-container-lowest rounded-xl p-stack-md border border-surface-variant/40 bento-card">
+        <div
+          class="bg-surface-container-lowest rounded-xl p-stack-md border border-surface-variant/40 bento-card"
+        >
           <div class="flex items-start justify-between mb-stack-sm">
             <div class="flex items-center gap-stack-sm flex-1">
               <div class="w-10 h-10 rounded-full bg-surface-container"></div>
               <div class="flex-1 space-y-2">
                 <div class="h-4 w-28 bg-surface-container rounded-full"></div>
-                <div class="h-3 w-36 bg-surface-container-low rounded-full"></div>
+                <div
+                  class="h-3 w-36 bg-surface-container-low rounded-full"
+                ></div>
               </div>
             </div>
             <div class="h-6 w-16 bg-surface-container rounded-full"></div>
           </div>
-          <div class="flex justify-between items-end pt-base border-t border-surface-low mt-1">
+          <div
+            class="flex justify-between items-end pt-base border-t border-surface-low mt-1"
+          >
             <div class="h-3 w-24 bg-surface-container-low rounded-full"></div>
             <div class="h-5 w-20 bg-surface-container rounded-full"></div>
           </div>
         </div>
 
-        <div class="bg-surface-container-lowest rounded-xl p-stack-md border border-surface-variant/40 bento-card">
+        <div
+          class="bg-surface-container-lowest rounded-xl p-stack-md border border-surface-variant/40 bento-card"
+        >
           <div class="flex items-start justify-between mb-stack-sm">
             <div class="flex items-center gap-stack-sm flex-1">
               <div class="w-10 h-10 rounded-full bg-surface-container"></div>
               <div class="flex-1 space-y-2">
                 <div class="h-4 w-20 bg-surface-container rounded-full"></div>
-                <div class="h-3 w-40 bg-surface-container-low rounded-full"></div>
+                <div
+                  class="h-3 w-40 bg-surface-container-low rounded-full"
+                ></div>
               </div>
             </div>
             <div class="h-6 w-16 bg-surface-container rounded-full"></div>
           </div>
-          <div class="flex justify-between items-end pt-base border-t border-surface-low mt-1">
+          <div
+            class="flex justify-between items-end pt-base border-t border-surface-low mt-1"
+          >
             <div class="h-3 w-24 bg-surface-container-low rounded-full"></div>
             <div class="h-5 w-16 bg-surface-container rounded-full"></div>
           </div>
         </div>
 
-        <div class="bg-surface-container-lowest rounded-xl p-stack-md border border-surface-variant/40 bento-card">
+        <div
+          class="bg-surface-container-lowest rounded-xl p-stack-md border border-surface-variant/40 bento-card"
+        >
           <div class="flex items-start justify-between mb-stack-sm">
             <div class="flex items-center gap-stack-sm flex-1">
               <div class="w-10 h-10 rounded-full bg-surface-container"></div>
               <div class="flex-1 space-y-2">
                 <div class="h-4 w-32 bg-surface-container rounded-full"></div>
-                <div class="h-3 w-28 bg-surface-container-low rounded-full"></div>
+                <div
+                  class="h-3 w-28 bg-surface-container-low rounded-full"
+                ></div>
               </div>
             </div>
             <div class="h-6 w-16 bg-surface-container rounded-full"></div>
           </div>
-          <div class="flex justify-between items-end pt-base border-t border-surface-low mt-1">
+          <div
+            class="flex justify-between items-end pt-base border-t border-surface-low mt-1"
+          >
             <div class="h-3 w-24 bg-surface-container-low rounded-full"></div>
             <div class="h-5 w-24 bg-surface-container rounded-full"></div>
           </div>
         </div>
-
       </div>
 
-      <div class="bg-surface-container-low rounded-xl p-stack-md flex gap-stack-sm border border-surface-variant/20">
-        <div class="w-6 h-6 rounded-full bg-surface-container flex-shrink-0"></div>
+      <div
+        class="bg-surface-container-low rounded-xl p-stack-md flex gap-stack-sm border border-surface-variant/20"
+      >
+        <div
+          class="w-6 h-6 rounded-full bg-surface-container flex-shrink-0"
+        ></div>
         <div class="flex-1 space-y-2">
           <div class="h-4 w-32 bg-surface-container rounded-full"></div>
           <div class="h-3 w-full bg-surface-container-low rounded-full"></div>
         </div>
       </div>
-
     </div>
   </div>
 </ion-content>

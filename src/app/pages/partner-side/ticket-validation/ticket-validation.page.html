@@ -1,8 +1,10 @@
 <ion-content class="bg-background">
   <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
 
-  <main *ngIf="!loading" class="max-w-[480px] mx-auto min-h-screen relative pb-24">
-
+  <main
+    *ngIf="!loading"
+    class="max-w-[480px] mx-auto min-h-screen relative pb-24"
+  >
     <!-- Barre supérieure minimale -->
     <div class="flex items-center gap-2 px-container-padding pt-4">
       <button
@@ -10,26 +12,38 @@
         class="text-on-surface hover:bg-surface-container rounded-full p-2 transition-colors flex items-center justify-center"
         aria-label="Retour"
       >
-        <span class="material-symbols-outlined">arrow_back</span>
+        <i class="fa-solid fa-arrow-left text-lg"></i>
       </button>
       <h1 class="text-title-lg text-on-surface">Validation de ticket</h1>
     </div>
 
     <main class="px-container-padding py-6 flex flex-col items-center gap-6">
-
       <!-- Cadre de visée -->
       <section class="w-full flex flex-col items-center gap-4 pt-2">
         <div class="relative w-52 h-52">
-          <span class="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-primary rounded-tl-2xl"></span>
-          <span class="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-primary rounded-tr-2xl"></span>
-          <span class="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-primary rounded-bl-2xl"></span>
-          <span class="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-primary rounded-br-2xl"></span>
-          <div class="absolute inset-7 rounded-xl bg-primary-container/30 flex items-center justify-center">
-            <span class="material-symbols-outlined text-primary/50 text-[56px]">qr_code_2</span>
+          <span
+            class="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-primary rounded-tl-2xl"
+          ></span>
+          <span
+            class="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-primary rounded-tr-2xl"
+          ></span>
+          <span
+            class="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-primary rounded-bl-2xl"
+          ></span>
+          <span
+            class="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-primary rounded-br-2xl"
+          ></span>
+          <div
+            class="absolute inset-7 rounded-xl bg-primary-container/30 flex items-center justify-center"
+          >
+            <i class="fa-solid fa-qrcode text-primary/50 text-[56px]"></i>
           </div>
         </div>
-        <p class="text-body-md text-on-surface-variant text-center max-w-[240px]">
-          Placez le QR code du billet dans le cadre pour le valider automatiquement.
+        <p
+          class="text-body-md text-on-surface-variant text-center max-w-[240px]"
+        >
+          Placez le QR code du billet dans le cadre pour le valider
+          automatiquement.
         </p>
       </section>
 
@@ -39,24 +53,31 @@
         [disabled]="scanState === 'scanning'"
         class="w-full h-14 rounded-full bg-primary text-on-primary font-bold text-body-lg shadow-md hover:bg-primary/90 active-scale transition-all flex items-center justify-center gap-2 disabled:opacity-60"
       >
-        <span class="material-symbols-outlined text-[22px]">
-          {{ scanState === 'scanning' ? 'hourglass_top' : 'qr_code_scanner' }}
-        </span>
-        {{ scanState === 'scanning' ? 'Scan en cours...' : 'Scanner le QR code' }}
+        <i
+          [class]="'text-[20px] ' + (scanState === 'scanning' ? 'fa-solid fa-hourglass-half fa-spin' : 'fa-solid fa-qrcode')"
+        ></i>
+        {{ scanState === 'scanning' ? 'Scan en cours...' : 'Scanner le QR code'
+        }}
       </button>
 
       <!-- Séparateur -->
       <div class="w-full flex items-center gap-3 text-outline-variant">
         <span class="flex-1 border-t border-surface-variant"></span>
-        <span class="text-[10px] uppercase tracking-wider font-semibold text-on-surface-variant">
+        <span
+          class="text-[10px] uppercase tracking-wider font-semibold text-on-surface-variant"
+        >
           ou saisir manuellement
         </span>
         <span class="flex-1 border-t border-surface-variant"></span>
       </div>
 
       <!-- Saisie manuelle -->
-      <section class="w-full rounded-2xl border border-surface-variant bg-surface-container-lowest p-4 shadow-[0_4px_20px_rgba(30,41,59,0.03)]">
-        <label class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant font-semibold">
+      <section
+        class="w-full rounded-2xl border border-surface-variant bg-surface-container-lowest p-4 shadow-[0_4px_20px_rgba(30,41,59,0.03)]"
+      >
+        <label
+          class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant font-semibold"
+        >
           Code QR / billet
         </label>
         <input
@@ -80,45 +101,89 @@
         class="animate-slide-up w-full bg-emerald-50 border border-emerald-200 rounded-2xl p-4"
       >
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-[24px] text-emerald-700">check_circle</span>
+          <div
+            class="w-11 h-11 rounded-full bg-emerald-100 flex items-center justify-center shrink-0"
+          >
+            <i
+              class="fa-solid fa-circle-check text-[24px] text-emerald-700"
+            ></i>
           </div>
           <div class="min-w-0">
-            <p class="text-[10px] uppercase tracking-[0.22em] text-emerald-700 font-bold">Billet validé</p>
-            <p class="text-body-lg font-bold text-on-surface truncate">{{ validatedTicket.passengerName }}</p>
+            <p
+              class="text-[10px] uppercase tracking-[0.22em] text-emerald-700 font-bold"
+            >
+              Billet validé
+            </p>
+            <p class="text-body-lg font-bold text-on-surface truncate">
+              {{ validatedTicket.passengerName }}
+            </p>
           </div>
         </div>
 
         <div class="mt-4 grid gap-3">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Ticket</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.ticketNumber }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                Ticket
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.ticketNumber }}
+              </p>
             </div>
             <div>
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Statut</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.boardingStatusLabel }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                Statut
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.boardingStatusLabel }}
+              </p>
             </div>
           </div>
 
           <div *ngIf="validatedTicket.passengerPhone">
-            <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Téléphone passager</p>
-            <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.passengerPhone }}</p>
+            <p
+              class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+            >
+              Téléphone passager
+            </p>
+            <p class="text-body-md font-semibold text-on-surface mt-1">
+              {{ validatedTicket.passengerPhone }}
+            </p>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div *ngIf="validatedTicket.seatNumber">
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Siège</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.seatNumber }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                Siège
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.seatNumber }}
+              </p>
             </div>
             <div *ngIf="validatedTicket.boardingTime">
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Heure d'embarquement</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.boardingTime }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                Heure d'embarquement
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.boardingTime }}
+              </p>
             </div>
           </div>
 
           <div *ngIf="validatedTicket.origin || validatedTicket.destination">
-            <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Trajet</p>
+            <p
+              class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+            >
+              Trajet
+            </p>
             <p class="text-body-md font-semibold text-on-surface mt-1">
               {{ validatedTicket.origin }} → {{ validatedTicket.destination }}
             </p>
@@ -126,34 +191,73 @@
 
           <div class="grid grid-cols-2 gap-3">
             <div *ngIf="validatedTicket.departureDate">
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Date de départ</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.departureDate }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                Date de départ
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.departureDate }}
+              </p>
             </div>
             <div *ngIf="validatedTicket.departureTime">
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Heure de départ</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.departureTime }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                Heure de départ
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.departureTime }}
+              </p>
             </div>
           </div>
 
           <div *ngIf="validatedTicket.agencyName">
-            <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Agence</p>
-            <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.agencyName }}</p>
+            <p
+              class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+            >
+              Agence
+            </p>
+            <p class="text-body-md font-semibold text-on-surface mt-1">
+              {{ validatedTicket.agencyName }}
+            </p>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div *ngIf="validatedTicket.tripNumber">
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">N° Trajet</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.tripNumber }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                N° Trajet
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.tripNumber }}
+              </p>
             </div>
             <div *ngIf="validatedTicket.busLicensePlate">
-              <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Bus</p>
-              <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.busLicensePlate }}</p>
+              <p
+                class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+              >
+                Bus
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ validatedTicket.busLicensePlate }}
+              </p>
             </div>
           </div>
 
-          <div *ngIf="validatedTicket.validatedByAgentName" class="pt-2 border-t border-emerald-100">
-            <p class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">Validé par</p>
-            <p class="text-body-md font-semibold text-on-surface mt-1">{{ validatedTicket.validatedByAgentName }}</p>
+          <div
+            *ngIf="validatedTicket.validatedByAgentName"
+            class="pt-2 border-t border-emerald-100"
+          >
+            <p
+              class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant"
+            >
+              Validé par
+            </p>
+            <p class="text-body-md font-semibold text-on-surface mt-1">
+              {{ validatedTicket.validatedByAgentName }}
+            </p>
           </div>
         </div>
 
@@ -171,12 +275,22 @@
         class="animate-slide-up w-full bg-red-50 border border-red-200 rounded-2xl p-4"
       >
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-[24px] text-red-700">error</span>
+          <div
+            class="w-11 h-11 rounded-full bg-red-100 flex items-center justify-center shrink-0"
+          >
+            <i
+              class="fa-solid fa-circle-exclamation text-[24px] text-red-700"
+            ></i>
           </div>
           <div class="min-w-0">
-            <p class="text-[10px] uppercase tracking-[0.22em] text-red-700 font-bold">Erreur de validation</p>
-            <p class="text-body-lg font-bold text-on-surface">Impossible de valider le billet</p>
+            <p
+              class="text-[10px] uppercase tracking-[0.22em] text-red-700 font-bold"
+            >
+              Erreur de validation
+            </p>
+            <p class="text-body-lg font-bold text-on-surface">
+              Impossible de valider le billet
+            </p>
           </div>
         </div>
         <p class="mt-3 text-body-md text-red-700">{{ errorMessage }}</p>
@@ -187,7 +301,6 @@
           Recommencer
         </button>
       </section>
-
     </main>
   </main>
 </ion-content>

@@ -3,69 +3,97 @@
 <ion-content class="bg-background">
   <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
 
-  <main *ngIf="!loading" class="w-full max-w-[480px] mx-auto px-container-padding py-4 flex flex-col gap-6 pb-24">
-
+  <main
+    *ngIf="!loading"
+    class="w-full max-w-[480px] mx-auto px-container-padding py-4 flex flex-col gap-6 pb-24"
+  >
     <!-- SECTION : Aujourd'hui -->
     <section *ngIf="todayNotifications.length > 0" class="flex flex-col gap-3">
-      <h2 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-1">
+      <h2
+        class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-1"
+      >
         Aujourd'hui
       </h2>
-      
+
       <div class="flex flex-col gap-3">
-        <div *ngFor="let notif of todayNotifications"
+        <div
+          *ngFor="let notif of todayNotifications"
           (click)="readNotification(notif)"
           [ngClass]="notif.isRead ? 'opacity-75' : 'relative overflow-hidden border-l-4 border-l-secondary'"
-          class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex gap-4 items-start cursor-pointer active-scale transition-all duration-150">
-          
+          class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex gap-4 items-start cursor-pointer active-scale transition-all duration-150"
+        >
           <!-- Icône de catégorie -->
-          <div [ngClass]="notif.category === 'success' ? 'bg-teal-50 text-teal-800' : (notif.category === 'alert' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-700')"
-               class="p-2 rounded-full flex-shrink-0 flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px]">
-              {{ notif.category === 'success' ? 'check_circle' : (notif.category === 'alert' ? 'warning' : 'info') }}
-            </span>
+          <div
+            [ngClass]="notif.category === 'success' ? 'bg-teal-50 text-teal-800' : (notif.category === 'alert' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-700')"
+            class="p-2.5 rounded-full flex-shrink-0 flex items-center justify-center"
+          >
+            <i
+              [class]="'text-[18px] ' + (notif.category === 'success' ? 'fa-solid fa-circle-check' : (notif.category === 'alert' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-info'))"
+            ></i>
           </div>
 
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start mb-1">
-              <h3 class="text-sm font-bold text-on-surface truncate pr-2">{{ notif.title }}</h3>
-              <span class="text-[10px] font-semibold text-on-surface-variant whitespace-nowrap mt-0.5">{{ notif.time }}</span>
+              <h3 class="text-sm font-bold text-on-surface truncate pr-2">
+                {{ notif.title }}
+              </h3>
+              <span
+                class="text-[10px] font-semibold text-on-surface-variant whitespace-nowrap mt-0.5"
+                >{{ notif.time }}</span
+              >
             </div>
-            <p class="text-xs text-on-surface-variant leading-relaxed">{{ notif.body }}</p>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              {{ notif.body }}
+            </p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- SECTION : Hier -->
-    <section *ngIf="yesterdayNotifications.length > 0" class="flex flex-col gap-3">
-      <h2 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-1">
+    <section
+      *ngIf="yesterdayNotifications.length > 0"
+      class="flex flex-col gap-3"
+    >
+      <h2
+        class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider px-1"
+      >
         Hier
       </h2>
-      
+
       <div class="flex flex-col gap-3">
-        <div *ngFor="let notif of yesterdayNotifications"
+        <div
+          *ngFor="let notif of yesterdayNotifications"
           (click)="readNotification(notif)"
           [ngClass]="notif.isRead ? 'opacity-75' : 'relative overflow-hidden border-l-4 border-l-secondary'"
-          class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex gap-4 items-start cursor-pointer active-scale transition-all duration-150">
-          
+          class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex gap-4 items-start cursor-pointer active-scale transition-all duration-150"
+        >
           <!-- Icône de catégorie -->
-          <div [ngClass]="notif.category === 'success' ? 'bg-teal-50 text-teal-800' : (notif.category === 'alert' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-700')"
-               class="p-2 rounded-full flex-shrink-0 flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px]">
-              {{ notif.category === 'success' ? 'check_circle' : (notif.category === 'alert' ? 'warning' : 'info') }}
-            </span>
+          <div
+            [ngClass]="notif.category === 'success' ? 'bg-teal-50 text-teal-800' : (notif.category === 'alert' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-700')"
+            class="p-2.5 rounded-full flex-shrink-0 flex items-center justify-center"
+          >
+            <i
+              [class]="'text-[18px] ' + (notif.category === 'success' ? 'fa-solid fa-circle-check' : (notif.category === 'alert' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-info'))"
+            ></i>
           </div>
 
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start mb-1">
-              <h3 class="text-sm font-bold text-on-surface truncate pr-2">{{ notif.title }}</h3>
-              <span class="text-[10px] font-semibold text-on-surface-variant whitespace-nowrap mt-0.5">{{ notif.time }}</span>
+              <h3 class="text-sm font-bold text-on-surface truncate pr-2">
+                {{ notif.title }}
+              </h3>
+              <span
+                class="text-[10px] font-semibold text-on-surface-variant whitespace-nowrap mt-0.5"
+                >{{ notif.time }}</span
+              >
             </div>
-            <p class="text-xs text-on-surface-variant leading-relaxed">{{ notif.body }}</p>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              {{ notif.body }}
+            </p>
           </div>
         </div>
       </div>
     </section>
-
   </main>
 </ion-content>

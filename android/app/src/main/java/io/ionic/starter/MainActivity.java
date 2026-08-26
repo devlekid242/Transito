@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package net.alwaysdata.transito;
 
 import com.getcapacitor.BridgeActivity;
 

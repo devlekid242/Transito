@@ -1,17 +1,23 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'net.alwaysdata.transito-congo', // Remplace par ton ID de package
+  appId: 'net.alwaysdata.transito', // Remplace par ton ID de package
   appName: 'Transito',
   webDir: 'www',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
   },
   plugins: {
     PushNotifications: {
-      presentationOptions: ["badge", "sound", "alert"]
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
+    StatusBar: {
+      overlaysWebView: false,
+      style: 'DARK'
     }
-  }
+  },
+
+
 };
 
 export default config;

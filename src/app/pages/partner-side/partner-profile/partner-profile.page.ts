@@ -75,11 +75,11 @@ export class PartnerProfilePage implements OnInit {
   };
 
   roleIcons: { [key: string]: string } = {
-    agent_quai: 'domain',
-    agent_ticketing: 'receipt_long',
-    agent_validation: 'verified',
-    admin_agency: 'admin_panel_settings',
-    driver: 'directions_car',
+    agent_quai: 'fa-solid fa-warehouse',
+    agent_ticketing: 'fa-solid fa-receipt',
+    agent_validation: 'fa-solid fa-circle-check',
+    admin_agency: 'fa-solid fa-user-shield',
+    driver: 'fa-solid fa-bus',
   };
 
   // Langues supportées

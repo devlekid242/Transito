@@ -36,9 +36,7 @@
       <!--  date -->
       <div class="flex items-center justify-between gap-2 mb-3">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[18px] text-on-primary"
-            >calendar_month</span
-          >
+          <i class="fa-solid fa-calendar-days text-[16px] text-on-primary"></i>
           <span class="text-label-md font-semibold text-on-primary">
             {{ tripDetails.tripDate | date: 'dd MMMM yyyy' }}
           </span>
@@ -70,10 +68,7 @@
           <span
             class="flex-1 border-t border-dashed border-outline-variant"
           ></span>
-          <span
-            class="material-symbols-outlined text-on-primary text-[18px] shrink-0"
-            >directions_bus</span
-          >
+          <i class="fa-solid fa-bus text-on-primary text-[16px] shrink-0"></i>
           <span
             class="flex-1 border-t border-dashed border-outline-variant"
           ></span>
@@ -105,7 +100,7 @@
           <div
             class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0"
           >
-            <span class="material-symbols-outlined text-[16px]">commute</span>
+            <i class="fa-solid fa-bus text-[13px]"></i>
           </div>
           <span
             class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide"
@@ -131,7 +126,7 @@
           <div
             class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0"
           >
-            <span class="material-symbols-outlined text-[16px]">group</span>
+            <i class="fa-solid fa-users text-[13px]"></i>
           </div>
           <span
             class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide"
@@ -162,9 +157,7 @@
             <div
               class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0"
             >
-              <span class="material-symbols-outlined text-[16px]"
-                >event_seat</span
-              >
+              <i class="fa-solid fa-chair text-[13px]"></i>
             </div>
             <span
               class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide"
@@ -201,10 +194,7 @@
         <div
           class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
         >
-          <span
-            class="material-symbols-outlined text-[16px] text-on-surface-variant"
-            >groups</span
-          >
+          <i class="fa-solid fa-users text-[14px] text-on-surface-variant"></i>
           <span class="text-title-lg text-on-surface leading-none"
             >{{ tripStats.total || 0 }}</span
           >
@@ -216,9 +206,7 @@
         <div
           class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
         >
-          <span class="material-symbols-outlined text-[16px] text-teal-700"
-            >task_alt</span
-          >
+          <i class="fa-solid fa-circle-check text-[14px] text-teal-700"></i>
           <span class="text-title-lg text-on-surface leading-none"
             >{{ tripStats.boarded || 0 }}</span
           >
@@ -230,9 +218,7 @@
         <div
           class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
         >
-          <span class="material-symbols-outlined text-[16px] text-cyan-700"
-            >hourglass_empty</span
-          >
+          <i class="fa-solid fa-hourglass-half text-[14px] text-cyan-700"></i>
           <span class="text-title-lg text-on-surface leading-none"
             >{{ tripStats.pending || 0 }}</span
           >
@@ -244,9 +230,7 @@
         <div
           class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
         >
-          <span class="material-symbols-outlined text-[16px] text-red-700"
-            >cancel</span
-          >
+          <i class="fa-solid fa-circle-xmark text-[14px] text-red-700"></i>
           <span class="text-title-lg text-on-surface leading-none"
             >{{ tripStats.cancelled || 0 }}</span
           >
@@ -263,10 +247,9 @@
       <div
         class="relative flex-1 flex items-center border border-surface-variant rounded-lg overflow-hidden bg-surface-container-lowest focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-all"
       >
-        <span
-          class="material-symbols-outlined absolute left-3 text-gray-400 text-[20px]"
-          >search</span
-        >
+        <i
+          class="fa-solid fa-magnifying-glass absolute left-3 text-gray-400 text-[16px]"
+        ></i>
         <input
           [(ngModel)]="searchQuery"
           (input)="applySearchFilter()"
@@ -280,9 +263,7 @@
         aria-label="Télécharger PDF"
         class="bg-secondary text-on-secondary px-4 rounded-lg flex items-center justify-center shadow-sm active-scale transition-colors hover:bg-slate-800"
       >
-        <span class="material-symbols-outlined text-[22px]"
-          >picture_as_pdf</span
-        >
+        <i class="fa-solid fa-file-pdf text-[20px]"></i>
       </button>
     </section>
 
@@ -316,7 +297,7 @@
               <span
                 class="text-label-md text-on-surface-variant flex items-center gap-1 mt-0.5"
               >
-                <span class="material-symbols-outlined text-[14px]">call</span>
+                <i class="fa-solid fa-phone text-[12px]"></i>
                 {{ passenger.phone || 'N/A' }}
               </span>
               <span class="text-[10px] font-semibold text-gray-400 mt-0.5">
@@ -337,9 +318,7 @@
               class="text-secondary hover:bg-surface-container rounded-full p-1"
               aria-label="Actions du passager"
             >
-              <span class="material-symbols-outlined text-[18px]"
-                >more_horiz</span
-              >
+              <i class="fa-solid fa-ellipsis text-[16px]"></i>
             </button>
           </div>
         </div>
@@ -349,9 +328,7 @@
         *ngIf="filteredPassengers.length === 0"
         class="p-8 text-center flex flex-col items-center gap-2 text-on-surface-variant"
       >
-        <span class="material-symbols-outlined text-3xl text-outline-variant"
-          >person_search</span
-        >
+        <i class="fa-solid fa-user-xmark text-3xl text-outline-variant"></i>
         <p class="text-body-md">
           Aucun voyageur ne correspond à votre recherche.
         </p>

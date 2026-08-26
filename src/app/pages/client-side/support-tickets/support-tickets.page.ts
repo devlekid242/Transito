@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  IonContent, IonHeader,
+  IonContent,
+  IonHeader,
   NavController,
   AlertController,
   ViewWillEnter,
@@ -19,7 +20,9 @@ import {
   standalone: true,
   imports: [IonContent, IonHeader, CommonModule],
 })
-export class SupportTicketsPage implements OnInit, ViewWillEnter, ViewWillLeave {
+export class SupportTicketsPage
+  implements OnInit, ViewWillEnter, ViewWillLeave
+{
   tickets: SupportTicket[] = [];
   filteredTickets: SupportTicket[] = [];
   isLoading = false;
@@ -77,13 +80,19 @@ export class SupportTicketsPage implements OnInit, ViewWillEnter, ViewWillLeave 
         this.filteredTickets = this.tickets.filter((t) => t.status === 'open');
         break;
       case 'answered':
-        this.filteredTickets = this.tickets.filter((t) => t.status === 'answered');
+        this.filteredTickets = this.tickets.filter(
+          (t) => t.status === 'answered',
+        );
         break;
       case 'pending':
-        this.filteredTickets = this.tickets.filter((t) => t.status === 'pending');
+        this.filteredTickets = this.tickets.filter(
+          (t) => t.status === 'pending',
+        );
         break;
       case 'closed':
-        this.filteredTickets = this.tickets.filter((t) => t.status === 'closed');
+        this.filteredTickets = this.tickets.filter(
+          (t) => t.status === 'closed',
+        );
         break;
       default:
         this.filteredTickets = this.tickets;
@@ -127,15 +136,15 @@ export class SupportTicketsPage implements OnInit, ViewWillEnter, ViewWillLeave 
   getStatusIcon(status: string): string {
     switch (status) {
       case 'open':
-        return 'mail';
+        return 'fa-solid fa-envelope';
       case 'pending':
-        return 'schedule';
+        return 'fa-solid fa-clock';
       case 'answered':
-        return 'check_circle';
+        return 'fa-solid fa-circle-check';
       case 'closed':
-        return 'done_all';
+        return 'fa-solid fa-check-double';
       default:
-        return 'info';
+        return 'fa-solid fa-circle-info';
     }
   }
 
