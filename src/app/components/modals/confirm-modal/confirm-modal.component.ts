@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { IonHeader, IonContent, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, ModalController } from '@ionic/angular';
 
 export interface ConfirmModalData {
   title: string;
@@ -14,7 +14,7 @@ export interface ConfirmModalData {
 @Component({
   selector: 'app-confirm-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonHeader, IonContent, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon],
   template: `
     <ion-header>
       <ion-toolbar [color]="data.isDangerous ? 'danger' : 'primary'">

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController, LoadingController, AlertController } from '@ionic/angular';
+import { IonContent, IonHeader, IonSpinner, NavController, LoadingController, AlertController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { TripService } from '../../../services/trip.service';
 import { BookingService } from '../../../services/booking.service';
@@ -18,7 +18,7 @@ interface Seat {
   templateUrl: './seat-selection.page.html',
   styleUrls: ['./seat-selection.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonContent, IonHeader, IonSpinner, CommonModule],
 })
 export class SeatSelectionPage implements OnInit {
   tripId!: string;

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  IonicModule,
+  IonContent, IonHeader,
   NavController,
   AlertController,
   ViewWillEnter,
@@ -17,7 +17,7 @@ import {
   templateUrl: './support-tickets.page.html',
   styleUrls: ['./support-tickets.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonContent, IonHeader, CommonModule],
 })
 export class SupportTicketsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   tickets: SupportTicket[] = [];

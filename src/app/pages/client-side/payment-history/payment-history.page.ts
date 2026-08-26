@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController, LoadingController, AlertController , ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import { IonContent, IonHeader, NavController, LoadingController, AlertController , ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { PaymentService } from '../../../services/payment.service';
 import { PaymentLog } from '../../../models';
 
@@ -9,7 +9,7 @@ import { PaymentLog } from '../../../models';
   templateUrl: './payment-history.page.html',
   styleUrls: ['./payment-history.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonContent, IonHeader, CommonModule],
 })
 export class PaymentHistoryPage implements OnInit, ViewWillEnter, ViewWillLeave {
   payments: PaymentLog[] = [];

@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
-import { SharedHeaderComponent } from '../../../components/shared-header/shared-header.component';
+import { IonContent, NavController } from '@ionic/angular';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 import { AuthService } from '../../../services/auth.service';
-
 
 interface Booking {
   id: number;
@@ -57,10 +55,9 @@ interface DetailedStats {
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
   imports: [
-    IonicModule,
+    IonContent,
     CommonModule,
     FormsModule,
-    SharedHeaderComponent,
     PartnerHeaderComponent,
     SkeletonLoaderComponent,
   ],
@@ -101,7 +98,7 @@ export class DashboardPage implements OnInit {
     private permissionService: PartnerPermissionService,
     private navCtrl: NavController,
     private apiService: PartnerApiService,
-    private AuthService: AuthService
+    private AuthService: AuthService,
   ) {
     this.userName = this.AuthService.getUser()?.fullName || 'Agent';
   }
@@ -211,15 +208,16 @@ export class DashboardPage implements OnInit {
           }
 
           // Convertir paymentStatus en status lisible
-          const statusMap: { [key: string]: 'Payé' | 'En attente' | 'Annulé' } = {
-            paye: 'Payé',
-            paid: 'Payé',
-            en_attente: 'En attente',
-            pending: 'En attente',
-            annule: 'Annulé',
-            cancelled: 'Annulé',
-            rembourse: 'Annulé',
-          };
+          const statusMap: { [key: string]: 'Payé' | 'En attente' | 'Annulé' } =
+            {
+              paye: 'Payé',
+              paid: 'Payé',
+              en_attente: 'En attente',
+              pending: 'En attente',
+              annule: 'Annulé',
+              cancelled: 'Annulé',
+              rembourse: 'Annulé',
+            };
           const displayStatus =
             statusMap[booking.paymentStatus?.toLowerCase()] || 'En attente';
 

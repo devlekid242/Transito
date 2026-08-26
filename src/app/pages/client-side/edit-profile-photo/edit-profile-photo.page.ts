@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent, IonHeader, IonSpinner,
   NavController,
   LoadingController,
   AlertController,
@@ -18,7 +18,7 @@ import { environment } from 'src/environments/environment.prod';
   templateUrl: './edit-profile-photo.page.html',
   styleUrls: ['./edit-profile-photo.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonHeader, IonSpinner, CommonModule, FormsModule],
 })
 export class EditProfilePhotoPage
   implements OnInit, ViewWillEnter, ViewWillLeave

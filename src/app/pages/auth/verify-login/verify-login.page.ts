@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
@@ -10,7 +10,7 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './verify-login.page.html',
   styleUrls: ['./verify-login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonSpinner, CommonModule, FormsModule],
 })
 export class VerifyLoginPage implements OnInit, OnDestroy {
   phoneNumber = '';

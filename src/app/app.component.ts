@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import { Platform } from '@ionic/angular';
+import { Component, inject } from '@angular/core';
+import { IonApp, IonRouterOutlet, Platform } from '@ionic/angular';
 import { NativePushService } from './services/NativePushService.service';
 import { AuthService } from './services/auth.service';
 
@@ -10,11 +9,11 @@ import { AuthService } from './services/auth.service';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  constructor(
-    private platform: Platform,
-    private nativePush: NativePushService,
-    private authService: AuthService,
-  ) {}
+  
+  private readonly nativePush = inject(NativePushService);
+  private readonly authService = inject(AuthService);
+
+  constructor(private platform : Platform) {}
 
   ngOnInit() {
     this.platform.ready().then(() => {

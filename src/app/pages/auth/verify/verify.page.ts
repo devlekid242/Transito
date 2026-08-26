@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -10,7 +10,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './verify.page.html',
   styleUrls: ['./verify.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonSpinner, CommonModule, FormsModule],
 })
 export class VerifyPage implements OnInit, OnDestroy {
   currentStep = 1;

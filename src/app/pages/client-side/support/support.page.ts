@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, AlertController, LoadingController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import { IonContent, IonHeader, NavController, AlertController, LoadingController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { SupportService, SupportTicket } from '../../../services/support.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { SupportService, SupportTicket } from '../../../services/support.service
   templateUrl: './support.page.html',
   styleUrls: ['./support.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonHeader, CommonModule, FormsModule],
 })
 export class SupportPage implements OnInit, ViewWillEnter, ViewWillLeave {
   // 👈 CORRIGÉ : name / email retirés (jamais envoyés au back, voir

@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonIcon } from '@ionic/angular';
 
 export interface ErrorDisplayData {
   title?: string;
@@ -14,7 +14,7 @@ export interface ErrorDisplayData {
 @Component({
   selector: 'app-error-display',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonIcon],
   template: `
     <div class="error-container">
       <div class="error-content">

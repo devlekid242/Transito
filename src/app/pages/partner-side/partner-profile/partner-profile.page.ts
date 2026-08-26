@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SharedHeaderComponent } from '../../../components/shared-header/shared-header.component';
-import { IonicModule, NavController, ToastController } from '@ionic/angular';
+import {
+  IonContent,
+  IonToggle,
+  NavController,
+  ToastController,
+} from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
@@ -15,10 +19,10 @@ import { environment } from 'src/environments/environment.prod';
   styleUrls: ['./partner-profile.page.scss'],
   standalone: true,
   imports: [
-    IonicModule,
+    IonContent,
+    IonToggle,
     CommonModule,
     FormsModule,
-    SharedHeaderComponent,
     PartnerHeaderComponent,
     SkeletonLoaderComponent,
   ],

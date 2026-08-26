@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent, IonHeader, IonToggle,
   NavController,
   LoadingController,
   AlertController,
@@ -17,7 +17,7 @@ import { User } from '../../../models';
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonHeader, IonToggle, CommonModule, FormsModule],
 })
 export class SettingsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   notificationsEnabled = true;

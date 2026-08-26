@@ -1,6 +1,11 @@
 <ion-header class="ion-no-border">
-  <div class="bg-primary flex items-center justify-between px-container-padding h-16 w-full max-w-[480px] mx-auto sticky top-0 z-50 shadow-sm border-b border-surface-variant/40">
-    <div (click)="goBack()" class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10 shadow-inner">
+  <div
+    class="bg-primary flex items-center justify-between px-container-padding h-16 w-full max-w-[480px] mx-auto sticky top-0 z-50 shadow-sm border-b border-surface-variant/40"
+  >
+    <div
+      (click)="goBack()"
+      class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10 shadow-inner"
+    >
       <i class="fa-solid fa-arrow-left text-xl text-white"></i>
     </div>
     <h1 class="text-base font-bold text-on-primary flex-1 text-center">
@@ -22,15 +27,18 @@
 <ion-content class="bg-background">
   <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
 
-  <main *ngIf="!loading" class="w-full max-w-[480px] mx-auto px-container-padding py-4 flex flex-col gap-4 pb-24">
+  <main
+    *ngIf="!loading"
+    class="w-full max-w-[480px] mx-auto px-container-padding py-4 flex flex-col gap-4 pb-24"
+  >
     <!-- Trajet -->
-    <section
-      class="hero-gradient rounded-2xl p-5 relative overflow-hidden"
-    >
+    <section class="hero-gradient rounded-2xl p-5 relative overflow-hidden">
       <!--  date -->
       <div class="flex items-center justify-between gap-2 mb-3">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[18px] text-on-primary">calendar_month</span>
+          <span class="material-symbols-outlined text-[18px] text-on-primary"
+            >calendar_month</span
+          >
           <span class="text-label-md font-semibold text-on-primary">
             {{ tripDetails.tripDate | date: 'dd MMMM yyyy' }}
           </span>
@@ -44,7 +52,9 @@
       </div>
       <div class="flex items-center gap-2">
         <div class="text-center flex-1 min-w-0">
-          <div class="text-[10px] font-bold text-on-primary uppercase tracking-wider">
+          <div
+            class="text-[10px] font-bold text-on-primary uppercase tracking-wider"
+          >
             Départ
           </div>
           <div class="text-title-lg text-on-primary truncate">
@@ -57,16 +67,23 @@
 
         <div class="flex-1 flex items-center gap-1 px-1 self-start mt-3.5">
           <span class="w-1.5 h-1.5 rounded-full bg-outline shrink-0"></span>
-          <span class="flex-1 border-t border-dashed border-outline-variant"></span>
-          <span class="material-symbols-outlined text-on-primary text-[18px] shrink-0"
+          <span
+            class="flex-1 border-t border-dashed border-outline-variant"
+          ></span>
+          <span
+            class="material-symbols-outlined text-on-primary text-[18px] shrink-0"
             >directions_bus</span
           >
-          <span class="flex-1 border-t border-dashed border-outline-variant"></span>
+          <span
+            class="flex-1 border-t border-dashed border-outline-variant"
+          ></span>
           <span class="w-1.5 h-1.5 rounded-full bg-outline shrink-0"></span>
         </div>
 
         <div class="text-center flex-1 min-w-0">
-          <div class="text-[10px] font-bold text-on-primary uppercase tracking-wider">
+          <div
+            class="text-[10px] font-bold text-on-primary uppercase tracking-wider"
+          >
             Arrivée
           </div>
           <div class="text-title-lg text-on-primary truncate">
@@ -85,17 +102,24 @@
         class="bg-surface-container-lowest rounded-xl p-3 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex flex-col gap-2"
       >
         <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+          <div
+            class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0"
+          >
             <span class="material-symbols-outlined text-[16px]">commute</span>
           </div>
-          <span class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide">Bus</span>
+          <span
+            class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide"
+            >Bus</span
+          >
         </div>
         <div>
           <div class="text-body-lg font-bold text-on-surface truncate">
-            {{ tripDetails.busInfo?.licensePlate || tripDetails.busInfo?.code || 'N/A' }}
+            {{ tripDetails.busInfo?.licensePlate || tripDetails.busInfo?.code ||
+            'N/A' }}
           </div>
           <div class="text-body-md text-on-surface-variant truncate">
-            {{ tripDetails.busInfo?.type || tripDetails.busInfo?.model || 'Bus' }}
+            {{ tripDetails.busInfo?.type || tripDetails.busInfo?.model || 'Bus'
+            }}
           </div>
         </div>
       </div>
@@ -104,19 +128,28 @@
         class="bg-surface-container-lowest rounded-xl p-3 shadow-[0_4px_20px_rgba(30,41,59,0.03)] border border-surface-variant flex flex-col gap-2"
       >
         <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+          <div
+            class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0"
+          >
             <span class="material-symbols-outlined text-[16px]">group</span>
           </div>
-          <span class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide">Équipage</span>
+          <span
+            class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide"
+            >Équipage</span
+          >
         </div>
         <div class="grid grid-cols-1 gap-1 text-body-md">
           <div class="flex justify-between gap-2">
             <span class="text-on-surface-variant">Chauffeur</span>
-            <span class="font-semibold text-on-surface truncate">{{ tripDetails.driver?.name || 'N/A' }}</span>
+            <span class="font-semibold text-on-surface truncate"
+              >{{ tripDetails.driver?.name || 'N/A' }}</span
+            >
           </div>
           <div class="flex justify-between gap-2">
             <span class="text-on-surface-variant">Hôtesse</span>
-            <span class="font-semibold text-on-surface truncate">{{ tripDetails.hostess?.name || 'N/A' }}</span>
+            <span class="font-semibold text-on-surface truncate"
+              >{{ tripDetails.hostess?.name || 'N/A' }}</span
+            >
           </div>
         </div>
       </div>
@@ -126,17 +159,29 @@
       >
         <div class="flex justify-between items-end">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-[16px]">event_seat</span>
+            <div
+              class="w-7 h-7 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0"
+            >
+              <span class="material-symbols-outlined text-[16px]"
+                >event_seat</span
+              >
             </div>
-            <span class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide">Occupation</span>
+            <span
+              class="text-label-md font-bold text-on-surface-variant uppercase tracking-wide"
+              >Occupation</span
+            >
           </div>
           <div class="text-body-lg font-bold text-on-surface">
-            <span class="text-secondary">{{ validBookingsCount }}</span> / {{ tripDetails.busInfo?.capacity || 0 }}
-            <span class="text-label-md text-on-surface-variant font-normal">places</span>
+            <span class="text-secondary">{{ validBookingsCount }}</span> / {{
+            tripDetails.busInfo?.capacity || 0 }}
+            <span class="text-label-md text-on-surface-variant font-normal"
+              >places</span
+            >
           </div>
         </div>
-        <div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+        <div
+          class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden"
+        >
           <div
             [style.width.%]="occupancyPercentage"
             class="bg-secondary h-2.5 rounded-full transition-all duration-500"
@@ -147,29 +192,68 @@
 
     <!-- Statistiques -->
     <section>
-      <h2 class="text-label-md font-bold text-secondary uppercase tracking-wide mb-2 px-1">
+      <h2
+        class="text-label-md font-bold text-secondary uppercase tracking-wide mb-2 px-1"
+      >
         Statistiques
       </h2>
       <div class="grid grid-cols-4 gap-2">
-        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
-          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">groups</span>
-          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.total || 0 }}</span>
-          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">Total</span>
+        <div
+          class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
+        >
+          <span
+            class="material-symbols-outlined text-[16px] text-on-surface-variant"
+            >groups</span
+          >
+          <span class="text-title-lg text-on-surface leading-none"
+            >{{ tripStats.total || 0 }}</span
+          >
+          <span
+            class="text-[10px] text-on-surface-variant font-medium leading-tight"
+            >Total</span
+          >
         </div>
-        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
-          <span class="material-symbols-outlined text-[16px] text-teal-700">task_alt</span>
-          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.boarded || 0 }}</span>
-          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">Embarqués</span>
+        <div
+          class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
+        >
+          <span class="material-symbols-outlined text-[16px] text-teal-700"
+            >task_alt</span
+          >
+          <span class="text-title-lg text-on-surface leading-none"
+            >{{ tripStats.boarded || 0 }}</span
+          >
+          <span
+            class="text-[10px] text-on-surface-variant font-medium leading-tight"
+            >Embarqués</span
+          >
         </div>
-        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
-          <span class="material-symbols-outlined text-[16px] text-cyan-700">hourglass_empty</span>
-          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.pending || 0 }}</span>
-          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">En attente</span>
+        <div
+          class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
+        >
+          <span class="material-symbols-outlined text-[16px] text-cyan-700"
+            >hourglass_empty</span
+          >
+          <span class="text-title-lg text-on-surface leading-none"
+            >{{ tripStats.pending || 0 }}</span
+          >
+          <span
+            class="text-[10px] text-on-surface-variant font-medium leading-tight"
+            >En attente</span
+          >
         </div>
-        <div class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1">
-          <span class="material-symbols-outlined text-[16px] text-red-700">cancel</span>
-          <span class="text-title-lg text-on-surface leading-none">{{ tripStats?.cancelled || 0 }}</span>
-          <span class="text-[10px] text-on-surface-variant font-medium leading-tight">Annulés</span>
+        <div
+          class="bg-surface-container-lowest rounded-lg p-2.5 border border-surface-variant flex flex-col gap-1"
+        >
+          <span class="material-symbols-outlined text-[16px] text-red-700"
+            >cancel</span
+          >
+          <span class="text-title-lg text-on-surface leading-none"
+            >{{ tripStats.cancelled || 0 }}</span
+          >
+          <span
+            class="text-[10px] text-on-surface-variant font-medium leading-tight"
+            >Annulés</span
+          >
         </div>
       </div>
     </section>
@@ -196,7 +280,9 @@
         aria-label="Télécharger PDF"
         class="bg-secondary text-on-secondary px-4 rounded-lg flex items-center justify-center shadow-sm active-scale transition-colors hover:bg-slate-800"
       >
-        <span class="material-symbols-outlined text-[22px]">picture_as_pdf</span>
+        <span class="material-symbols-outlined text-[22px]"
+          >picture_as_pdf</span
+        >
       </button>
     </section>
 
@@ -227,7 +313,9 @@
               >
                 {{ passenger.name }}
               </span>
-              <span class="text-label-md text-on-surface-variant flex items-center gap-1 mt-0.5">
+              <span
+                class="text-label-md text-on-surface-variant flex items-center gap-1 mt-0.5"
+              >
                 <span class="material-symbols-outlined text-[14px]">call</span>
                 {{ passenger.phone || 'N/A' }}
               </span>
@@ -249,7 +337,9 @@
               class="text-secondary hover:bg-surface-container rounded-full p-1"
               aria-label="Actions du passager"
             >
-              <span class="material-symbols-outlined text-[18px]">more_horiz</span>
+              <span class="material-symbols-outlined text-[18px]"
+                >more_horiz</span
+              >
             </button>
           </div>
         </div>
@@ -259,8 +349,12 @@
         *ngIf="filteredPassengers.length === 0"
         class="p-8 text-center flex flex-col items-center gap-2 text-on-surface-variant"
       >
-        <span class="material-symbols-outlined text-3xl text-outline-variant">person_search</span>
-        <p class="text-body-md">Aucun voyageur ne correspond à votre recherche.</p>
+        <span class="material-symbols-outlined text-3xl text-outline-variant"
+          >person_search</span
+        >
+        <p class="text-body-md">
+          Aucun voyageur ne correspond à votre recherche.
+        </p>
       </div>
     </section>
   </main>

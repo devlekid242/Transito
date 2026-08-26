@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonSpinner } from '@ionic/angular';
 
 @Component({
   selector: 'app-loader',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonSpinner],
   template: `
     <div *ngIf="isLoading" class="loader-overlay">
       <div class="loader-container">

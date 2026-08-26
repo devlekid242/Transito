@@ -1,9 +1,21 @@
-import { Component,CUSTOM_ELEMENTS_SCHEMA,EnvironmentInjector,inject,OnDestroy, OnInit} from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  EnvironmentInjector,
+  inject,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController } from '@ionic/angular';
+import {
+  IonTabs,
+  IonTabButton,
+  IonTabBar,
+  IonLabel,
+  NavController,
+} from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tabs',
@@ -11,30 +23,35 @@ import { Subscription } from 'rxjs';
   styleUrls: ['tabs.page.scss'],
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [IonicModule, CommonModule, RouterModule, RouterOutlet],
+  imports: [
+    IonTabs,
+    IonTabButton,
+    IonTabBar,
+    IonLabel,
+    CommonModule,
+    RouterModule,
+    RouterOutlet,
+  ],
 })
-export class TabsPage implements OnDestroy {
+export class TabsPage {
   public environmentInjector = inject(EnvironmentInjector);
-  public activeTab: string = '';
-  public role: string | null = null;
-  private sub?: Subscription;
+  private auth = inject(AuthService);
+  private navCtrl = inject(NavController);
 
-  // constructor() {}
-  constructor(private auth: AuthService, private navCtrl: NavController) {
-    this.role = this.auth.getRole();
-    this.sub = this.auth.role$.subscribe((r) => (this.role = r));
-    this.activeTab = this.role === 'client' ? 'home' : 'partner-dashboard';
-  }
+  // Signal dérivé de l'observable role$ (se désabonne automatiquement)
+  public role = toSignal(this.auth.role$, {
+    initialValue: this.auth.getRole(),
+  });
 
-  
+  // Signal pour l'onglet actif, initialisé selon le rôle courant
+  public activeTab = signal<string>(
+    this.role() === 'client' ? 'home' : 'partner-dashboard',
+  );
 
   onTabChange(event: any) {
-    if(this.role == "client") this.activeTab = event.tab || 'home';
-    if(this.role == "partner") this.activeTab = event.tab || 'partner-dashboard';
-    // console.log(event.tab);
-  }
-
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+    const currentRole = this.role();
+    if (currentRole === 'client') this.activeTab.set(event.tab || 'home');
+    if (currentRole === 'partner')
+      this.activeTab.set(event.tab || 'partner-dashboard');
   }
 }

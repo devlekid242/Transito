@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, ToastController } from '@ionic/angular';
+import { IonContent, NavController, ToastController } from '@ionic/angular';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
@@ -22,7 +22,7 @@ interface NotificationItem {
   styleUrls: ['./partner-notifications.page.scss'],
   standalone: true,
   imports: [
-    IonicModule,
+    IonContent,
     CommonModule,
     FormsModule,
     PartnerHeaderComponent,

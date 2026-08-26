@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { IonHeader, IonContent, ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-qr-ticket-modal',
   templateUrl: './qr-ticket-modal.component.html',
   styleUrls: ['./qr-ticket-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonHeader, IonContent, CommonModule],
 })
 export class QrTicketModalComponent implements OnInit {
   @Input() bookingId!: string;

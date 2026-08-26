@@ -7,7 +7,7 @@ import {
 import {
   IonicRouteStrategy,
   provideIonicAngular,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideZoneChangeDetection } from '@angular/core';
 import {

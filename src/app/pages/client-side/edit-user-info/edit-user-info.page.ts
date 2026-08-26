@@ -8,7 +8,8 @@ import {
   Validators,
 } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent,
+  IonHeader,
   NavController,
   LoadingController,
   AlertController,
@@ -24,7 +25,13 @@ import { User } from '../../../models';
   templateUrl: './edit-user-info.page.html',
   styleUrls: ['./edit-user-info.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    IonContent,
+    IonHeader,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
 })
 export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   userForm!: FormGroup;
@@ -81,7 +88,7 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   private async loadUserData() {
     this.isLoading = true;
     this.userService.getCurrentUser().subscribe({
-      next: (user : any) => {
+      next: (user: any) => {
         this.currentUser = user;
         this.userForm.patchValue({
           fullName: user.fullName,
@@ -93,15 +100,12 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
           emergencyContactPhone: user.emergencyContactPhone || '',
         });
 
-        
-        
         this.isLoading = false;
 
-        this.isAgent =  user?.agent == undefined;
+        this.isAgent = user?.agent == undefined;
         // console.log(user?.agent == undefined);
       },
       error: async (err) => {
-        
         this.isLoading = false;
         console.error('Erreur lors du chargement des données:', err);
         await this.showAlert(
@@ -111,8 +115,6 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
       },
     });
   }
-
-
 
   async saveChanges() {
     if (this.userForm.invalid) {
@@ -139,7 +141,6 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
     this.userService.updateProfile(updateData).subscribe({
       next: async () => {
-        
         this.isSaving = false;
         await this.showToast('Informations mises à jour avec succès');
         setTimeout(() => {
@@ -147,7 +148,6 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
         }, 1500);
       },
       error: async (err) => {
-        
         this.isSaving = false;
         console.error('Erreur lors de la mise à jour:', err);
         const errorMessage =

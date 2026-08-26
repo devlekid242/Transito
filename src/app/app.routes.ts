@@ -12,13 +12,6 @@ export const routes: Routes = [
           import('./pages/auth/login/login.page').then((m) => m.LoginPage),
       },
       {
-        path: 'register',
-        loadComponent: () =>
-          import('./pages/auth/register/register.page').then(
-            (m) => m.RegisterPage,
-          ),
-      },
-      {
         path: 'pro-login',
         loadComponent: () =>
           import('./pages/auth/pro-login/pro-login.page').then((m) => m.ProLoginPage),
@@ -138,14 +131,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'manage-payment-methods',
-    canActivate: [AuthGuard],
-    loadComponent: () =>
-      import('./pages/client-side/manage-payment-methods/manage-payment-methods.page').then(
-        (m) => m.ManagePaymentMethodsPage,
-      ),
-  },
-  {
     path: 'seat-selection/:tripId',
     canActivate: [AuthGuard],
     loadComponent: () =>
@@ -175,14 +160,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/client-side/support-ticket-detail/support-ticket-detail.page').then(
         (m) => m.SupportTicketDetailPage,
-      ),
-  },
-  {
-    path: 'favorite-trips',
-    canActivate: [AuthGuard],
-    loadComponent: () =>
-      import('./pages/client-side/favorite-trips/favorite-trips.page').then(
-        (m) => m.FavoriteTripsPage,
       ),
   },
   {

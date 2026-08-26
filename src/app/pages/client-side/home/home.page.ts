@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent,
   InfiniteScrollCustomEvent,
   NavController,
   AlertController,
@@ -25,7 +25,7 @@ import { environment } from 'src/environments/environment.prod';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    IonicModule,
+    IonContent,
     SharedHeaderComponent,
   ],
 })

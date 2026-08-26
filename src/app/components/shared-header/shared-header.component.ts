@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
@@ -11,7 +11,7 @@ import { NotificationService } from '../../services/notification.service';
   templateUrl: './shared-header.component.html',
   styleUrls: ['./shared-header.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [CommonModule],
 })
 export class SharedHeaderComponent implements OnInit, OnDestroy {
   @Input() title: string = '';
@@ -19,17 +19,17 @@ export class SharedHeaderComponent implements OnInit, OnDestroy {
   @Input() showNotifications: boolean = true;
   @Input() showProfile: boolean = true;
 
+  private auth = Inject(AuthService);
+  private navCtrl = Inject(NavController);
+  private router = Inject(Router);
+  private pushService = Inject(NotificationService);
+
   userName: string = '';
   hasUnreadNotifications: boolean = false;
 
   private unreadSub?: Subscription;
 
-  constructor(
-    private auth: AuthService,
-    private navCtrl: NavController,
-    private router: Router,
-    private pushService: NotificationService,
-  ) {}
+  constructor(  ) {}
 
   ngOnInit() {
     const user = this.auth.getUser();
@@ -39,7 +39,7 @@ export class SharedHeaderComponent implements OnInit, OnDestroy {
     // jamais. On s'abonne à unreadCount$ (mis à jour par connectRealtime,
     // markAsRead, markAllAsRead, deleteNotification, et les évènements
     // Pusher temps réel côté NotificationService).
-    this.unreadSub = this.pushService.unreadCount$.subscribe((count) => {
+    this.unreadSub = this.pushService.unreadCount$.subscribe((count: any) => {
       this.hasUnreadNotifications = count > 0;
     });
   }

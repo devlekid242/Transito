@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent,
+  IonHeader,
   NavController,
   ActionSheetController,
   ToastController,
@@ -55,10 +56,10 @@ interface TripManifest {
   styleUrls: ['./trip-manifest.page.scss'],
   standalone: true,
   imports: [
-    IonicModule,
+    IonContent,
+    IonHeader,
     CommonModule,
     FormsModule,
-    PartnerHeaderComponent,
     SkeletonLoaderComponent,
   ],
 })
@@ -120,7 +121,6 @@ export class TripManifestPage implements OnInit {
   openNotifications() {
     this.navCtrl.navigateForward('/notifications');
   }
-
 
   private loadManifestData(): void {
     this.loading = true;

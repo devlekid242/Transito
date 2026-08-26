@@ -17,7 +17,8 @@
           <i class="fa-solid fa-phone text-outline text-base"></i>
           <span class="text-base font-bold text-secondary border-r border-outline-variant pr-3 select-none">+242</span>
           <input
-            [(ngModel)]="phoneNumber"
+            [ngModel]="phoneNumber()"
+            (ngModelChange)="phoneNumber.set($event)"
             type="tel"
             inputmode="tel"
             autocomplete="tel"
@@ -29,19 +30,19 @@
         </div>
       </div>
 
-      <div *ngIf="error" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl text-center font-medium border border-red-100 flex items-center justify-center gap-2">
+      <div *ngIf="error()" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl text-center font-medium border border-red-100 flex items-center justify-center gap-2">
         <i class="fa-solid fa-circle-exclamation"></i>
-        <span>{{ error }}</span>
+        <span>{{ error() }}</span>
       </div>
 
       <button
         (click)="requestOtp()"
-        [disabled]="loading"
+        [disabled]="loading()"
         class="w-full bg-primary text-white font-bold py-4 rounded-2xl soft-shadow disabled:opacity-60 disabled:pointer-events-none transition-all flex justify-center items-center gap-3 mt-4"
       >
-        <span *ngIf="!loading">Recevoir mon code</span>
-        <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
-        <i *ngIf="!loading" class="fa-solid fa-arrow-right text-lg"></i>
+        <span *ngIf="!loading()">Recevoir mon code</span>
+        <ion-spinner *ngIf="loading()" name="crescent" color="light"></ion-spinner>
+        <i *ngIf="!loading()" class="fa-solid fa-arrow-right text-lg"></i>
       </button>
 
       <div class="bg-primary/5 border border-primary/10 rounded-2xl p-4 text-sm text-on-surface-variant">

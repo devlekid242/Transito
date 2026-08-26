@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent, IonHeader,
   NavController,
   LoadingController,
   AlertController,
@@ -30,7 +30,7 @@ import {
   templateUrl: './booking-form.page.html',
   styleUrls: ['./booking-form.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonContent, IonHeader],
 })
 export class BookingFormPage implements OnInit, OnDestroy {
   trip: Trip | null = null;

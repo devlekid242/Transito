@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent, IonHeader, IonInfiniteScroll,
   InfiniteScrollCustomEvent,
   NavController,
   AlertController,
@@ -30,7 +30,7 @@ interface FilterDraft {
   templateUrl: './search-results.page.html',
   styleUrls: ['./search-results.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [IonContent, IonHeader, IonInfiniteScroll, CommonModule, FormsModule, ReactiveFormsModule],
 })
 export class SearchResultsPage implements OnInit, OnDestroy {
   // Paramètres de recherche unifiés

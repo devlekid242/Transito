@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent, IonInfiniteScroll, IonInfiniteScrollContent,
   NavController,
   InfiniteScrollCustomEvent,
   LoadingController,
@@ -32,7 +32,7 @@ interface AgencyCard {
   templateUrl: './agencies-list.page.html',
   styleUrls: ['./agencies-list.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, SharedHeaderComponent],
+  imports: [CommonModule, FormsModule, IonContent, IonInfiniteScroll, IonInfiniteScrollContent, SharedHeaderComponent],
 })
 export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   searchQuery = '';

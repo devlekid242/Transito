@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent,
   NavController,
   LoadingController,
   AlertController,
@@ -20,7 +20,7 @@ import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-h
   templateUrl: './user-profile.page.html',
   styleUrls: ['./user-profile.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, SharedHeaderComponent],
+  imports: [IonContent, CommonModule, FormsModule, SharedHeaderComponent],
 })
 export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   user: any = {

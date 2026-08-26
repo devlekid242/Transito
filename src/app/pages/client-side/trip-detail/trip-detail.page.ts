@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController, AlertController } from '@ionic/angular';
+import { IonContent, IonHeader, NavController, AlertController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,7 +13,7 @@ import { environment } from 'src/environments/environment.prod';
   templateUrl: './trip-detail.page.html',
   styleUrls: ['./trip-detail.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonContent, IonHeader],
 })
 export class TripDetailPage implements OnInit, OnDestroy {
   readonly baseApiUrl = environment.baseApiUrl;

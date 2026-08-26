@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonHeader, NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
@@ -12,7 +12,7 @@ import { NotificationService } from '../../services/notification.service';
   templateUrl: './partner-header.component.html',
   styleUrls: ['./partner-header.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [CommonModule, IonHeader]
 })
 export class PartnerHeaderComponent implements OnInit, OnDestroy  {
   @Input() title: string = '';

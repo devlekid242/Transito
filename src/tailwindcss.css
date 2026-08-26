@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   1. THÈME PERSONNALISÉ (TAILWIND V4)
+   ========================================================================== */
+@theme {
+  /* --- FONTS --- */
+  --font-sans: "Inter", sans-serif;
+  --font-title-lg: "Inter", sans-serif;
+  --font-headline-md: "Inter", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-price-lg: "Inter", sans-serif;
+  --font-display-lg: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-label-md: "Inter", sans-serif;
+  --font-headline-sm: "Inter", sans-serif;
+
+  /* --- COULEURS --- */
+  --color-primary: #059669;
+  --color-primary-container: #d1fae5;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #064e3b;
+
+  --color-secondary: #0f172a;
+  --color-secondary-container: #e2e8f0;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #0f172a;
+
+  --color-tertiary: #0284c7;
+  --color-tertiary-container: #e0f2fe;
+  --color-on-tertiary-container: #075985;
+
+  --color-surface: #f8fafc;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f1f5f9;
+  --color-surface-container: #e2e8f0;
+  --color-surface-variant: #cbd5e1;
+  --color-on-surface: #0f172a;
+  --color-on-surface-variant: #475569;
+
+  --color-outline: #94a3b8;
+  --color-outline-variant: #cbd5e1;
+
+  --color-background: #f8fafc;
+  --color-on-background: #0f172a;
+
+  --color-inverse-surface: #1e293b;
+  --color-inverse-on-surface: #f8fafc;
+  --color-inverse-primary: #34d399;
+
+  /* --- ESPACEMENTS --- */
+  --spacing-container-padding: 16px;
+  --spacing-gutter: 12px;
+  --spacing-stack-lg: 24px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-sm: 8px;
+  --spacing-base: 4px;
+
+  /* --- BORDURES (BORDER RADIUS) --- */
+  --radius: 0.25rem; /* Remplace le DEFAULT de v3, génère la classe "rounded" */
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* ==========================================================================
+   2. TYPOGRAPHIES COMPLEXES (Taille + Hauteur + Graisse + Espacement)
+   ========================================================================== */
+@utility text-title-lg {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+@utility text-headline-md {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+@utility text-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+@utility text-price-lg {
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+@utility text-display-lg {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+@utility text-body-md {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+@utility text-label-md {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+@utility text-headline-sm {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   3. BASE & COMPOSANTS
+   ========================================================================== */
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+  }
+}
+
+@layer utilities {
+  .hero-gradient {
+    /* En v4, on utilise directement les variables CSS générées plutôt que theme() */
+    background: linear-gradient(
+      135deg,
+      var(--color-secondary) 0%,
+      var(--color-primary) 100%
+    );
+  }
+
+  .soft-shadow {
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  }
+
+  .interactive-shadow {
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
+  }
+
+  .bento-card {
+    background: linear-gradient(
+      145deg,
+      var(--color-surface-container-lowest) 0%,
+      var(--color-surface) 100%
+    );
+    box-shadow: 0 4px 20px rgba(30, 41, 59, 0.05);
+    border: 1px solid var(--color-surface-variant);
+  }
+
+  .qr-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-secondary) 100%
+    );
+  }
+
+  /* Effet actif sur les éléments interactifs */
+  .active-scale {
+    transition: transform 0.15s ease-in-out;
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+/* ==========================================================================
+   4. FIXES POUR IONIC 
+   ========================================================================== */
+html,
+body {
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden;
+}
+
+ion-content {
+  --height: 100%;
+}
+
+ion-tab-bar {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-around !important;
+}
+
+ion-tab-button {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}

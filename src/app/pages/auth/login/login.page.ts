@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { NavController, IonContent, IonSpinner } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -9,12 +9,13 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonSpinner, CommonModule, FormsModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LoginPage {
-  phoneNumber = '';
-  error = '';
-  loading = false;
+  phoneNumber = signal('');
+  error = signal('');
+  loading = signal(false);
 
   constructor(
     private authService: AuthService,
@@ -28,23 +29,23 @@ export class LoginPage {
   }
 
   async requestOtp(): Promise<void> {
-    this.error = '';
-    const phone = this.normalizePhone(this.phoneNumber);
+    this.error.set('');
+    const phone = this.normalizePhone(this.phoneNumber());
     if (!/^\+242\d{9}$/.test(phone)) {
-      this.error = 'Veuillez saisir un numéro congolais valide.';
+      this.error.set('Veuillez saisir un numéro congolais valide.');
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
     const success = await this.authService.requestLoginOtp(phone);
-    this.loading = false;
+    this.loading.set(false);
 
     if (success) {
       this.navCtrl.navigateForward('/auth/verify-login', {
         queryParams: { phone },
       });
     } else {
-      this.error = 'Impossible d’envoyer le code OTP. Veuillez réessayer.';
+      this.error.set('Impossible d’envoyer le code OTP. Veuillez réessayer.');
     }
   }
 

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
-  IonicModule,
+  IonContent, IonHeader,
   NavController,
   LoadingController,
   AlertController,
@@ -51,7 +51,7 @@ interface TicketInfo {
   templateUrl: './ticket-detail.page.html',
   styleUrls: ['./ticket-detail.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonContent, IonHeader, CommonModule],
 })
 export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
   ticket: TicketInfo = {

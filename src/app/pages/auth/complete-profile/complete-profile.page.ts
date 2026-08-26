@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
@@ -10,7 +10,7 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './complete-profile.page.html',
   styleUrls: ['./complete-profile.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonSpinner, CommonModule, FormsModule],
 })
 export class CompleteProfilePage {
   phoneNumber = '';

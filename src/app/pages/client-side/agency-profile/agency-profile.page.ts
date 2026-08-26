@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent, IonInfiniteScroll, IonInfiniteScrollContent, IonHeader,
   NavController,
   AlertController,
   ViewWillEnter,
@@ -35,7 +35,7 @@ interface DisplayTrip {
   templateUrl: './agency-profile.page.html',
   styleUrls: ['./agency-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonContent, IonInfiniteScroll, IonInfiniteScrollContent, IonHeader],
 })
 export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   activeTab: 'trips' | 'points' = 'trips';

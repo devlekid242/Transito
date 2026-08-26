@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonContent, NavController } from '@ionic/angular';
 import { CapacitorBarcodeScanner } from '@capacitor/barcode-scanner';
 import { Subscription } from 'rxjs';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
@@ -9,7 +9,6 @@ import {
   PartnerApiService,
   TicketValidationResponse,
 } from '../../../services/partner-api.service';
-import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
 interface TicketData {
@@ -53,13 +52,7 @@ const EMPTY_TICKET: TicketData = {
   templateUrl: './ticket-validation.page.html',
   styleUrls: ['./ticket-validation.page.scss'],
   standalone: true,
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    PartnerHeaderComponent,
-    SkeletonLoaderComponent,
-  ],
+  imports: [IonContent, CommonModule, FormsModule, SkeletonLoaderComponent],
 })
 export class TicketValidationPage implements OnInit, OnDestroy {
   scanState: 'idle' | 'scanning' | 'success' | 'error' = 'idle';
@@ -139,7 +132,7 @@ export class TicketValidationPage implements OnInit, OnDestroy {
       return;
     }
 
-    const qr = qrCode?.trim() 
+    const qr = qrCode?.trim();
     const ticketCode = this.qrCodeInput?.trim();
     if (!qr && !ticketCode) {
       this.scanState = 'error';
@@ -150,42 +143,44 @@ export class TicketValidationPage implements OnInit, OnDestroy {
 
     this.scanState = 'scanning';
     this.validationSub?.unsubscribe();
-    this.validationSub = this.apiService.validateTicket(String(qr), ticketCode).subscribe({
-      next: (response: TicketValidationResponse) => {
-        if (!response.success) {
-          this.scanState = 'error';
-          this.errorMessage = response.message || 'Billet non valide.';
-          return;
-        }
+    this.validationSub = this.apiService
+      .validateTicket(String(qr), ticketCode)
+      .subscribe({
+        next: (response: TicketValidationResponse) => {
+          if (!response.success) {
+            this.scanState = 'error';
+            this.errorMessage = response.message || 'Billet non valide.';
+            return;
+          }
 
-        this.validatedTicket = {
-          passengerName: response.passengerName || 'N/A',
-          passengerPhone: response.passengerPhone || '',
-          ticketNumber: response.ticketNumber || ticketCode || 'N/A',
-          boardingStatusLabel: this.getBoardingStatusLabel(
-            response.boardingStatus,
-          ),
-          boardingTime: response.boardingTime || '',
-          message: response.message || '',
-          origin: response.origin || '',
-          destination: response.destination || '',
-          agencyName: response.agencyName || '',
-          tripNumber: response.tripNumber || '',
-          seatNumber: response.seatNumber || '',
-          busLicensePlate: response.busLicensePlate || '',
-          departureDate: response.departureDate || '',
-          departureTime: response.departureTime || '',
-          validatedByAgentName: response.validatedByAgentName || '',
-        };
-        this.scanState = 'success';
-      },
-      error: (error: any) => {
-        this.scanState = 'error';
-        this.errorMessage =
-          error?.error?.message ||
-          'Billet invalide ou déjà utilisé. Veuillez vérifier le code.';
-      },
-    });
+          this.validatedTicket = {
+            passengerName: response.passengerName || 'N/A',
+            passengerPhone: response.passengerPhone || '',
+            ticketNumber: response.ticketNumber || ticketCode || 'N/A',
+            boardingStatusLabel: this.getBoardingStatusLabel(
+              response.boardingStatus,
+            ),
+            boardingTime: response.boardingTime || '',
+            message: response.message || '',
+            origin: response.origin || '',
+            destination: response.destination || '',
+            agencyName: response.agencyName || '',
+            tripNumber: response.tripNumber || '',
+            seatNumber: response.seatNumber || '',
+            busLicensePlate: response.busLicensePlate || '',
+            departureDate: response.departureDate || '',
+            departureTime: response.departureTime || '',
+            validatedByAgentName: response.validatedByAgentName || '',
+          };
+          this.scanState = 'success';
+        },
+        error: (error: any) => {
+          this.scanState = 'error';
+          this.errorMessage =
+            error?.error?.message ||
+            'Billet invalide ou déjà utilisé. Veuillez vérifier le code.';
+        },
+      });
   }
 
   getBoardingStatusLabel(

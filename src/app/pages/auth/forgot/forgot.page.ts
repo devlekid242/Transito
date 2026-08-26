@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './forgot.page.html',
   styleUrls: ['./forgot.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonContent, IonSpinner, CommonModule, FormsModule],
 })
 export class ForgotPage {
   phoneNumber = '';

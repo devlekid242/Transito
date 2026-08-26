@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { ToastController } from '@ionic/angular';
@@ -14,7 +14,10 @@ export interface ApiState<T> {
   providedIn: 'root',
 })
 export class ApiStateService {
-  constructor(private toastController: ToastController) {}
+
+  private readonly toastController = inject(ToastController);
+
+  constructor() {}
 
   /**
    * Gère un appel API avec état de chargement

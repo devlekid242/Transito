@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent,
   NavController,
   AlertController,
   ViewWillEnter,   // 👈 nouveau
@@ -16,7 +16,7 @@ import { Notification } from '../../../models';
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonContent, CommonModule, FormsModule]
 })
 
 

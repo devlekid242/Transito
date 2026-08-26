@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonContent } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { SharedHeaderComponent } from '../../../components/shared-header/shared-header.component';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
@@ -29,10 +28,9 @@ interface ScheduledTrip {
   styleUrls: ['./scheduled-trips.page.scss'],
   standalone: true,
   imports: [
-    IonicModule,
+    IonContent,
     CommonModule,
     FormsModule,
-    SharedHeaderComponent,
     PartnerHeaderComponent,
     SkeletonLoaderComponent,
   ],

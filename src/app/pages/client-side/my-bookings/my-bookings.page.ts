@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonicModule,
+  IonContent, IonInfiniteScroll, IonInfiniteScrollContent,
   NavController,
   AlertController,
   ModalController,
@@ -24,7 +24,7 @@ export type BookingFilterType = 'all' | 'active' | 'past' | 'cancelled';
   templateUrl: './my-bookings.page.html',
   styleUrls: ['./my-bookings.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, SharedHeaderComponent],
+  imports: [CommonModule, FormsModule, IonContent, IonInfiniteScroll, IonInfiniteScrollContent, SharedHeaderComponent],
 })
 export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave {
   // Données
