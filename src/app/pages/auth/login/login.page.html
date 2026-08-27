@@ -1,62 +1,59 @@
-<ion-content [fullscreen]="true" class="bg-background">
-  <div class="flex flex-col min-h-full px-6 justify-between bg-background">
-    <div class="flex flex-col items-center justify-center pt-16 pb-6">
-      <div class="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center soft-shadow mb-6 transform rotate-3">
-        <i class="fa-solid fa-bus text-white text-3xl"></i>
+<ion-content [fullscreen]="true" class="bg-white">
+  <div class="flex flex-col h-full justify-between py-8 max-w-md mx-auto pt-12 px-6">
+    <!-- En-tête avec Icône -->
+    <div class="flex flex-col items-center">
+      <div
+        class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6"
+      >
+        <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
       </div>
-      <h1 class="text-3xl font-extrabold text-secondary tracking-tight">Bienvenue sur Transito</h1>
-      <p class="text-on-surface-variant mt-2 text-center text-sm max-w-sm">
-        Connectez-vous simplement avec votre numéro de téléphone. Aucun mot de passe à retenir.
+
+      <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">
+        Saisissez votre numéro
+      </h1>
+      <p class="text-center text-gray-500 text-sm mb-10 px-2">
+        Transito va vérifier votre numéro. Aucun mot de passe n'est requis.
       </p>
+
+      <!-- Input style WhatsApp -->
+      <div
+        class="flex items-center w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all gap-3"
+      >
+        <i class="fa-solid fa-phone text-outline text-base"></i>
+        <span
+          class="text-base font-bold text-secondary border-r border-outline-variant pr-3 select-none"
+          >+242</span
+        >
+        <input
+          [ngModel]="phoneNumber()"
+          (ngModelChange)="phoneNumber.set($event)"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          maxlength="12"
+          placeholder="06 000 0000"
+          class="w-full bg-transparent border-0 p-0 text-on-surface placeholder:text-outline/60 outline-none focus:ring-0 text-base"
+          (keyup.enter)="requestOtp()"
+        />
+      </div>
     </div>
 
-    <div class="flex-1 flex flex-col justify-center max-w-md w-full mx-auto gap-5">
-      <div class="space-y-2">
-        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider ml-1">Numéro de téléphone</label>
-        <div class="flex items-center w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all gap-3">
-          <i class="fa-solid fa-phone text-outline text-base"></i>
-          <span class="text-base font-bold text-secondary border-r border-outline-variant pr-3 select-none">+242</span>
-          <input
-            [ngModel]="phoneNumber()"
-            (ngModelChange)="phoneNumber.set($event)"
-            type="tel"
-            inputmode="tel"
-            autocomplete="tel"
-            maxlength="12"
-            placeholder="06 000 0000"
-            class="w-full bg-transparent border-0 p-0 text-on-surface placeholder:text-outline/60 outline-none focus:ring-0 text-base"
-            (keyup.enter)="requestOtp()"
-          />
-        </div>
-      </div>
-
-      <div *ngIf="error()" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl text-center font-medium border border-red-100 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <span>{{ error() }}</span>
-      </div>
-
+    <!-- Actions du bas -->
+    <div class="pb-8 flex flex-col items-center gap-6">
       <button
         (click)="requestOtp()"
         [disabled]="loading()"
-        class="w-full bg-primary text-white font-bold py-4 rounded-2xl soft-shadow disabled:opacity-60 disabled:pointer-events-none transition-all flex justify-center items-center gap-3 mt-4"
+        class="bg-primary text-white w-full font-bold py-3 px-12 rounded-full disabled:opacity-50 transition-opacity"
       >
-        <span *ngIf="!loading()">Recevoir mon code</span>
-        <ion-spinner *ngIf="loading()" name="crescent" color="light"></ion-spinner>
-        <i *ngIf="!loading()" class="fa-solid fa-arrow-right text-lg"></i>
+        <span *ngIf="!loading()">Suivant</span>
+        <ion-spinner *ngIf="loading()" name="dots" color="light"></ion-spinner>
       </button>
 
-      <div class="bg-primary/5 border border-primary/10 rounded-2xl p-4 text-sm text-on-surface-variant">
-        <div class="flex gap-3">
-          <i class="fa-solid fa-shield-halved text-primary mt-0.5"></i>
-          <span>Un code à usage unique vous sera envoyé pour sécuriser votre connexion.</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="py-8 text-center mt-auto">
-      <button (click)="goToProfessionalLogin()" class="text-sm text-on-surface-variant font-semibold">
+      <button
+        (click)="goToProfessionalLogin()"
+        class="text-sm text-gray-500 font-medium"
+      >
         Accès agent / partenaire
-        <i class="fa-solid fa-arrow-right ml-1 text-primary"></i>
       </button>
     </div>
   </div>

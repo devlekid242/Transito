@@ -1,7 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, FormGroup, Validators } from '@angular/forms';
-import { IonContent, IonHeader, NavController, ToastController } from '@ionic/angular';
+import { IonContent, IonHeader, NavController } from '@ionic/angular';
 import { UserService } from '../../../services/user.service'; // Adaptez le chemin de votre service
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -25,7 +26,7 @@ export class ChangePasswordPage implements OnInit {
     private fb: FormBuilder,
     private navCtrl: NavController,
     private userService: UserService,
-    private toastCtrl: ToastController
+    private notificationService: UiNotificationService
   ) {}
 
   ngOnInit() {
@@ -65,13 +66,9 @@ export class ChangePasswordPage implements OnInit {
     this.userService.changePassword(this.passwordForm.value.oldPassword,  this.passwordForm.value.newPassword).subscribe({
       next: async (response:any) => {
         this.isSaving = false;
-        const toast = await this.toastCtrl.create({
-          message: response.message || 'Mot de passe mis à jour avec succès.',
-          duration: 3000,
-          color: 'success',
-          position: 'bottom'
-        });
-        await toast.present();
+        await this.notificationService.showSuccess(
+          response.message || 'Mot de passe mis à jour avec succès.'
+        );
         this.passwordForm.reset();
         this.goBack();
       },
@@ -79,13 +76,7 @@ export class ChangePasswordPage implements OnInit {
         this.isSaving = false;
         // Récupération du message d'erreur renvoyé par l'API Symfony (ex: "Ancien mot de passe incorrect.")
         const errorMsg = err.error?.message || 'Une erreur est survenue lors de la modification.';
-        const toast = await this.toastCtrl.create({
-          message: errorMsg,
-          duration: 4000,
-          color: 'danger',
-          position: 'bottom'
-        });
-        await toast.present();
+        await this.notificationService.showError(errorMsg);
       }
     });
   }

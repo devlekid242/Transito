@@ -6,11 +6,11 @@ import {
   IonSpinner,
   NavController,
   LoadingController,
-  AlertController,
 } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { TripService } from '../../../services/trip.service';
 import { BookingService } from '../../../services/booking.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 interface Seat {
   number: string;
@@ -43,7 +43,7 @@ export class SeatSelectionPage implements OnInit {
     private tripService: TripService,
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -69,7 +69,10 @@ export class SeatSelectionPage implements OnInit {
         console.error('Erreur chargement trajets:', err);
         this.isLoading = false;
         loader.dismiss();
-        this.showAlert('Erreur', 'Impossible de charger la carte des sièges');
+        this.notificationService.showErrorAlert(
+          'Impossible de charger la carte des sièges',
+          'Erreur'
+        );
       },
     });
   }
@@ -116,7 +119,10 @@ export class SeatSelectionPage implements OnInit {
 
   selectSeat(seat: Seat) {
     if (seat.status === 'occupied') {
-      this.showAlert('Siège indisponible', 'Ce siège est déjà réservé');
+      this.notificationService.showErrorAlert(
+        'Ce siège est déjà réservé',
+        'Siège indisponible'
+      );
       return;
     }
 
@@ -129,9 +135,9 @@ export class SeatSelectionPage implements OnInit {
       seat.status = 'available';
     } else {
       if (this.selectedSeats.length >= 6) {
-        this.showAlert(
-          'Limite atteinte',
+        this.notificationService.showErrorAlert(
           'Vous pouvez sélectionner maximum 6 sièges',
+          'Limite atteinte'
         );
         return;
       }
@@ -156,7 +162,10 @@ export class SeatSelectionPage implements OnInit {
 
   confirmSeats() {
     if (this.selectedSeats.length === 0) {
-      this.showAlert('Erreur', 'Veuillez sélectionner au moins un siège');
+      this.notificationService.showErrorAlert(
+        'Veuillez sélectionner au moins un siège',
+        'Erreur'
+      );
       return;
     }
 
@@ -173,15 +182,6 @@ export class SeatSelectionPage implements OnInit {
 
   goBack() {
     this.navCtrl.navigateBack('/search-results');
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 
   getRowSeats(row: number): Seat[] {

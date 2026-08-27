@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-complete-profile',
@@ -17,28 +18,27 @@ export class CompleteProfilePage {
   registrationToken = '';
   fullName = '';
   loading = false;
-  error = '';
 
   constructor(
     private auth: AuthService,
     private route: ActivatedRoute,
     private nav: NavController,
+    private notificationService: UiNotificationService,
   ) {
     this.phoneNumber = this.route.snapshot.queryParamMap.get('phone') || '';
     this.registrationToken = this.route.snapshot.queryParamMap.get('registrationToken') || '';
   }
 
   async submit(): Promise<void> {
-    this.error = '';
     const name = this.fullName.trim();
 
     if (name.length < 2) {
-      this.error = 'Veuillez renseigner votre nom complet.';
+      await this.notificationService.showErrorAlert('Veuillez renseigner votre nom complet.');
       return;
     }
 
     if (!this.registrationToken) {
-      this.error = 'La session de création du compte a expiré. Veuillez recommencer.';
+      await this.notificationService.showErrorAlert('La session de création du compte a expiré. Veuillez recommencer.');
       return;
     }
 
@@ -47,7 +47,7 @@ export class CompleteProfilePage {
     this.loading = false;
 
     if (!success) {
-      this.error = 'Impossible de finaliser votre compte. Veuillez recommencer.';
+      await this.notificationService.showErrorAlert('Impossible de finaliser votre compte. Veuillez recommencer.');
       return;
     }
 

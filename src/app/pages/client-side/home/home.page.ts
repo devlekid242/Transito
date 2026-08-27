@@ -5,14 +5,14 @@ import {
   IonContent,
   InfiniteScrollCustomEvent,
   NavController,
-  AlertController,
-  ViewWillEnter, // 👈 nouveau
-  ViewWillLeave, // 👈 nouveau (optionnel, pour le nettoyage)
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams, User } from '../../../models';
 import { TripService, UserService } from '../../../services';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 import { environment } from 'src/environments/environment.prod';
 
@@ -63,7 +63,7 @@ export class HomePage
     private navCtrl: NavController,
     private tripService: TripService,
     private userService: UserService,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -197,25 +197,25 @@ export class HomePage
    */
   async searchTrips() {
     if (!this.searchParams.departureCity) {
-      await this.showAlert(
-        'Champ requis',
+      await this.notificationService.showInfoAlert(
         'Veuillez sélectionner une ville de départ.',
+        'Champ requis'
       );
       return;
     }
 
     if (!this.searchParams.arrivalCity) {
-      await this.showAlert(
-        'Champ requis',
+      await this.notificationService.showInfoAlert(
         'Veuillez sélectionner une ville de destination.',
+        'Champ requis'
       );
       return;
     }
 
     if (!this.searchParams.departureDate) {
-      await this.showAlert(
-        'Champ requis',
+      await this.notificationService.showInfoAlert(
         'Veuillez spécifier votre date de voyage.',
+        'Champ requis'
       );
       return;
     }
@@ -247,16 +247,6 @@ export class HomePage
 
   viewFavorites() {
     this.navCtrl.navigateForward('/favorite-trips');
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-      cssClass: 'custom-alert-class',
-    });
-    await alert.present();
   }
 
   private getTodayDate(): string {

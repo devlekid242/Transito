@@ -5,11 +5,11 @@ import {
   IonHeader,
   NavController,
   LoadingController,
-  AlertController,
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
 import { PaymentService } from '../../../services/payment.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { PaymentLog } from '../../../models';
 
 @Component({
@@ -31,8 +31,7 @@ export class PaymentHistoryPage
   constructor(
     private navCtrl: NavController,
     private paymentService: PaymentService,
-    private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -64,9 +63,9 @@ export class PaymentHistoryPage
       error: (err) => {
         console.error('Erreur chargement historique:', err);
         this.isLoading = false;
-        this.showAlert(
-          'Erreur',
+        this.notificationService.showErrorAlert(
           "Impossible de charger l'historique des paiements",
+          'Erreur'
         );
       },
     });
@@ -158,22 +157,13 @@ export class PaymentHistoryPage
 
   downloadReceipt(payment: PaymentLog) {
     // Générer et télécharger le reçu
-    this.showAlert(
-      'Reçu',
+    this.notificationService.showSuccessAlert(
       `Reçu pour transaction #${payment.transactionId} généré`,
+      'Reçu'
     );
   }
 
   goBack() {
     this.navCtrl.back();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 }

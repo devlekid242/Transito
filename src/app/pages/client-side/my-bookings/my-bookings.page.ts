@@ -2,20 +2,21 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonInfiniteScroll, IonInfiniteScrollContent,
+  IonContent,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   NavController,
-  AlertController,
   ModalController,
-  ViewWillEnter,   // 👈 nouveau
-  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Reservation } from '../../../models';
 import { BookingService } from '../../../services';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { QrTicketModalComponent } from '../../../components/qr-ticket-modal/qr-ticket-modal.component';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
-
 
 export type BookingFilterType = 'all' | 'active' | 'past' | 'cancelled';
 
@@ -24,9 +25,18 @@ export type BookingFilterType = 'all' | 'active' | 'past' | 'cancelled';
   templateUrl: './my-bookings.page.html',
   styleUrls: ['./my-bookings.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonInfiniteScroll, IonInfiniteScrollContent, SharedHeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    SharedHeaderComponent,
+  ],
 })
-export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave {
+export class MyBookingsPage
+  implements OnInit, OnDestroy, ViewWillEnter, ViewWillLeave
+{
   // Données
   bookings: Reservation[] = [];
   activeBookings: Reservation[] = [];
@@ -63,7 +73,7 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
   constructor(
     private navCtrl: NavController,
     private bookingService: BookingService,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
     private modalCtrl: ModalController,
   ) {}
 
@@ -76,7 +86,7 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
     this.destroy$.complete();
   }
 
-    ionViewWillEnter() {
+  ionViewWillEnter() {
     // Se déclenche à CHAQUE fois que la page redevient active :
     // premier chargement, retour depuis /search-results, changement d'onglet...
     this.loadBookings();
@@ -97,7 +107,7 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
       .getUserBookings()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (bookings : Reservation[]) => {
+        next: (bookings: Reservation[]) => {
           this.bookings = bookings;
           this.separateBookings();
           this.bookingHistory = this.pastBookings;
@@ -108,9 +118,9 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
         error: async (err) => {
           console.error('Erreur chargement réservations:', err);
           this.isLoading = false;
-          await this.showAlert(
-            'Erreur',
+          await this.notificationService.showErrorAlert(
             'Erreur lors du chargement des réservations',
+            'Erreur',
           );
         },
       });
@@ -124,7 +134,8 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
    */
   private separateBookings() {
     const now = new Date();
-    const isCancelled = (b: Reservation) => b.status === 'Annulé' || b.status === 'Remboursé';
+    const isCancelled = (b: Reservation) =>
+      b.status === 'Annulé' || b.status === 'Remboursé';
 
     this.cancelledBookings = this.bookings.filter(isCancelled);
 
@@ -237,7 +248,10 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
    */
   async cancelBooking(booking: Reservation) {
     if (this.isCancelled(booking)) {
-      await this.showAlert('Information', 'Cette réservation a déjà été annulée.');
+      await this.notificationService.showInfoAlert(
+        'Cette réservation a déjà été annulée.',
+        'Information',
+      );
       return;
     }
 
@@ -246,32 +260,25 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
     // de cette réservation a déjà été validé à l'embarquement. Dans les deux
     // cas, on ne doit pas laisser l'utilisateur déclencher l'annulation.
     if (booking?.canCancel === false) {
-      await this.showAlert(
+      await this.notificationService.showInfoAlert(
+        'Cette réservation ne peut plus être annulée (billet déjà embarqué ou délai dépassé).',
         'Information',
-        "Cette réservation ne peut plus être annulée (billet déjà embarqué ou délai dépassé).",
       );
       return;
     }
 
-    const alert = await this.alertCtrl.create({
-      header: 'Annuler la réservation',
-      message:
-        'Êtes-vous sûr de vouloir annuler cette réservation ? Le remboursement sera traité par notre équipe.',
-      buttons: [
-        {
-          text: 'Non',
-          role: 'cancel',
-        },
-        {
-          text: 'Oui, annuler',
-          handler: () => {
-            this.performCancelBooking(booking);
-          },
-        },
-      ],
-    });
+    const confirmed = await this.notificationService.showConfirmAlert(
+      'Annuler?',
+      'Êtes-vous sûr de vouloir annuler cette réservation?',
+      () => undefined,
+      undefined,
+      'Annuler le trajet',
+      'Garder',
+    );
 
-    await alert.present();
+    if (confirmed) {
+      this.performCancelBooking(booking);
+    }
   }
 
   /**
@@ -283,9 +290,9 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: async () => {
-          await this.showAlert(
-            'Succès',
+          await this.notificationService.showSuccessAlert(
             'Réservation annulée. Le remboursement est en cours de traitement.',
+            'Succès',
           );
           this.loadBookings();
         },
@@ -295,21 +302,9 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
             err?.error?.error ||
             err?.error?.message ||
             "Erreur lors de l'annulation";
-          await this.showAlert('Erreur', message);
+          await this.notificationService.showErrorAlert(message, 'Erreur');
         },
       });
-  }
-
-  /**
-   * Afficher une alerte
-   */
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 
   /**
@@ -345,9 +340,9 @@ export class MyBookingsPage implements OnInit, OnDestroy, ViewWillEnter, ViewWil
     const booking = this.bookings.find((item) => item.id === Number(bookingId));
 
     if (booking && this.isCancelled(booking)) {
-      await this.showAlert(
-        'Billet annulé',
+      await this.notificationService.showInfoAlert(
         'Ce billet a été annulé et ne peut plus être scanné.',
+        'Billet annulé',
       );
       return;
     }

@@ -1,8 +1,15 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { PartnerRoleGuard } from './guards/partner-role.guard';
+import { OnboardingGuard } from './guards/onboarding.guard';
+
 
 export const routes: Routes = [
+  {
+    path: 'onboarding',
+    loadComponent: () =>
+      import('./pages/onboarding/onboarding.page').then((m) => m.OnboardingPage),
+  },
   {
     path: 'auth',
     children: [
@@ -45,7 +52,7 @@ export const routes: Routes = [
   // ========== TAB MENU ROUTES ==========
   {
     path: '',
-    canActivate: [AuthGuard],
+    canActivate: [OnboardingGuard, AuthGuard],
     loadChildren: () => import('./tabs/tabs.routes').then((m) => m.routes),
   },
 

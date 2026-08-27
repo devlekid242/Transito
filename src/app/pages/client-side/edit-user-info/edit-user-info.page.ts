@@ -12,12 +12,11 @@ import {
   IonHeader,
   NavController,
   LoadingController,
-  AlertController,
-  ToastController,
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { User } from '../../../models';
 
 @Component({
@@ -44,9 +43,7 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   constructor(
     private navCtrl: NavController,
     private userService: UserService,
-    private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
+    private notificationService: UiNotificationService,
     private fb: FormBuilder,
   ) {}
 
@@ -108,9 +105,9 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
       error: async (err) => {
         this.isLoading = false;
         console.error('Erreur lors du chargement des données:', err);
-        await this.showAlert(
-          'Erreur',
+        await this.notificationService.showErrorAlert(
           'Impossible de charger vos informations',
+          'Erreur'
         );
       },
     });
@@ -119,9 +116,9 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   async saveChanges() {
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
-      await this.showAlert(
-        'Erreur',
+      await this.notificationService.showErrorAlert(
         'Veuillez remplir tous les champs obligatoires correctement',
+        'Erreur'
       );
       return;
     }
@@ -142,7 +139,7 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
     this.userService.updateProfile(updateData).subscribe({
       next: async () => {
         this.isSaving = false;
-        await this.showToast('Informations mises à jour avec succès');
+        await this.notificationService.showSuccess('Informations mises à jour avec succès');
         setTimeout(() => {
           this.navCtrl.back();
         }, 1500);
@@ -152,7 +149,7 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
         console.error('Erreur lors de la mise à jour:', err);
         const errorMessage =
           err.error?.message || 'Impossible de mettre à jour vos informations';
-        await this.showAlert('Erreur', errorMessage);
+        await this.notificationService.showErrorAlert(errorMessage, 'Erreur');
       },
     });
   }
@@ -166,42 +163,13 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   }
 
   private async showConfirmCancel() {
-    const alert = await this.alertCtrl.create({
-      header: 'Abandonner les modifications?',
-      message: 'Les modifications que vous avez apportées seront perdues.',
-      buttons: [
-        {
-          text: 'Annuler',
-          role: 'cancel',
-        },
-        {
-          text: 'Quitter',
-          role: 'destructive',
-          handler: () => {
-            this.navCtrl.back();
-          },
-        },
-      ],
-    });
-    await alert.present();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
-  }
-
-  private async showToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-      color: 'success',
-    });
-    await toast.present();
+    await this.notificationService.showConfirmAlert(
+      'Abandonner les modifications?',
+      'Les modifications que vous avez apportées seront perdues.',
+      () => this.navCtrl.back(),
+      undefined,
+      'Quitter',
+      'Annuler'
+    );
   }
 }

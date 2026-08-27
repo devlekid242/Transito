@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { ActivatedRoute } from '@angular/router';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-verify',
@@ -23,12 +24,12 @@ export class VerifyPage implements OnInit, OnDestroy {
   confirmPassword = '';
   
   loading = false;
-  message = '';
 
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
     private route: ActivatedRoute,
+    private notificationService: UiNotificationService,
   ) {
     const phone = this.route.snapshot.queryParamMap.get('phone');
     if (phone) {
@@ -62,17 +63,15 @@ export class VerifyPage implements OnInit, OnDestroy {
     }
   }
 
-  nextStep() {
-    this.message = '';
+  async nextStep() {
     if (!this.code || this.code.trim().length < 4) {
-      this.message = 'Veuillez saisir un code OTP valide.';
+      await this.notificationService.showErrorAlert('Veuillez saisir un code OTP valide.');
       return;
     }
     this.currentStep = 2;
   }
 
   prevStep() {
-    this.message = '';
     if (this.currentStep > 1) {
       this.currentStep--;
     } else {
@@ -81,15 +80,13 @@ export class VerifyPage implements OnInit, OnDestroy {
   }
 
   async submit() {
-    this.message = '';
-    
     if (!this.newPassword || !this.confirmPassword) {
-      this.message = 'Veuillez remplir tous les champs.';
+      await this.notificationService.showErrorAlert('Veuillez remplir tous les champs.');
       return;
     }
 
     if (this.newPassword !== this.confirmPassword) {
-      this.message = 'Les mots de passe ne correspondent pas.';
+      await this.notificationService.showErrorAlert('Les mots de passe ne correspondent pas.');
       return;
     }
 
@@ -98,11 +95,10 @@ export class VerifyPage implements OnInit, OnDestroy {
     this.loading = false;
 
     if (success) {
-      this.message = '';
       // Redirection directe vers la page de connexion après le succès de la réinitialisation
       this.navCtrl.navigateRoot('/auth/login');
     } else {
-      this.message = 'Le code saisi est incorrect ou a expiré. Veuillez réessayer.';
+      await this.notificationService.showErrorAlert('Le code saisi est incorrect ou a expiré. Veuillez réessayer.');
     }
   }
 

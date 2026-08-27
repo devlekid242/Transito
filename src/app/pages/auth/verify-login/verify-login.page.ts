@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-verify-login',
@@ -16,7 +17,6 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
   phoneNumber = '';
   code = '';
   loading = false;
-  error = '';
   countdown = 60;
   private timer?: ReturnType<typeof setInterval>;
 
@@ -24,6 +24,7 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
     private auth: AuthService,
     private route: ActivatedRoute,
     private nav: NavController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit(): void {
@@ -45,11 +46,10 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
   }
 
   async verify(): Promise<void> {
-    this.error = '';
     const code = this.code.trim();
 
     if (!/^\d{4,6}$/.test(code)) {
-      this.error = 'Saisissez le code reçu par SMS.';
+      await this.notificationService.showErrorAlert('Saisissez le code reçu par SMS.');
       return;
     }
 
@@ -58,7 +58,7 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
     this.loading = false;
 
     if (!result.success) {
-      this.error = 'Code incorrect ou expiré.';
+      await this.notificationService.showErrorAlert('Code incorrect ou expiré.');
       return;
     }
 
@@ -83,6 +83,6 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
     this.loading = false;
 
     if (ok) this.startTimer();
-    else this.error = 'Impossible de renvoyer le code.';
+    else await this.notificationService.showErrorAlert('Impossible de renvoyer le code.');
   }
 }

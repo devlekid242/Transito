@@ -1,20 +1,306 @@
 /* 1. On fixe l'ordre des layers AVANT tout le reste */
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css");
+
+
 
 @layer ionic-base, theme, base, components, utilities;
 
+
+
 /* 2. CSS Ionic → dans le layer de priorité la plus basse */
+
 @import "@ionic/angular/css/core.css" layer(ionic-base);
+
 @import "@ionic/angular/css/normalize.css" layer(ionic-base);
+
 @import "@ionic/angular/css/structure.css" layer(ionic-base);
+
 @import "@ionic/angular/css/typography.css" layer(ionic-base);
+
 @import "@ionic/angular/css/display.css" layer(ionic-base);
+
 @import "@ionic/angular/css/padding.css" layer(ionic-base);
+
 @import "@ionic/angular/css/float-elements.css" layer(ionic-base);
+
 @import "@ionic/angular/css/text-alignment.css" layer(ionic-base);
+
 @import "@ionic/angular/css/text-transformation.css" layer(ionic-base);
+
 @import "@ionic/angular/css/flex-utils.css" layer(ionic-base);
 
+
+
 /* 3. Tailwind après → ses utilities passent AU-DESSUS d'Ionic */
+
 @import "./tailwindcss.css";
+
+
+/* ==========================================================================
+   4. STYLES PERSONNALISÉS — TOASTS & ALERTS
+   Design aligné sur les tokens du thème (@theme dans tailwindcss.css) :
+   cartes claires, coins arrondis, boutons pill, badge-icône signature.
+   ========================================================================== */
+@layer components {
+
+  /* On force le rendu clair : le reste de l'app n'a pas de mode sombre,
+     donc on évite qu'iOS/Android en dark mode ne fasse basculer
+     UNIQUEMENT ces composants (c'était la cause du rendu bordeaux). */
+  ion-alert,
+  ion-toast {
+    color-scheme: light only;
+  }
+
+  /* ==========================================================================
+     TOASTS
+  ========================================================================== */
+  .custom-toast {
+    --background: var(--color-surface-container-lowest);
+    --color: var(--color-on-surface);
+    --border-radius: var(--radius-lg, 8px);
+    --box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    --padding-start: 16px;
+    --padding-end: 12px;
+
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 14px;
+    border-inline-start: 4px solid var(--toast-accent, var(--color-on-surface-variant));
+
+    animation: toastSlideIn 0.3s ease-out;
+  }
+
+  /* Chaque variante ne colore qu'un liseré + une pastille d'icône,
+     jamais tout le fond : ça reste dans l'esprit "bento-card" du reste
+     de l'app plutôt qu'un aplat de couleur criard. */
+  ion-toast[color="success"] {
+    --toast-accent: var(--color-primary);
+  }
+  ion-toast[color="success"]::part(container) {
+    --background: var(--color-primary-container);
+  }
+  ion-toast[color="success"]::part(message) {
+    color: var(--color-on-primary-container);
+  }
+
+  ion-toast[color="danger"] {
+    --toast-accent: var(--color-error);
+  }
+  ion-toast[color="danger"]::part(container) {
+    --background: var(--color-error-container);
+  }
+  ion-toast[color="danger"]::part(message) {
+    color: var(--color-on-error-container);
+  }
+
+  ion-toast[color="warning"] {
+    --toast-accent: var(--color-warning);
+  }
+  ion-toast[color="warning"]::part(container) {
+    --background: var(--color-warning-container);
+  }
+  ion-toast[color="warning"]::part(message) {
+    color: var(--color-on-warning-container);
+  }
+
+  ion-toast[color="primary"] {
+    --toast-accent: var(--color-tertiary);
+  }
+  ion-toast[color="primary"]::part(container) {
+    --background: var(--color-tertiary-container);
+  }
+  ion-toast[color="primary"]::part(message) {
+    color: var(--color-on-tertiary-container);
+  }
+
+  ion-toast::part(button) {
+    opacity: 0.85;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  ion-toast::part(button):hover { opacity: 1; }
+  ion-toast::part(button):active { opacity: 0.7; }
+  ion-toast::part(button) ion-icon {
+    margin-right: 8px;
+    font-size: 18px;
+  }
+
+  @keyframes toastSlideIn {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ==========================================================================
+     ALERTS
+     ion-alert utilise une encapsulation "scoped" (PAS de vrai Shadow DOM,
+     contrairement à ion-toast) : la doc Ionic le dit noir sur blanc,
+     ::part() ne fonctionne donc pas dessus, et même .alert-wrapper {...}
+     tout seul ne suffit pas — il faut passer par le cssClass ET une
+     spécificité/priorité suffisante. Le style interne d'Ionic n'étant
+     dans aucun de nos @layer, il est prioritaire par défaut : on utilise
+     donc !important sur les propriétés qui lui rentrent directement en
+     conflit (mais pas ailleurs, pour rester facile à maintenir).
+  ========================================================================== */
+  .custom-alert {
+    /* Couleur d'accent commune à l'icône ET au bouton principal —
+       change automatiquement selon le type d'alerte plus bas. */
+    --alert-accent: var(--color-primary);
+    --alert-accent-container: var(--color-surface-container);
+    --alert-icon: none;
+  }
+
+  /* La vraie carte visible */
+  .custom-alert .alert-wrapper {
+    background: var(--color-surface-container-lowest) !important;
+    border-radius: var(--radius-xl, 12px) !important;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.2) !important;
+    width: 88% !important;
+    max-width: 400px !important;
+    padding: 32px 24px 20px 24px !important;
+    font-family: var(--font-sans) !important;
+    animation: alertZoomIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  }
+
+  /* Backdrop assombri, cohérent avec le reste (bleu-nuit plutôt que noir pur) */
+  .custom-alert ~ ion-backdrop,
+  .custom-alert ion-backdrop {
+    background-color: rgb(15, 23, 42) !important;
+    opacity: 0.55 !important;
+  }
+
+  /* En-tête : badge-icône circulaire centré au-dessus du titre — rappelle
+     l'icône arrondie du logo Transito en haut de l'écran. */
+  .custom-alert .alert-head {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 0 0 4px 0 !important;
+    text-align: center !important;
+  }
+
+  .custom-alert .alert-head::before {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg, 8px);
+    background-color: var(--alert-accent-container);
+    background-image: var(--alert-icon);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 22px 22px;
+  }
+
+  .custom-alert .alert-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--color-on-surface) !important;
+    margin: 0 !important;
+  }
+
+  .custom-alert .alert-sub-title {
+    font-size: 13px !important;
+    color: var(--color-on-surface-variant) !important;
+    margin: 0 !important;
+  }
+
+  .custom-alert .alert-message {
+    font-size: 14px !important;
+    color: var(--color-on-surface-variant) !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+    padding: 8px 0 16px 0 !important;
+  }
+
+  /* Variantes sémantiques : un seul token à changer par type d'alerte */
+  .custom-alert-error {
+    --alert-accent: var(--color-error);
+    --alert-accent-container: var(--color-error-container);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='9' x2='12' y2='13'%3E%3C/line%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3Ccircle cx='12' cy='12' r='9'%3E%3C/circle%3E%3C/svg%3E");
+  }
+
+  .custom-alert-success {
+    --alert-accent: var(--color-primary);
+    --alert-accent-container: var(--color-primary-container);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  }
+
+  .custom-alert-warning {
+    --alert-accent: var(--color-warning);
+    --alert-accent-container: var(--color-warning-container);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4'%3E%3C/path%3E%3Cpath d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z'%3E%3C/path%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
+  }
+
+  .custom-alert-info {
+    --alert-accent: var(--color-tertiary);
+    --alert-accent-container: var(--color-tertiary-container);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230284c7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'%3E%3C/circle%3E%3Cline x1='12' y1='16' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='8' x2='12.01' y2='8'%3E%3C/line%3E%3C/svg%3E");
+  }
+
+  /* Boutons — empilés, pleine largeur, façon "Recevoir mon code" */
+  .custom-alert .alert-button-group {
+    padding: 8px 0 0 0 !important;
+    gap: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .custom-alert .alert-button {
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: var(--radius-full, 9999px) !important;
+    min-height: 46px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* Ionic aligne le texte du bouton à droite par défaut (habitude des
+     dialogs natifs) — on centre puisque nos boutons sont pleine largeur. */
+  .custom-alert .alert-button-inner {
+    justify-content: center !important;
+  }
+
+  /* Bouton principal : suit la couleur du type d'alerte (rouge pour une
+     erreur, vert pour un succès, etc.) au lieu de rester toujours vert. */
+  .custom-alert .alert-button-confirm {
+    background: var(--alert-accent) !important;
+    color: #ffffff !important;
+    order: -1; /* le CTA principal en premier, tout en haut */
+  }
+
+  .custom-alert .alert-button-cancel {
+    background: transparent !important;
+    color: var(--color-on-surface-variant) !important;
+    border: 1px solid var(--color-outline-variant) !important;
+  }
+
+  .custom-alert .alert-button-destructive {
+    background: var(--color-error) !important;
+    color: #ffffff !important;
+  }
+
+  @keyframes alertZoomIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE — petits écrans
+========================================================================== */
+@media (max-width: 360px) {
+  .custom-alert .alert-wrapper {
+    width: 94% !important;
+    max-width: none !important;
+  }
+}

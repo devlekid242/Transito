@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavController, IonContent, IonSpinner } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-login',
@@ -14,12 +15,12 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class LoginPage {
   phoneNumber = signal('');
-  error = signal('');
   loading = signal(false);
 
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
+    private notificationService: UiNotificationService,
   ) {}
 
   private normalizePhone(value: string): string {
@@ -29,10 +30,10 @@ export class LoginPage {
   }
 
   async requestOtp(): Promise<void> {
-    this.error.set('');
+
     const phone = this.normalizePhone(this.phoneNumber());
     if (!/^\+242\d{9}$/.test(phone)) {
-      this.error.set('Veuillez saisir un numéro congolais valide.');
+      await this.notificationService.showErrorAlert('Veuillez saisir un numéro congolais valide.');
       return;
     }
 
@@ -45,7 +46,7 @@ export class LoginPage {
         queryParams: { phone },
       });
     } else {
-      this.error.set('Impossible d’envoyer le code OTP. Veuillez réessayer.');
+      await this.notificationService.showErrorAlert('Impossible d’envoyer le code OTP. Veuillez réessayer.');
     }
   }
 

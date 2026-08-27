@@ -5,12 +5,12 @@ import {
   IonContent,
   NavController,
   LoadingController,
-  AlertController,
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { User } from '../../../models';
 import { environment } from 'src/environments/environment.prod';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
@@ -45,7 +45,7 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     private authService: AuthService,
     private userService: UserService,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -82,7 +82,10 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       error: async (err) => {
         this.isLoading = false;
         console.error('Erreur chargement profil:', err);
-        await this.showAlert('Erreur', 'Impossible de charger votre profil');
+        await this.notificationService.showErrorAlert(
+          'Impossible de charger votre profil',
+          'Erreur',
+        );
       },
     });
   }
@@ -120,33 +123,16 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   }
 
   async logout() {
-    const alert = await this.alertCtrl.create({
-      header: 'Déconnexion',
-      message: 'Êtes-vous sûr de vouloir vous déconnecter?',
-      buttons: [
-        {
-          text: 'Annuler',
-          role: 'cancel',
-        },
-        {
-          text: 'Déconnexion',
-          role: 'destructive',
-          handler: () => {
-            this.authService.logout();
-            this.navCtrl.navigateRoot('/auth/login');
-          },
-        },
-      ],
-    });
-    await alert.present();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
+    const confirmed = await this.notificationService.showConfirmAlert(
+      'Confirmer',
+      'Êtes-vous sûr de vouloir vous déconnecter?',
+      () => undefined,
+      undefined,
+      'Déconnexion',
+    );
+    if (confirmed) {
+      this.authService.logout();
+      this.navCtrl.navigateRoot('/auth/login');
+    }
   }
 }

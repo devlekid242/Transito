@@ -1,38 +1,41 @@
-<ion-content [fullscreen]="true" class="bg-background">
-  <div class="min-h-full px-6 py-12 bg-background flex flex-col justify-center max-w-md mx-auto">
-    <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">
-      <i class="fa-solid fa-user-plus text-xl"></i>
-    </div>
+<ion-content [fullscreen]="true" class="bg-white">
+  <div class="flex flex-col h-full justify-between max-w-md mx-auto pt-12 px-6">
+    
+    <!-- En-tête avec Icône -->
+    <div class="flex flex-col items-center">
+      <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
+        <i class="fa-solid fa-user-pen text-2xl"></i>
+      </div>
 
-    <h1 class="text-3xl font-extrabold text-secondary">Bienvenue sur Transito</h1>
-    <p class="text-sm text-on-surface-variant mt-2 mb-8">
-      Votre numéro <strong>{{ phoneNumber }}</strong> a été vérifié. Il nous manque seulement votre nom pour créer votre profil.
-    </p>
+      <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">Informations du profil</h1>
+      <p class="text-center text-gray-500 text-sm mb-10 px-4">
+        Veuillez saisir votre nom complet pour finaliser la création de votre compte.
+      </p>
 
-    <div class="space-y-2 mb-5">
-      <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nom complet</label>
-      <div class="relative flex items-center">
-        <i class="fa-solid fa-user absolute left-4 text-outline text-base"></i>
+      <!-- Input Nom complet -->
+      <div class="flex items-center w-full border-b-2 border-primary/50 focus-within:border-primary transition-colors py-2 px-1">
         <input
           [(ngModel)]="fullName"
           type="text"
           autocomplete="name"
           placeholder="Ex : Jean Packa"
-          class="w-full bg-surface-container-lowest border border-outline-variant rounded-2xl pl-12 pr-4 py-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-base"
+          class="w-full bg-transparent outline-none text-lg text-gray-900 placeholder:text-gray-300"
           (keyup.enter)="submit()"
         />
       </div>
     </div>
 
-    <div *ngIf="error" class="bg-red-50 text-red-600 text-sm p-4 rounded-xl mb-4">{{ error }}</div>
-
-    <button
-      (click)="submit()"
-      [disabled]="loading"
-      class="w-full bg-primary text-white font-bold py-4 rounded-2xl disabled:opacity-60"
-    >
-      <span *ngIf="!loading">Créer mon compte</span>
-      <ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
-    </button>
+    <!-- Action du bas -->
+    <div class="pb-8 flex flex-col items-center">
+      <button
+        (click)="submit()"
+        [disabled]="loading"
+        class="bg-primary text-white font-bold py-3 px-12 rounded-full disabled:opacity-50"
+      >
+        <span *ngIf="!loading">Terminer</span>
+        <ion-spinner *ngIf="loading" name="dots" color="light"></ion-spinner>
+      </button>
+    </div>
+    
   </div>
 </ion-content>

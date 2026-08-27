@@ -5,13 +5,12 @@ import {
   IonContent, IonHeader, IonInfiniteScroll,
   InfiniteScrollCustomEvent,
   NavController,
-  AlertController,
-} from '@ionic/angular';
+  } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams } from '../../../models';
-import { TripService } from '../../../services';
+import { TripService, UiNotificationService } from '../../../services';
 import { environment } from 'src/environments/environment.prod';
 
 /** Forme de travail du panneau de filtres avancés (brouillon, appliqué seulement au clic sur "Appliquer"). */
@@ -89,7 +88,7 @@ export class SearchResultsPage implements OnInit, OnDestroy {
   constructor(
     private navCtrl: NavController,
     private tripService: TripService,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,    
     private route: ActivatedRoute,
   ) {}
 
@@ -168,9 +167,9 @@ export class SearchResultsPage implements OnInit, OnDestroy {
           this.isLoading = false;
           this.isSearching = false;
           this.noResults = true;
-          await this.showAlert(
-            'Indisponibilité',
+          await this.notificationService.showErrorAlert(
             'Impossible de récupérer les lignes de trajets pour le moment.',
+            'Indisponibilité'
           );
         },
       });
@@ -438,16 +437,6 @@ export class SearchResultsPage implements OnInit, OnDestroy {
     } catch {
       return dateStr;
     }
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-      cssClass: 'custom-alert',
-    });
-    await alert.present();
   }
 
   resetFilters() {

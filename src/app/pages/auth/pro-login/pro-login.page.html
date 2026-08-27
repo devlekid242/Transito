@@ -31,12 +31,6 @@
         class="w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 text-on-surface outline-none focus:border-primary"
       />
     </div>
-    <div
-      *ngIf="error"
-      class="bg-red-50 text-red-600 text-sm p-4 rounded-xl mb-4"
-    >
-      {{ error }}
-    </div>
     <button
       (click)="login()"
       [disabled]="loading"

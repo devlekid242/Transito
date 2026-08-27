@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonInfiniteScroll, IonInfiniteScrollContent, IonHeader,
   NavController,
-  AlertController,
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
@@ -12,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AgencyService } from '../../../services/agency.service';
 import { TripService } from '../../../services/trip.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Agency, AgencyPoint } from '../../../models/agency.model';
 import { Trip as ApiTrip } from '../../../models/trip.model';
 import { environment } from 'src/environments/environment.prod';
@@ -65,7 +65,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     private route: ActivatedRoute,
     private agencyService: AgencyService,
     private tripService: TripService,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
     private sanitizer: DomSanitizer,
   ) {}
 
@@ -81,12 +81,12 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     this.isLoading = false;
   }
 
-  loadAgencyProfile() {
+  async loadAgencyProfile() {
     const agencyId = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!agencyId || agencyId <= 0) {
       this.isLoading = false;
-      this.showError('Identifiant d’agence invalide.');
+      await this.notificationService.showErrorAlert('Identifiant d\'agence invalide.');
       return;
     }
 
@@ -101,7 +101,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       },
       error: async () => {
         this.isLoading = false;
-        await this.showError('Impossible de charger le profil de l’agence.');
+        await this.notificationService.showErrorAlert('Impossible de charger le profil de l agence.');
       },
     });
   }
@@ -114,7 +114,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
         this.currentOffset = this.displayedTrips.length;
       },
       error: () => {
-        this.showError('Impossible de charger les trajets de cette agence.');
+        this.notificationService.showErrorAlert('Impossible de charger les trajets de cette agence.');
       },
     });
   }
@@ -323,12 +323,5 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     });
   }
 
-  private async showError(message: string) {
-    const alert = await this.alertCtrl.create({
-      header: 'Erreur',
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
-  }
+
 }

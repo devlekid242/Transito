@@ -6,10 +6,10 @@ import {
   IonHeader,
   NavController,
   ActionSheetController,
-  ToastController,
 } from '@ionic/angular';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { ActivatedRoute } from '@angular/router';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
@@ -104,7 +104,7 @@ export class TripManifestPage implements OnInit {
     private permissionService: PartnerPermissionService,
     private apiService: PartnerApiService,
     private actionSheetCtrl: ActionSheetController,
-    private toastController: ToastController,
+    private notificationService: UiNotificationService,
     private route: ActivatedRoute,
   ) {}
 
@@ -307,7 +307,7 @@ export class TripManifestPage implements OnInit {
           icon: 'cloud-download-outline',
           handler: () => {
             console.log('Téléchargement du billet pour:', passenger.name);
-            this.showToast('Téléchargement du billet en cours...', 'info');
+            this.notificationService.showInfo('Téléchargement du billet en cours...');
           },
         },
         {
@@ -332,12 +332,12 @@ export class TripManifestPage implements OnInit {
     console.log(
       `Statut du passager ${passenger.name} mis à jour à ${newStatus}`,
     );
-    this.showToast(`Statut mis à jour: ${newStatus}`, 'success');
+    this.notificationService.showSuccess(`Statut mis à jour: ${newStatus}`);
   }
 
   downloadManifestPDF(): void {
     console.log('Téléchargement du manifeste en PDF...');
-    this.showToast('Génération du PDF en cours...', 'info');
+    this.notificationService.showInfo('Génération du PDF en cours...');
 
     const pdfContent = `MANIFESTE DE VOYAGE\n\nTrajet: ${this.tripDetails.departure} → ${this.tripDetails.arrival}\nDate/Heure départ: ${this.tripDetails.departureTime}\nHeure arrivée prévue: ${this.tripDetails.arrivalTime}\nBus: ${this.tripDetails.busInfo?.licensePlate || ''} (capacité: ${this.tripDetails.busInfo?.capacity || 'N/A'})\nChauffeur: ${this.tripDetails.driver?.name || ''}\nHôtesse: ${this.tripDetails.hostess?.name || ''}\nNotes: ${this.tripDetails.notes || ''}\n\nPASSAGERS:\n${this.allPassengers
       .map(
@@ -356,20 +356,7 @@ export class TripManifestPage implements OnInit {
     link.click();
     window.URL.revokeObjectURL(url);
 
-    this.showToast('PDF téléchargé avec succès!', 'success');
-  }
-
-  private async showToast(
-    message: string,
-    color: 'success' | 'danger' | 'warning' | 'info',
-  ) {
-    const toast = await this.toastController.create({
-      message,
-      duration: 3000,
-      position: 'bottom',
-      color,
-    });
-    await toast.present();
+    this.notificationService.showSuccess('PDF téléchargé avec succès!');
   }
 
   goBack(): void {

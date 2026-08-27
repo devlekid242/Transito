@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  IonContent, IonHeader,
+  IonContent,
+  IonHeader,
   NavController,
   LoadingController,
-  AlertController,
 } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -24,13 +24,20 @@ import {
   UserService,
   PaymentService,
 } from '../../../services';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-booking-form',
   templateUrl: './booking-form.page.html',
   styleUrls: ['./booking-form.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonContent, IonHeader],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonContent,
+    IonHeader,
+  ],
 })
 export class BookingFormPage implements OnInit, OnDestroy {
   trip: Trip | null = null;
@@ -94,12 +101,13 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
   constructor(
     private navCtrl: NavController,
-    private alertCtrl: AlertController,
     private route: ActivatedRoute,
     private tripService: TripService,
     private bookingService: BookingService,
     private userService: UserService,
     private paymentService: PaymentService,
+    private notificationService: UiNotificationService,
+    private loadingCtrl: LoadingController,
   ) {}
 
   ngOnInit() {
@@ -144,13 +152,23 @@ export class BookingFormPage implements OnInit, OnDestroy {
           this.tripDetails = {
             origin: trip.departureCity,
             destination: trip.arrivalCity,
-            departureDate: new Date(trip.departureDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-            departureTime: new Date(trip.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-            arrivalTime: new Date(trip.estimatedArrivalTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            departureDate: new Date(trip.departureDate).toLocaleDateString(
+              'fr-FR',
+              { day: '2-digit', month: '2-digit', year: 'numeric' },
+            ),
+            departureTime: new Date(trip.departureTime).toLocaleTimeString(
+              'fr-FR',
+              { hour: '2-digit', minute: '2-digit' },
+            ),
+            arrivalTime: new Date(trip.estimatedArrivalTime).toLocaleTimeString(
+              'fr-FR',
+              { hour: '2-digit', minute: '2-digit' },
+            ),
             serviceFee: 500, // Frais de plateforme standardisés
             // Champs optionnels selon ce que renvoie l'API trajet ; utilisés pour
             // enrichir le reçu (nom d'agence, immatriculation du bus).
-            agencyName: (trip as any).agency?.name || (trip as any).agencyName || '',
+            agencyName:
+              (trip as any).agency?.name || (trip as any).agencyName || '',
             busLicensePlate:
               (trip as any).bus?.registrationNumber ||
               (trip as any).busLicensePlate ||
@@ -176,9 +194,9 @@ export class BookingFormPage implements OnInit, OnDestroy {
         },
         error: async (err) => {
           this.isLoading = false;
-          await this.showAlert(
-            'Erreur',
+          await this.notificationService.showErrorAlert(
             'Impossible de charger les détails du trajet.',
+            'Erreur',
           );
           this.goBack();
         },
@@ -196,7 +214,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
           email: this.currentUser.email || '',
         },
       ];
-      this.phoneNumber = this.currentUser.phoneNumber.replace("+242", "") || ''; // Pré-remplir le numéro de paiement
+      this.phoneNumber = this.currentUser.phoneNumber.replace('+242', '') || ''; // Pré-remplir le numéro de paiement
       this.updateTotals();
     }
   }
@@ -214,8 +232,14 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
   removePassenger(index: number) {
     this.passengers.splice(index, 1);
-    if (this.seatSelectionMode === 'manual' && this.selectedSeatNumbers.length > this.passengers.length) {
-      this.selectedSeatNumbers = this.selectedSeatNumbers.slice(0, this.passengers.length);
+    if (
+      this.seatSelectionMode === 'manual' &&
+      this.selectedSeatNumbers.length > this.passengers.length
+    ) {
+      this.selectedSeatNumbers = this.selectedSeatNumbers.slice(
+        0,
+        this.passengers.length,
+      );
     }
     this.updateTotals();
   }
@@ -241,7 +265,9 @@ export class BookingFormPage implements OnInit, OnDestroy {
     if (!this.tripId || this.seatCapacity < 1) return;
 
     this.isSeatLoading = true;
-    const allSeats = Array.from({ length: this.seatCapacity }, (_, index) => String(index + 1));
+    const allSeats = Array.from({ length: this.seatCapacity }, (_, index) =>
+      String(index + 1),
+    );
 
     this.bookingService
       .validateSeats(this.tripId, allSeats)
@@ -249,7 +275,9 @@ export class BookingFormPage implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           this.takenSeats = Array.isArray(response?.takenSeats)
-            ? response.takenSeats.map((seat: any) => Number(seat)).filter((seat: number) => Number.isFinite(seat))
+            ? response.takenSeats
+                .map((seat: any) => Number(seat))
+                .filter((seat: number) => Number.isFinite(seat))
             : [];
           this.isSeatLoading = false;
         },
@@ -271,10 +299,17 @@ export class BookingFormPage implements OnInit, OnDestroy {
   }
 
   toggleSeat(seat: number) {
-    if (this.seatSelectionMode !== 'manual' || this.isSeatTaken(seat) || this.isPaymentLoading) return;
+    if (
+      this.seatSelectionMode !== 'manual' ||
+      this.isSeatTaken(seat) ||
+      this.isPaymentLoading
+    )
+      return;
 
     if (this.isSeatSelected(seat)) {
-      this.selectedSeatNumbers = this.selectedSeatNumbers.filter((value) => value !== seat);
+      this.selectedSeatNumbers = this.selectedSeatNumbers.filter(
+        (value) => value !== seat,
+      );
       return;
     }
 
@@ -282,7 +317,9 @@ export class BookingFormPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.selectedSeatNumbers = [...this.selectedSeatNumbers, seat].sort((a, b) => a - b);
+    this.selectedSeatNumbers = [...this.selectedSeatNumbers, seat].sort(
+      (a, b) => a - b,
+    );
   }
 
   setSeatSelectionMode(mode: 'auto' | 'manual') {
@@ -318,23 +355,23 @@ export class BookingFormPage implements OnInit, OnDestroy {
       (p) => !p.fullName || !p.phoneNumber,
     );
     if (invalidPassenger) {
-      await this.showAlert(
-        'Champs requis',
+      await this.notificationService.showErrorAlert(
         "Veuillez remplir le nom, numéro de téléphone et N° de pièce d'identité pour tous les passagers.",
+        'Champs requis',
       );
       return;
     }
     if (!this.selectedOperator) {
-      await this.showAlert(
-        'Opérateur',
+      await this.notificationService.showErrorAlert(
         'Veuillez sélectionner MTN MoMo ou Airtel Money.',
+        'Opérateur',
       );
       return;
     }
     if (!this.phoneNumber) {
-      await this.showAlert(
-        'Téléphone',
+      await this.notificationService.showErrorAlert(
         'Veuillez saisir le numéro de facturation mobile money.',
+        'Téléphone',
       );
       return;
     }
@@ -343,17 +380,17 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
     if (this.seatSelectionMode === 'manual') {
       if (this.selectedSeatNumbers.length !== this.passengers.length) {
-        await this.showAlert(
-          'Places',
+        await this.notificationService.showErrorAlert(
           `Veuillez sélectionner exactement ${this.passengers.length} place(s), soit une place par passager.`,
+          'Places',
         );
         return;
       }
 
       if (this.selectedSeatNumbers.some((seat) => this.isSeatTaken(seat))) {
-        await this.showAlert(
-          'Place indisponible',
+        await this.notificationService.showErrorAlert(
           'Une des places sélectionnées vient d’être prise. Actualisez les disponibilités puis réessayez.',
+          'Place indisponible',
         );
         this.loadSeatAvailability();
         return;
@@ -372,58 +409,64 @@ export class BookingFormPage implements OnInit, OnDestroy {
       paymentMethod: this.selectedOperator,
       boardingPoint: this.selectedBoardingPoint,
       deboardingPoint: this.selectedDeboardingPoint,
-      ...(this.seatSelectionMode === 'manual' ? { seatNumbers: this.selectedSeatNumbers } : {}),
+      ...(this.seatSelectionMode === 'manual'
+        ? { seatNumbers: this.selectedSeatNumbers }
+        : {}),
     };
 
-    const createBooking = () => this.bookingService
-      .createBooking(bookingRequest)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (bookingResponse) => {
-          this.bookingId = bookingResponse.reservationId || bookingResponse.id;
-          // Le backend renvoie un ticket par passager (nom, téléphone, siège, QR, n° billet)
-          this.rawBookingTickets = bookingResponse.tickets || [];
+    const createBooking = () =>
+      this.bookingService
+        .createBooking(bookingRequest)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (bookingResponse) => {
+            this.bookingId =
+              bookingResponse.reservationId || bookingResponse.id;
+            // Le backend renvoie un ticket par passager (nom, téléphone, siège, QR, n° billet)
+            this.rawBookingTickets = bookingResponse.tickets || [];
 
-          // Étape 2 : Initier le paiement
-          const paymentRequest: PaymentRequest = {
-            reservationId: Number(this.bookingId),
-            amount: this.totalAmountToPay,
-            paymentMethod: this.selectedOperator as 'MTN_MOMO' | 'AIRTEL_MONEY',
-          };
+            // Étape 2 : Initier le paiement
+            const paymentRequest: PaymentRequest = {
+              reservationId: Number(this.bookingId),
+              amount: this.totalAmountToPay,
+              paymentMethod: this.selectedOperator as
+                | 'MTN_MOMO'
+                | 'AIRTEL_MONEY',
+            };
 
-          this.paymentService
-            .initiatePayment(paymentRequest)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (paymentResponse) => {
-                this.transactionId = paymentResponse.transactionId;
-                this.paymentLogId = Number(paymentResponse.paymentLogId);
-                this.paymentStep = 'confirming';
+            this.paymentService
+              .initiatePayment(paymentRequest)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: (paymentResponse) => {
+                  this.transactionId = paymentResponse.transactionId;
+                  this.paymentLogId = Number(paymentResponse.paymentLogId);
+                  this.paymentStep = 'confirming';
 
-                // Étape 3 : Confirmer le paiement
-                // En production, cela viendrait d'un webhooks de l'opérateur GSM
-                // Pour la démo, on le confirme après un délai
-                setTimeout(() => {
-                  this.confirmPaymentTransaction();
-                }, 2000);
-              },
-              error: async (err) => {
-                this.isPaymentLoading = false;
-                await this.showAlert(
-                  'Erreur de paiement',
-                  "Impossible d'initier le paiement. Veuillez réessayer.",
-                );
-              },
-            });
-        },
-        error: async (err) => {
-          this.isPaymentLoading = false;
-          await this.showAlert(
-            'Erreur de réservation',
-            err?.error?.message || 'Impossible de créer la réservation.',
-          );
-        },
-      });
+                  // Étape 3 : Confirmer le paiement
+                  // En production, cela viendrait d'un webhooks de l'opérateur GSM
+                  // Pour la démo, on le confirme après un délai
+                  setTimeout(() => {
+                    this.confirmPaymentTransaction();
+                  }, 2000);
+                },
+                error: async (err) => {
+                  this.isPaymentLoading = false;
+                  await this.notificationService.showErrorAlert(
+                    "Impossible d'initier le paiement. Veuillez réessayer.",
+                    'Erreur de paiement',
+                  );
+                },
+              });
+          },
+          error: async (err) => {
+            this.isPaymentLoading = false;
+            await this.notificationService.showErrorAlert(
+              err?.error?.message || 'Impossible de créer la réservation.',
+              'Erreur de réservation',
+            );
+          },
+        });
 
     // Revalider juste avant la création pour éviter d'envoyer un siège déjà pris.
     // Ce contrôle est informatif : le backend reste l'autorité finale et protège
@@ -437,14 +480,21 @@ export class BookingFormPage implements OnInit, OnDestroy {
             if (response?.allAvailable !== true) {
               this.isPaymentLoading = false;
               this.loadSeatAvailability();
-              this.showAlert('Place indisponible', 'Une place sélectionnée n’est plus disponible. Veuillez en choisir une autre.');
+              this.notificationService.showErrorAlert(
+                'Une place sélectionnée n’est plus disponible. Veuillez en choisir une autre.',
+                'Place indisponible',
+              );
               return;
             }
             createBooking();
           },
           error: async (err) => {
             this.isPaymentLoading = false;
-            await this.showAlert('Disponibilité', err?.error?.error || 'Impossible de vérifier les places. Veuillez réessayer.');
+            await this.notificationService.showErrorAlert(
+              err?.error?.error ||
+                'Impossible de vérifier les places. Veuillez réessayer.',
+              'Disponibilité',
+            );
           },
         });
     } else {
@@ -454,7 +504,10 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
   private confirmPaymentTransaction() {
     if (!this.transactionId) {
-      this.showAlert('Erreur', 'ID de transaction manquant');
+      this.notificationService.showErrorAlert(
+        'ID de transaction manquant',
+        'Erreur',
+      );
       return;
     }
 
@@ -480,14 +533,20 @@ export class BookingFormPage implements OnInit, OnDestroy {
             this.tickets = this.passengers.map((passenger, index) => {
               const backendTicket =
                 this.rawBookingTickets.find(
-                  (t) => t.passengerCni && t.passengerCni === passenger.identityNumber,
+                  (t) =>
+                    t.passengerCni &&
+                    t.passengerCni === passenger.identityNumber,
                 ) || this.rawBookingTickets[index];
 
               return {
                 ticketNumber:
-                  backendTicket?.ticketNumber || `TKT-${this.bookingId}-${index + 1}`,
+                  backendTicket?.ticketNumber ||
+                  `TKT-${this.bookingId}-${index + 1}`,
                 seat: backendTicket?.seat ?? index + 1,
-                qr: this.generateQrCode(backendTicket?.qr) || backendTicket?.qr || '',
+                qr:
+                  this.generateQrCode(backendTicket?.qr) ||
+                  backendTicket?.qr ||
+                  '',
                 passengerName: passenger.fullName,
                 passengerPhone: passenger.phoneNumber,
               };
@@ -501,19 +560,20 @@ export class BookingFormPage implements OnInit, OnDestroy {
         error: async (err) => {
           this.isPaymentLoading = false;
           // Si la confirmation échoue, l'utilisateur peut réessayer ou se rembourser
-          const shouldRetry = await this.confirmAlert(
-            'Confirmation de paiement',
+          const shouldRetry = await this.notificationService.showConfirmAlert(
+            'Confirmer',
             "Le paiement n'a pas pu être confirmé. Voulez-vous réessayer ?",
-            'Réessayer',
-            'Annuler',
+            () => undefined,
+            undefined,
+            'Confirmation de paiement',
           );
 
           if (shouldRetry) {
             this.confirmPaymentTransaction();
           } else {
-            await this.showAlert(
-              'Remboursement',
+            await this.notificationService.showInfoAlert(
               'Votre paiement sera remboursé dans 24-48h.',
+              'Remboursement',
             );
           }
         },
@@ -543,45 +603,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
     window.print();
   }
 
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-      cssClass: 'custom-alert',
-    });
-    await alert.present();
-  }
-
   private generateQrCode(data: string): string {
     return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data)}`;
-  }
-
-  private async confirmAlert(
-    header: string,
-    message: string,
-    confirmText: string = 'Confirmer',
-    cancelText: string = 'Annuler',
-  ): Promise<boolean> {
-    return new Promise(async (resolve) => {
-      const alert = await this.alertCtrl.create({
-        header,
-        message,
-        buttons: [
-          {
-            text: cancelText,
-            role: 'cancel',
-            handler: () => resolve(false),
-          },
-          {
-            text: confirmText,
-            role: 'confirm',
-            handler: () => resolve(true),
-          },
-        ],
-        cssClass: 'custom-alert',
-      });
-      await alert.present();
-    });
   }
 }

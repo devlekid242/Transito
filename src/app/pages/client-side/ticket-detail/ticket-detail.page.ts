@@ -2,16 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
-  IonContent, IonHeader,
+  IonContent,
+  IonHeader,
   NavController,
   LoadingController,
-  AlertController,
   ModalController,
-  ViewWillEnter,   // 👈 nouveau
-  ViewWillLeave,   // 👈 nouveau (optionnel, pour le nettoyage)
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import { TicketService } from '../../../services/ticket.service';
 import { BookingService } from '../../../services/booking.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Ticket } from '../../../models';
 import { QrTicketModalComponent } from '../../../components/qr-ticket-modal/qr-ticket-modal.component';
 
@@ -81,7 +82,7 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
   isLoading = true;
   qrCodeUrl: string = '';
   isCancelling = false;
-  
+
   ticketId: number | null = null;
 
   constructor(
@@ -90,7 +91,7 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     private ticketService: TicketService,
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
     private modalCtrl: ModalController,
   ) {}
 
@@ -169,7 +170,10 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
   }
 
   get isRefundCompleted(): boolean {
-    return this.ticket.paymentStatus === 'Remboursé' || this.ticket.refund?.status === 'REFUNDED';
+    return (
+      this.ticket.paymentStatus === 'Remboursé' ||
+      this.ticket.refund?.status === 'REFUNDED'
+    );
   }
 
   private async loadTicket(itemId: number) {
@@ -197,7 +201,10 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
               'Impossible de charger le ticket ou la réservation',
               err,
             );
-            await this.showAlert('Erreur', 'Impossible de charger le ticket.');
+            await this.notificationService.showErrorAlert(
+              'Impossible de charger le ticket.',
+              'Erreur',
+            );
             this.goBack();
           },
         });
@@ -264,7 +271,10 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     // choses différentes — d'où la confusion à l'origine du bug.
     const paymentStatus: string = booking.status || 'En attente';
     const ticketStatus: string = booking.tickets?.[0]?.status || paymentStatus;
-    const isCancelled = ticketStatus === 'Annulé' || ticketStatus === 'Remboursé' || paymentStatus === 'Remboursé';
+    const isCancelled =
+      ticketStatus === 'Annulé' ||
+      ticketStatus === 'Remboursé' ||
+      paymentStatus === 'Remboursé';
     const rawDepartureTime = booking.trip?.departureTime;
     // Le statut de la réservation (Confirmé/Expiré/Annulé) ne reflète pas
     // qu'un billet individuel a déjà été scanné à l'embarquement : il faut
@@ -316,13 +326,14 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       }),
       canCancel:
         !isCancelled &&
         paymentStatus !== 'Expiré' &&
         !hasBoardedTicket &&
-        (booking.canCancel ?? this.isCancellableFromRawDeparture(rawDepartureTime)),
+        (booking.canCancel ??
+          this.isCancellableFromRawDeparture(rawDepartureTime)),
     };
   }
 
@@ -332,7 +343,9 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
    * heure déjà formatée ("14:30") via `new Date(...)`, ce qui produisait une
    * date invalide et faussait le résultat.
    */
-  private isCancellableFromRawDeparture(rawDepartureIso?: string | null): boolean {
+  private isCancellableFromRawDeparture(
+    rawDepartureIso?: string | null,
+  ): boolean {
     if (!rawDepartureIso) return false;
     const departure = new Date(rawDepartureIso);
     if (isNaN(departure.getTime())) return false;
@@ -344,7 +357,10 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
   async cancelReservation() {
     if (this.isCancelled) {
-      await this.showAlert('Information', 'Cette réservation a déjà été annulée.');
+      await this.notificationService.showInfoAlert(
+        'Cette réservation a déjà été annulée.',
+        'Information',
+      );
       return;
     }
     if (!this.ticket.canCancel) {
@@ -352,59 +368,44 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
         this.ticket.status === 'Utilisé'
           ? 'Ce billet a déjà été validé à l’embarquement, il ne peut plus être annulé.'
           : 'L’annulation doit être effectuée au moins 24h avant l’embarquement.';
-      await this.showAlert('Information', message);
+      await this.notificationService.showInfoAlert(message, 'Information');
       return;
     }
     this.isCancelling = true;
-    try{
-      const alert = await this.alertCtrl.create({
-        header: 'Confirmer l’annulation',
-        message: 'Êtes-vous sûr de vouloir annuler cette réservation ? Le remboursement sera traité par notre équipe.',
-        
-        buttons: [
-          {
-            text: 'Annuler',
-            role: 'cancel',
-            handler: () => {
-              this.isCancelling = false;
-            }
-          },
-          {
-            text: 'Confirmer',
-            handler: async () => {
-              try {
-                await this.bookingService.cancelBooking(Number(this.ticketId)).toPromise();
-                // Reload ticket data from backend to get the actual status (could be 'Annulé' or 'Remboursé')
-                if (this.ticketId) {
-                  await this.loadTicket(this.ticketId);
-                }
-                await this.showAlert(
-                  'Annulation réussie',
-                  'Votre réservation a été annulée. Le remboursement est en cours de traitement.',
-                );
-                
-                this.navCtrl.navigateForward(['/tabs/reservation']);
-              } catch (error: any) {
-                console.error('Erreur lors de l’annulation:', error);
-                const message =
-                  error?.error?.error ||
-                  error?.error?.message ||
-                  'Une erreur est survenue lors de l’annulation de la réservation.';
-                await this.showAlert('Erreur', message);
-              } finally {
-                this.isCancelling = false;
-              }
-            }
-          }
-        ]
-      });
-      await alert.present();
-    }catch (error) {
-      console.error('Erreur lors de l’annulation:', error);
-      await this.showAlert(
-        'Erreur',
-        'Une erreur est survenue lors de l’annulation de la réservation.'
+    const confirmed = await this.notificationService.showConfirmAlert(
+      'Confirmer',
+      'Êtes-vous sûr de vouloir annuler cette réservation ? Le remboursement sera traité par notre équipe.',
+      () => undefined,
+      undefined,
+      "Confirmer l'annulation",
+    );
+
+    if (!confirmed) {
+      this.isCancelling = false;
+      return;
+    }
+
+    try {
+      await this.bookingService
+        .cancelBooking(Number(this.ticketId))
+        .toPromise();
+      // Reload ticket data from backend to get the actual status (could be 'Annulé' or 'Remboursé')
+      if (this.ticketId) {
+        await this.loadTicket(this.ticketId);
+      }
+      await this.notificationService.showSuccessAlert(
+        'Votre réservation a été annulée. Le remboursement est en cours de traitement.',
+        'Annulation réussie',
       );
+
+      this.navCtrl.navigateForward(['/tabs/reservation']);
+    } catch (error: any) {
+      console.error("Erreur lors de l'annulation:", error);
+      const message =
+        error?.error?.error ||
+        error?.error?.message ||
+        "Une erreur est survenue lors de l'annulation de la réservation.";
+      await this.notificationService.showErrorAlert(message, 'Erreur');
     } finally {
       this.isCancelling = false;
     }
@@ -505,14 +506,5 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     // Un billet annulé ou pas encore payé ne doit pas pouvoir être imprimé / exporté en PDF.
     if (this.isLocked) return;
     window.print();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 }

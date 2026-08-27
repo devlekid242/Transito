@@ -5,11 +5,11 @@ import {
   IonContent,
   IonToggle,
   NavController,
-  ToastController,
 } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 import { environment } from 'src/environments/environment.prod';
@@ -94,7 +94,7 @@ export class PartnerProfilePage implements OnInit {
     private authService: AuthService,
     private permissionService: PartnerPermissionService,
     private apiService: PartnerApiService,
-    private toastController: ToastController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -222,47 +222,29 @@ export class PartnerProfilePage implements OnInit {
     const status = this.securitySettings.is2FAEnabled
       ? 'activée'
       : 'désactivée';
-    this.showToast(`2FA ${status}`, 'success');
+    this.notificationService.showSuccess(`2FA ${status}`);
   }
 
   // Basculer les notifications
   toggleNotifications(event: any) {
     this.userProfile.prefNotifications = event.detail.checked;
-    this.showToast(
-      `Notifications ${event.detail.checked ? 'activées' : 'désactivées'}`,
-      'success',
+    this.notificationService.showSuccess(
+      `Notifications ${event.detail.checked ? 'activées' : 'désactivées'}`
     );
   }
 
   // Basculer le mode sombre
   toggleDarkMode(event: any) {
     this.userProfile.prefDarkMode = event.detail.checked;
-    this.showToast(
-      `Mode sombre ${event.detail.checked ? 'activé' : 'désactivé'}`,
-      'success',
+    this.notificationService.showSuccess(
+      `Mode sombre ${event.detail.checked ? 'activé' : 'désactivé'}`
     );
   }
 
   // Changer la langue
   changeLanguage(lang: string) {
     this.userProfile.prefLanguage = lang;
-    this.showToast(`Langue changée en ${this.languages[lang]}`, 'success');
-  }
-
-  /**
-   * Afficher un toast de notification
-   */
-  private async showToast(
-    message: string,
-    color: 'success' | 'danger' | 'warning' | 'info',
-  ) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: color,
-    });
-    await toast.present();
+    this.notificationService.showSuccess(`Langue changée en ${this.languages[lang]}`);
   }
 
   goBack() {

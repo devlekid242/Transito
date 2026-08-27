@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, NavController, AlertController, LoadingController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import { IonContent, IonHeader, NavController, LoadingController, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { SupportService, SupportTicket } from '../../../services/support.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-support',
@@ -23,7 +24,7 @@ export class SupportPage implements OnInit, ViewWillEnter, ViewWillLeave {
   constructor(
     private navCtrl: NavController,
     private supportService: SupportService,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
     private loadingCtrl: LoadingController
   ) {}
 
@@ -37,7 +38,10 @@ export class SupportPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
   async sendRequest() {
     if (!this.subject.trim() || !this.message.trim()) {
-      await this.showAlert('Erreur', 'Veuillez renseigner le sujet et le message');
+      await this.notificationService.showErrorAlert(
+        'Veuillez renseigner le sujet et le message',
+        'Erreur'
+      );
       return;
     }
 
@@ -58,7 +62,10 @@ export class SupportPage implements OnInit, ViewWillEnter, ViewWillLeave {
       next: async () => {
         this.isSubmitting = false;
         loader.dismiss();
-        await this.showAlert('Succès', 'Votre demande a bien été envoyée au support.');
+        await this.notificationService.showSuccessAlert(
+          'Votre demande a bien été envoyée au support.',
+          'Succès'
+        );
         this.subject = '';
         this.message = '';
         this.navCtrl.back();
@@ -67,7 +74,10 @@ export class SupportPage implements OnInit, ViewWillEnter, ViewWillLeave {
         this.isSubmitting = false;
         loader.dismiss();
         console.error('Erreur support:', err);
-        await this.showAlert('Erreur', 'Impossible d\'envoyer votre demande pour le moment');
+        await this.notificationService.showErrorAlert(
+          'Impossible d\'envoyer votre demande pour le moment',
+          'Erreur'
+        );
       },
     });
   }
@@ -83,14 +93,5 @@ export class SupportPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
   goBack() {
     this.navCtrl.back();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 }

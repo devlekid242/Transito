@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 @Component({
   selector: 'app-pro-login',
   templateUrl: './pro-login.page.html',
@@ -13,25 +14,24 @@ import { AuthService } from '../../../services/auth.service';
 export class ProLoginPage {
   phoneNumber = '';
   password = '';
-  error = '';
   loading = false;
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
+    private notificationService: UiNotificationService,
   ) {}
   async login() {
-    this.error = '';
     const d = this.phoneNumber.replace(/\D/g, '');
     const p = d.startsWith('242') ? `+${d}` : `+242${d}`;
     if (!/^\+242\d{9}$/.test(p) || !this.password) {
-      this.error = 'Veuillez saisir votre numéro et votre mot de passe.';
+      await this.notificationService.showErrorAlert('Veuillez saisir votre numéro et votre mot de passe.');
       return;
     }
     this.loading = true;
     const ok = await this.authService.login(p, this.password);
     this.loading = false;
     if (!ok) {
-      this.error = 'Échec de la connexion. Vérifiez vos identifiants.';
+      await this.notificationService.showErrorAlert('Échec de la connexion. Vérifiez vos identifiants.');
       return;
     }
     this.navCtrl.navigateRoot(

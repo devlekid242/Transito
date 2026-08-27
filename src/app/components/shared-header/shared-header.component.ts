@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
@@ -19,10 +19,10 @@ export class SharedHeaderComponent implements OnInit, OnDestroy {
   @Input() showNotifications: boolean = true;
   @Input() showProfile: boolean = true;
 
-  private auth = Inject(AuthService);
-  private navCtrl = Inject(NavController);
-  private router = Inject(Router);
-  private pushService = Inject(NotificationService);
+  private auth = inject(AuthService);
+  private navCtrl = inject(NavController);
+  private router = inject(Router);
+  private pushService = inject(NotificationService);
 
   userName: string = '';
   hasUnreadNotifications: boolean = false;

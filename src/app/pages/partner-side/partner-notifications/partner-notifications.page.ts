@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, NavController, ToastController } from '@ionic/angular';
+import { IonContent, NavController } from '@ionic/angular';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
@@ -42,7 +43,7 @@ export class PartnerNotificationsPage implements OnInit {
     private navCtrl: NavController,
     private permissionService: PartnerPermissionService,
     private apiService: PartnerApiService,
-    private toastController: ToastController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -82,7 +83,7 @@ export class PartnerNotificationsPage implements OnInit {
       },
       (error: any) => {
         console.error('Erreur lors du chargement des notifications:', error);
-        this.showToast('Erreur lors du chargement des notifications', 'danger');
+        this.notificationService.showError('Erreur lors du chargement des notifications');
         this.loading = false;
       },
     );
@@ -94,15 +95,14 @@ export class PartnerNotificationsPage implements OnInit {
       (response: any) => {
         this.todayNotifications.forEach((n) => (n.isRead = true));
         this.yesterdayNotifications.forEach((n) => (n.isRead = true));
-        this.showToast(
-          'Toutes les notifications ont été marquées comme lues.',
-          'success',
+        this.notificationService.showSuccess(
+          'Toutes les notifications ont été marquées comme lues.'
         );
         console.log('Notifications marquées comme lues');
       },
       (error: any) => {
         console.error('Erreur:', error);
-        this.showToast('Erreur lors de la mise à jour', 'danger');
+        this.notificationService.showError('Erreur lors de la mise à jour');
       },
     );
   }
@@ -120,22 +120,6 @@ export class PartnerNotificationsPage implements OnInit {
         },
       );
     }
-  }
-
-  /**
-   * Afficher un toast de notification
-   */
-  private async showToast(
-    message: string,
-    color: 'success' | 'danger' | 'warning' | 'info',
-  ) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: color,
-    });
-    await toast.present();
   }
 
   goBack() {

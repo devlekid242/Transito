@@ -5,15 +5,15 @@
    ========================================================================== */
 @theme {
   /* --- FONTS --- */
-  --font-sans: "Inter", sans-serif;
-  --font-title-lg: "Inter", sans-serif;
-  --font-headline-md: "Inter", sans-serif;
-  --font-body-lg: "Inter", sans-serif;
-  --font-price-lg: "Inter", sans-serif;
-  --font-display-lg: "Inter", sans-serif;
-  --font-body-md: "Inter", sans-serif;
-  --font-label-md: "Inter", sans-serif;
-  --font-headline-sm: "Inter", sans-serif;
+  --font-sans: "Roboto", Inter, sans-serif;
+  --font-title-lg: "Roboto", Inter, sans-serif;
+  --font-headline-md: "Roboto", Inter, sans-serif;
+  --font-body-lg: "Roboto", Inter, sans-serif;
+  --font-price-lg: "Roboto", Inter, sans-serif;
+  --font-display-lg: "Roboto", Inter, sans-serif;
+  --font-body-md: "Roboto", Inter, sans-serif;
+  --font-label-md: "Roboto", Inter, sans-serif;
+  --font-headline-sm: "Roboto", Inter, sans-serif;
 
   /* --- COULEURS --- */
   --color-primary: #059669;
@@ -40,6 +40,15 @@
 
   --color-outline: #94a3b8;
   --color-outline-variant: #cbd5e1;
+
+  /* --- SÉMANTIQUE (feedback : erreurs, succès, avertissements) --- */
+  --color-error: #dc2626;
+  --color-error-container: #fee2e2;
+  --color-on-error-container: #7f1d1d;
+
+  --color-warning: #d97706;
+  --color-warning-container: #fef3c7;
+  --color-on-warning-container: #78350f;
 
   --color-background: #f8fafc;
   --color-on-background: #0f172a;

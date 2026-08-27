@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonHeader, NavController, AlertController } from '@ionic/angular';
+import { IonContent, IonHeader, NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TripDetail, TripPoint } from '../../../models';
 import { TripService } from '../../../services';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { environment } from 'src/environments/environment.prod';
 
 @Component({
@@ -33,7 +34,7 @@ export class TripDetailPage implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private tripService: TripService,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit(): void {
@@ -85,17 +86,17 @@ export class TripDetailPage implements OnInit, OnDestroy {
     if (!this.trip) return;
 
     if (!this.trip.availableSeats || this.trip.availableSeats <= 0) {
-      await this.showAlert(
-        'Complet',
+      await this.notificationService.showInfoAlert(
         'Ce voyage ne dispose plus de places disponibles.',
+        'Complet'
       );
       return;
     }
 
     if (!this.selectedBoardingPoint || !this.selectedDeboardingPoint) {
-      await this.showAlert(
-        'Sélection requise',
+      await this.notificationService.showInfoAlert(
         "Veuillez choisir un point d'embarquement et de débarquement.",
+        'Sélection requise'
       );
       return;
     }
@@ -147,15 +148,5 @@ export class TripDetailPage implements OnInit, OnDestroy {
     } catch {
       return dateStr;
     }
-  }
-
-  private async showAlert(header: string, message: string): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-      cssClass: 'custom-alert-class',
-    });
-    await alert.present();
   }
 }

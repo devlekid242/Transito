@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonSpinner, NavController } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-forgot',
@@ -14,15 +15,14 @@ import { AuthService } from '../../../services/auth.service';
 export class ForgotPage {
   phoneNumber = '';
   loading = false;
-  message = '';
 
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
+    private notificationService: UiNotificationService,
   ) {}
 
   async requestReset() {
-    this.message = '';
     // 1. Nettoyage de la saisie (suppression des espaces vides)
     let formattedPhone = this.phoneNumber.trim();
 
@@ -34,7 +34,7 @@ export class ForgotPage {
     }
     
     if (!this.phoneNumber) {
-      this.message = 'Veuillez saisir votre numéro de téléphone.';
+      await this.notificationService.showErrorAlert('Veuillez saisir votre numéro de téléphone.');
       return;
     }
 
@@ -50,7 +50,7 @@ export class ForgotPage {
       // Redirection vers la page de vérification avec le numéro en paramètre de requête
       this.navCtrl.navigateForward(`/auth/verify?phone=${encodeURIComponent(fullPhoneNumber)}`);
     } else {
-      this.message = "Impossible d'envoyer le code pour le moment. Veuillez réessayer.";
+      await this.notificationService.showErrorAlert("Impossible d'envoyer le code pour le moment. Veuillez réessayer.");
     }
   }
 

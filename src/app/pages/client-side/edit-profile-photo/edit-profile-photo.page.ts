@@ -5,12 +5,11 @@ import {
   IonContent, IonHeader, IonSpinner,
   NavController,
   LoadingController,
-  AlertController,
-  ToastController,
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { environment } from 'src/environments/environment.prod';
 
 @Component({
@@ -31,9 +30,7 @@ export class EditProfilePhotoPage
   constructor(
     private navCtrl: NavController,
     private userService: UserService,
-    private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -62,20 +59,23 @@ export class EditProfilePhotoPage
     });
   }
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     const file = event.target.files?.[0];
     if (file) {
       // Vérifier le type de fichier
       if (!file.type.startsWith('image/')) {
-        this.showAlert('Erreur', 'Veuillez sélectionner une image valide');
+        await this.notificationService.showErrorAlert(
+          'Veuillez sélectionner une image valide',
+          'Erreur'
+        );
         return;
       }
 
       // Vérifier la taille (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        this.showAlert(
-          'Erreur',
-          "La taille de l'image ne doit pas dépasser 5MB",
+        await this.notificationService.showErrorAlert(
+          'La taille de l\'image ne doit pas dépasser 5MB',
+          'Erreur'
         );
         return;
       }
@@ -93,7 +93,10 @@ export class EditProfilePhotoPage
 
   async uploadPhoto() {
     if (!this.selectedFile) {
-      this.showAlert('Erreur', 'Veuillez sélectionner une photo');
+      await this.notificationService.showErrorAlert(
+        'Veuillez sélectionner une photo',
+        'Erreur'
+      );
       return;
     }
 
@@ -102,7 +105,7 @@ export class EditProfilePhotoPage
     this.userService.updateProfilePhoto(this.selectedFile).subscribe({
       next: async (response) => {
         this.isUploading = false;
-        await this.showToast('Photo de profil mise à jour avec succès');
+        await this.notificationService.showSuccess('Photo de profil mise à jour avec succès');
         this.currentPhoto = this.previewPhoto;
         this.selectedFile = null;
         setTimeout(() => {
@@ -112,9 +115,9 @@ export class EditProfilePhotoPage
       error: async (err) => {
         this.isUploading = false;
         console.error('Erreur lors du téléchargement:', err);
-        await this.showAlert(
-          'Erreur',
+        await this.notificationService.showErrorAlert(
           'Impossible de télécharger la photo. Veuillez réessayer.',
+          'Erreur'
         );
       },
     });
@@ -132,24 +135,5 @@ export class EditProfilePhotoPage
 
   goBack() {
     this.navCtrl.back();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
-  }
-
-  private async showToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-      color: 'success',
-    });
-    await toast.present();
   }
 }

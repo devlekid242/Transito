@@ -4,14 +4,11 @@ import {
   IonContent,
   IonHeader,
   NavController,
-  AlertController,
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
-import {
-  SupportService,
-  SupportTicket,
-} from '../../../services/support.service';
+import { SupportService, SupportTicket } from '../../../services/support.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 
 @Component({
   selector: 'app-support-tickets',
@@ -38,7 +35,7 @@ export class SupportTicketsPage
   constructor(
     private navCtrl: NavController,
     private supportService: SupportService,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -69,7 +66,7 @@ export class SupportTicketsPage
       error: (err) => {
         console.error('Erreur chargement tickets:', err);
         this.isLoading = false;
-        this.showAlert('Erreur', 'Impossible de charger les tickets');
+        this.notificationService.showErrorAlert('Impossible de charger les tickets', 'Erreur');
       },
     });
   }
@@ -183,14 +180,5 @@ export class SupportTicketsPage
 
   goBack() {
     this.navCtrl.back();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 }

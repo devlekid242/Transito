@@ -5,11 +5,11 @@ import {
   IonContent, IonHeader, IonToggle,
   NavController,
   LoadingController,
-  AlertController,
   ViewWillEnter,
   ViewWillLeave,  
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { User } from '../../../models';
 
 @Component({
@@ -31,7 +31,7 @@ export class SettingsPage implements OnInit, ViewWillEnter, ViewWillLeave {
     private navCtrl: NavController,
     private userService: UserService,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -66,7 +66,7 @@ export class SettingsPage implements OnInit, ViewWillEnter, ViewWillLeave {
         console.error('Erreur chargement paramètres :', err);
         loader.dismiss();
         this.isLoading = false;
-        await this.showAlert('Erreur', 'Impossible de charger vos paramètres.');
+        await this.notificationService.showErrorAlert('Impossible de charger vos paramètres.', 'Erreur');
       },
     });
   }
@@ -84,26 +84,17 @@ export class SettingsPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
     this.userService.updateProfile(profileUpdate).subscribe({
       next: async () => {
-        await this.showAlert('Succès', 'Vos préférences ont été mises à jour.');
+        await this.notificationService.showSuccessAlert('Vos préférences ont été mises à jour.', 'Succès');
         this.navCtrl.back();
       },
       error: async (err) => {
         console.error('Erreur sauvegarde paramètres :', err);
-        await this.showAlert('Erreur', 'Impossible d enregistrer vos préférences.');
+        await this.notificationService.showErrorAlert('Impossible d\'enregistrer vos préférences.', 'Erreur');
       },
     });
   }
 
   goBack() {
     this.navCtrl.back();
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 }

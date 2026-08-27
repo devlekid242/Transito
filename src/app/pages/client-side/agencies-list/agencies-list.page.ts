@@ -6,12 +6,12 @@ import {
   NavController,
   InfiniteScrollCustomEvent,
   LoadingController,
-  AlertController,
-  ViewWillEnter, // 👈 nouveau
-  ViewWillLeave, // 👈 nouveau (optionnel, pour le nettoyage)
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AgencyService } from '../../../services/agency.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Agency } from '../../../models';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 import { environment } from 'src/environments/environment.prod';
@@ -50,8 +50,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
     private navCtrl: NavController,
     private route: Router,
     private agencyService: AgencyService,
-    private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
+    private notificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -81,7 +80,10 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
         },
         error: async (err) => {
           console.error('Erreur chargement agences :', err);
-          await this.showAlert('Erreur', 'Impossible de charger les agences.');
+          await this.notificationService.showErrorAlert(
+            'Impossible de charger les agences.',
+            'Erreur'
+          );
         },
         complete: () => {
           this.isLoading = false;
@@ -184,14 +186,5 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   // Ouvrir la page de notifications
   openNotifications() {
     this.navCtrl.navigateForward('/notifications');
-  }
-
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
   }
 }

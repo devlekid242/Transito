@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent,
   NavController,
-  AlertController,
   ViewWillEnter, // 👈 nouveau
   ViewWillLeave, // 👈 nouveau (optionnel, pour le nettoyage)
 } from '@ionic/angular';
 import { NotificationService } from '../../../services/notification.service';
+import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Notification } from '../../../models';
 
 @Component({
@@ -30,7 +30,7 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   constructor(
     private navCtrl: NavController,
     private notificationService: NotificationService,
-    private alertCtrl: AlertController,
+    private UiNotificationService: UiNotificationService,
   ) {}
 
   ngOnInit() {
@@ -59,9 +59,9 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
       error: async (err) => {
         console.error('Erreur chargement notifications :', err);
         this.isLoading = false;
-        await this.showAlert(
-          'Erreur',
+        await this.UiNotificationService.showErrorAlert(
           'Impossible de charger les notifications.',
+          'Erreur'
         );
       },
     });
@@ -74,15 +74,11 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
       return;
     }
 
-    const alert = await this.alertCtrl.create({
-      header: 'Tout marquer comme lu',
-      message: `Voulez-vous marquer ${unreadCount} notification${unreadCount > 1 ? 's' : ''} comme lue${unreadCount > 1 ? 's' : ''} ?`,
-      buttons: [
-        { text: 'Annuler', role: 'cancel' },
-        { text: 'Confirmer', handler: () => this.confirmMarkAllAsRead() },
-      ],
-    });
-    await alert.present();
+    const alert = await this.UiNotificationService.showConfirmAlert(
+      'Tout marquer comme lu',
+      `Voulez-vous marquer ${unreadCount} notification${unreadCount > 1 ? 's' : ''} comme lue${unreadCount > 1 ? 's' : ''} ?`,
+      () => this.confirmMarkAllAsRead()
+    );
   }
 
   private confirmMarkAllAsRead() {
@@ -100,9 +96,9 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
         console.error('Erreur marquer tout lu :', err);
         this.notifications = previousState;
         this.isMarkingAllRead = false;
-        await this.showAlert(
-          'Erreur',
+        await this.UiNotificationService.showErrorAlert(
           'Impossible de marquer les notifications comme lues.',
+          'Erreur'
         );
       },
       complete: () => {
@@ -190,12 +186,4 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
     this.navCtrl.back();
   }
 
-  private async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
-  }
 }
