@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonContent, NavController } from '@ionic/angular';
+import {
+  IonContent,
+  NavController,
+  ViewWillEnter,
+  ViewWillLeave,
+} from '@ionic/angular';
 import { CapacitorBarcodeScanner } from '@capacitor/barcode-scanner';
 import { Subscription } from 'rxjs';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
@@ -54,7 +59,9 @@ const EMPTY_TICKET: TicketData = {
   standalone: true,
   imports: [IonContent, CommonModule, FormsModule, SkeletonLoaderComponent],
 })
-export class TicketValidationPage implements OnInit, OnDestroy {
+export class TicketValidationPage
+  implements ViewWillEnter, ViewWillLeave, OnDestroy
+{
   scanState: 'idle' | 'scanning' | 'success' | 'error' = 'idle';
   qrCodeInput = '';
   errorMessage = '';
@@ -75,8 +82,15 @@ export class TicketValidationPage implements OnInit, OnDestroy {
     private apiService: PartnerApiService,
   ) {}
 
-  ngOnInit() {
+  ionViewWillEnter(): void {
     this.loadPermissions();
+    this.loading = false;
+  }
+
+  ionViewWillLeave(): void {
+    this.validationSub?.unsubscribe();
+    this.validationSub = undefined;
+    this.resetScanner();
     this.loading = false;
   }
 

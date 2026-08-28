@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent } from '@ionic/angular';
+import { IonContent, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import {
@@ -37,7 +37,7 @@ interface PassengerManifest {
     SkeletonLoaderComponent,
   ],
 })
-export class BoardingControlPage implements OnInit {
+export class BoardingControlPage implements ViewWillEnter, ViewWillLeave {
   trips: Trip[] = [];
   selectedTripId: number | null = null;
   selectedTrip: Trip | null = null;
@@ -63,9 +63,14 @@ export class BoardingControlPage implements OnInit {
     private apiService: PartnerApiService,
   ) {}
 
-  ngOnInit() {
+  ionViewWillEnter(): void {
     this.loadPermissions();
     this.loadTrips();
+  }
+
+  ionViewWillLeave(): void {
+    this.selectedTripId = null;
+    this.selectedTrip = null;
   }
 
   private loadPermissions(): void {

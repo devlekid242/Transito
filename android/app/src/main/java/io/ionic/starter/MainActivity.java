@@ -1,4 +1,4 @@
-package net.alwaysdata.transito;
+package com.transito.app;
 
 import com.getcapacitor.BridgeActivity;
 

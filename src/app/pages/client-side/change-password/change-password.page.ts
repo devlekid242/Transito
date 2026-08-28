@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, FormGroup, Validators } from '@angular/forms';
-import { IonContent, IonHeader, NavController } from '@ionic/angular';
+import { IonContent, IonHeader, NavController, IonSpinner } from '@ionic/angular';
 import { UserService } from '../../../services/user.service'; // Adaptez le chemin de votre service
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { CommonModule } from '@angular/common';
@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-change-password',
   templateUrl: './change-password.page.html',
   styleUrls: ['./change-password.page.scss'],
-  imports: [ CommonModule, IonContent, IonHeader, ReactiveFormsModule ],
+  imports: [ CommonModule, IonContent, IonHeader, IonSpinner, ReactiveFormsModule ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ChangePasswordPage implements OnInit {

@@ -1,22 +1,31 @@
 <ion-header class="ion-no-border">
-  <div class="bg-primary flex items-center justify-between px-container-padding h-16 w-full max-w-[480px] mx-auto sticky top-0 z-50 shadow-sm border-b border-surface-variant/40">
-    <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10 shadow-inner">
-      <i class="fa-solid fa-bus-simple text-xl text-white"></i>
+  <!-- Container principal : fond blanc et ombre douce (symétrique à la tab-bar) -->
+  <div class="bg-white flex items-center justify-between px-6 h-16 w-full max-w-md mx-auto sticky top-0 z-50 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+    
+    <!-- Logo : Dans une bulle douce, comme l'icône de la page profil -->
+    <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+      <img src="assets/images/logo-symbole-trans.png" alt="Logo" class="w-6 h-6 object-contain" />
     </div>
-    <h1 class="text-base font-bold text-on-primary flex-1 text-center">
+    
+    <!-- Titre : Centré, sombre et épuré -->
+    <h1 class="text-lg font-bold text-gray-900 flex-1 text-center truncate px-2">
       {{ title }}
     </h1>
+    
+    <!-- Bouton Notifications : Style pastille grise (comme le bouton retour du login pro) -->
     <button
       (click)="openNotifications()"
       aria-label="Notifications"
-      class="hover:bg-white/15 text-white transition-all duration-200 p-2.5 rounded-xl flex items-center justify-center active:scale-95 bg-white/5 backdrop-blur-sm relative border border-white/10"
+      class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors relative focus:outline-none"
     >
-      <i class="fa-solid fa-bell text-base"></i>
-      <!-- La pastille ne s'affiche que si hasUnreadNotifications est true -->
+      <i class="fa-solid fa-bell text-[1.1rem]"></i>
+      
+      <!-- Pastille de notification : contour blanc pour la détacher de l'icône -->
       <span
         *ngIf="hasUnreadNotifications"
-        class="absolute top-2.5 right-2.5 w-2 h-2 bg-amber-400 rounded-full ring-2 ring-primary animate-pulse"
+        class="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-white animate-pulse"
       ></span>
     </button>
+    
   </div>
 </ion-header>

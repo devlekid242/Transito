@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -6,6 +6,8 @@ import {
   IonHeader,
   NavController,
   ActionSheetController,
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
@@ -63,7 +65,7 @@ interface TripManifest {
     SkeletonLoaderComponent,
   ],
 })
-export class TripManifestPage implements OnInit {
+export class TripManifestPage implements ViewWillEnter, ViewWillLeave {
   canViewManifest = false;
   loading: boolean = true;
 
@@ -108,9 +110,13 @@ export class TripManifestPage implements OnInit {
     private route: ActivatedRoute,
   ) {}
 
-  ngOnInit() {
+  ionViewWillEnter(): void {
     this.loadPermissions();
     this.loadManifestData();
+  }
+
+  ionViewWillLeave(): void {
+    this.loading = false;
   }
 
   private loadPermissions(): void {
@@ -307,7 +313,9 @@ export class TripManifestPage implements OnInit {
           icon: 'cloud-download-outline',
           handler: () => {
             console.log('Téléchargement du billet pour:', passenger.name);
-            this.notificationService.showInfo('Téléchargement du billet en cours...');
+            this.notificationService.showInfo(
+              'Téléchargement du billet en cours...',
+            );
           },
         },
         {

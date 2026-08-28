@@ -1,36 +1,50 @@
 <ion-content [fullscreen]="true" class="bg-white">
-  <div class="flex flex-col h-full justify-between max-w-md mx-auto pt-12 px-6">
+  <!-- Marges globales harmonisées (pt-8, pb-8) -->
+  <div class="flex flex-col justify-between h-full max-w-md mx-auto pt-8 pb-8 px-6">
     
-    <!-- En-tête avec Icône -->
-    <div class="flex flex-col items-center">
-      <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
-        <i class="fa-solid fa-user-pen text-2xl"></i>
-      </div>
+    <!-- Barre supérieure : Logo -->
+    <div class="flex items-center gap-2 pt-4 mb-4">
+      <img src="assets/images/logo-full-trans.png" alt="Logo" class="h-11 object-contain" />
+    </div>
 
-      <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">Informations du profil</h1>
-      <p class="text-center text-gray-500 text-sm mb-10 px-4">
-        Veuillez saisir votre nom complet pour finaliser la création de votre compte.
-      </p>
+    <!-- Wrapper central prenant l'espace disponible -->
+    <div class="flex-1 flex flex-col justify-center">
+      <!-- En-tête avec Icône -->
+      <div class="flex flex-col items-center">
+        <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
+          <i class="fa-solid fa-user-pen text-2xl"></i>
+        </div>
 
-      <!-- Input Nom complet -->
-      <div class="flex items-center w-full border-b-2 border-primary/50 focus-within:border-primary transition-colors py-2 px-1">
-        <input
-          [(ngModel)]="fullName"
-          type="text"
-          autocomplete="name"
-          placeholder="Ex : Jean Packa"
-          class="w-full bg-transparent outline-none text-lg text-gray-900 placeholder:text-gray-300"
-          (keyup.enter)="submit()"
-        />
+        <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">Informations du profil</h1>
+        <p class="text-center text-gray-500 text-sm mb-10 px-4">
+          Veuillez saisir votre nom complet pour finaliser la création de votre compte.
+        </p>
+
+        <!-- Input Nom complet inspiré de ton design -->
+        <div
+          class="flex items-center w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all gap-3"
+        >
+          <!-- Icône utilisateur au lieu du téléphone -->
+          <i class="fa-solid fa-user text-outline text-base"></i>
+          
+          <input
+            [(ngModel)]="fullName"
+            type="text"
+            autocomplete="name"
+            placeholder="Ex : Jean Packa"
+            class="w-full bg-transparent border-0 p-0 text-on-surface placeholder:text-outline/60 outline-none focus:ring-0 text-base"
+            (keyup.enter)="submit()"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- Action du bas -->
-    <div class="pb-8 flex flex-col items-center">
+    <!-- Zone des boutons poussée vers le bas -->
+    <div class="mt-auto flex flex-col gap-2">
       <button
         (click)="submit()"
-        [disabled]="loading"
-        class="bg-primary text-white font-bold py-3 px-12 rounded-full disabled:opacity-50"
+        [disabled]="loading || !fullName"
+        class="w-full bg-primary text-white font-bold py-3.5 rounded-[9px] disabled:opacity-50 shadow-sm transition-all"
       >
         <span *ngIf="!loading">Terminer</span>
         <ion-spinner *ngIf="loading" name="dots" color="light"></ion-spinner>

@@ -49,7 +49,7 @@ export class SharedHeaderComponent implements OnInit, OnDestroy {
   }
 
   openNotifications() {
-    this.navCtrl.navigateForward('/notifications');
+    this.router.navigate(['/notifications']);
   }
 
   openProfile() {

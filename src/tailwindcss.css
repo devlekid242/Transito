@@ -5,15 +5,15 @@
    ========================================================================== */
 @theme {
   /* --- FONTS --- */
-  --font-sans: "Roboto", Inter, sans-serif;
-  --font-title-lg: "Roboto", Inter, sans-serif;
-  --font-headline-md: "Roboto", Inter, sans-serif;
-  --font-body-lg: "Roboto", Inter, sans-serif;
-  --font-price-lg: "Roboto", Inter, sans-serif;
-  --font-display-lg: "Roboto", Inter, sans-serif;
-  --font-body-md: "Roboto", Inter, sans-serif;
-  --font-label-md: "Roboto", Inter, sans-serif;
-  --font-headline-sm: "Roboto", Inter, sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-title-lg: "Inter", sans-serif;
+  --font-headline-md: "Inter", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-price-lg: "Inter", sans-serif;
+  --font-display-lg: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-label-md: "Inter", sans-serif;
+  --font-headline-sm: "Inter", sans-serif;
 
   /* --- COULEURS --- */
   --color-primary: #059669;
@@ -197,6 +197,11 @@ ion-tab-bar {
   display: flex !important;
   flex-direction: row !important;
   justify-content: space-around !important;
+  /* Symétrique au fix ion-header : sans ça, la tab-bar reste collée à sa
+     hauteur fixe et se retrouve (partiellement) sous la barre de gestes
+     système sur Android récent / iPhone sans bouton Home. */
+  padding-bottom: var(--ion-safe-area-bottom, env(safe-area-inset-bottom)) !important;
+  height: calc(56px + var(--ion-safe-area-bottom, env(safe-area-inset-bottom))) !important;
 }
 
 ion-tab-button {

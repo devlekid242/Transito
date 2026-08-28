@@ -1,7 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, NavController } from '@ionic/angular';
+import {
+  IonContent,
+  NavController,
+  ViewWillEnter,
+  ViewWillLeave,
+} from '@ionic/angular';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
@@ -30,7 +35,7 @@ interface NotificationItem {
     SkeletonLoaderComponent,
   ],
 })
-export class PartnerNotificationsPage implements OnInit {
+export class PartnerNotificationsPage implements ViewWillEnter, ViewWillLeave {
   // Permissions
   canViewNotifications = false;
 
@@ -46,9 +51,13 @@ export class PartnerNotificationsPage implements OnInit {
     private notificationService: UiNotificationService,
   ) {}
 
-  ngOnInit() {
+  ionViewWillEnter(): void {
     this.loadPermissions();
     this.loadNotifications();
+  }
+
+  ionViewWillLeave(): void {
+    this.loading = false;
   }
 
   private loadPermissions(): void {
@@ -83,7 +92,9 @@ export class PartnerNotificationsPage implements OnInit {
       },
       (error: any) => {
         console.error('Erreur lors du chargement des notifications:', error);
-        this.notificationService.showError('Erreur lors du chargement des notifications');
+        this.notificationService.showError(
+          'Erreur lors du chargement des notifications',
+        );
         this.loading = false;
       },
     );
@@ -96,7 +107,7 @@ export class PartnerNotificationsPage implements OnInit {
         this.todayNotifications.forEach((n) => (n.isRead = true));
         this.yesterdayNotifications.forEach((n) => (n.isRead = true));
         this.notificationService.showSuccess(
-          'Toutes les notifications ont été marquées comme lues.'
+          'Toutes les notifications ont été marquées comme lues.',
         );
         console.log('Notifications marquées comme lues');
       },

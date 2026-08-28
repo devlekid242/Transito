@@ -1,51 +1,83 @@
 <ion-content [fullscreen]="true" class="bg-white">
-  <div class="flex flex-col h-full max-w-md mx-auto pt-12 px-6">
+  <div class="flex flex-col justify-between h-full max-w-md mx-auto pt-8 pb-8 px-6">
     
-    <!-- En-tête avec Icône -->
-    <div class="flex flex-col items-center text-center mb-10">
-      <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
-        <i class="fa-solid fa-shield-halved text-2xl"></i>
+    <!-- Barre supérieure : Logo -->
+    <div class="flex items-center gap-2 pt-4 mb-4">
+      <img src="assets/images/logo-full-trans.png" alt="Logo" class="h-11 object-contain" />
+    </div>
+
+    <!-- Wrapper central -->
+    <div class="flex-1 flex flex-col justify-center">
+      <!-- En-tête avec Icône -->
+      <div class="flex flex-col items-center text-center mb-8">
+        <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
+          <i class="fa-solid fa-shield-halved text-2xl"></i>
+        </div>
+  
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Code de vérification</h1>
+        <p class="text-sm text-gray-500">
+          Code envoyé au <span class="font-bold text-gray-900">{{ phoneNumber }}</span>.
+          <button (click)="navigateToLogin()" class="text-primary ml-1 font-medium underline">Modifier</button>
+        </p>
       </div>
+  
+      <!-- Input OTP sous forme de 6 cases individuelles -->
+      <div class="relative w-full max-w-xs mx-auto mb-8">
+        <!-- Input réel superposé et invisible -->
+        <input
+          #otpInput
+          [ngModel]="code"
+          (ngModelChange)="onCodeChange($event)"
+          type="tel"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="6"
+          class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
+          (keyup.enter)="verify()"
+          autofocus
+        />
 
-      <h1 class="text-2xl font-bold text-gray-900 mb-2">Code de vérification</h1>
-      <p class="text-sm text-gray-500">
-        Code envoyé au <span class="font-bold text-gray-900">+242 {{ phoneNumber }}</span>.
-        <button routerLink="/auth/login" class="text-primary ml-1 font-medium underline">Modifier</button>
-      </p>
+        <!-- Rendu visuel des 6 cases -->
+        <div class="flex items-center justify-between gap-2">
+          @for (i of [0, 1, 2, 3, 4, 5]; track i) {
+            <div
+              class="w-11 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all"
+              [ngClass]="{
+                'border-primary bg-primary/5 text-primary shadow-sm': (code || '')[i],
+                'border-primary ring-2 ring-primary/20 bg-white': (code || '').length === i,
+                'border-gray-200 bg-gray-50/50 text-gray-900': (code || '').length < i
+              }"
+            >
+              {{ (code || '')[i] || '' }}
+            </div>
+          }
+        </div>
+        <p class="text-xs text-center text-gray-400 mt-4">Saisissez le code à 6 chiffres</p>
+      </div>
     </div>
 
-    <!-- Input OTP épuré -->
-    <div class="flex flex-col items-center mb-8">
-      <input
-        [(ngModel)]="code"
-        type="tel"
-        inputmode="numeric"
-        maxlength="6"
-        placeholder="— — —   — — —"
-        class="w-full text-center text-3xl font-bold tracking-[0.5em] text-gray-900 bg-transparent border-b-2 border-gray-200 focus:border-primary outline-none py-3 transition-colors placeholder:text-gray-300 placeholder:font-light"
-        (keyup.enter)="verify()"
-      />
-      <p class="text-xs text-gray-400 mt-4">Saisissez le code à 6 chiffres</p>
+    <!-- Zone des boutons poussée vers le bas -->
+    <div class="mt-auto flex flex-col gap-2">
+      <!-- Bouton principal -->
+      <button
+        (click)="verify()"
+        [disabled]="loading || (code || '').length < 6"
+        class="w-full bg-primary text-white font-bold py-3.5 rounded-[9px] disabled:opacity-50 mb-2 shadow-sm transition-all"
+      >
+        <span *ngIf="!loading">Vérifier</span>
+        <ion-spinner *ngIf="loading" name="dots" color="light"></ion-spinner>
+      </button>
+  
+      <!-- Renvoyer le SMS -->
+      <button
+        (click)="resend()"
+        [disabled]="countdown > 0 || loading"
+        class="w-full text-gray-500 font-medium flex items-center justify-center gap-2 py-3"
+      >
+        <i class="fa-solid fa-comment-sms text-gray-400"></i>
+        {{ countdown > 0 ? 'Renvoyer le SMS dans ' + countdown + 's' : 'Renvoyer le SMS' }}
+      </button>
     </div>
-
-    <!-- Bouton principal -->
-    <button
-      (click)="verify()"
-      [disabled]="loading"
-      class="w-full bg-primary text-white font-bold py-3 rounded-full disabled:opacity-50 mb-6"
-    >
-      <span *ngIf="!loading">Vérifier</span>
-      <ion-spinner *ngIf="loading" name="dots" color="light"></ion-spinner>
-    </button>
-
-    <!-- Renvoyer le SMS -->
-    <button
-      (click)="resend()"
-      [disabled]="countdown>0||loading"
-      class="text-gray-500 font-medium flex items-center justify-center gap-2 py-2"
-    >
-      <i class="fa-solid fa-comment-sms text-gray-400"></i>
-      {{ countdown>0 ? 'Renvoyer le SMS dans '+countdown+'s' : 'Renvoyer le SMS' }}
-    </button>
+    
   </div>
 </ion-content>

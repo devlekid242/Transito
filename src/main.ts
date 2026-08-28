@@ -20,6 +20,22 @@ import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { TokenInterceptor } from './app/interceptors/token.interceptor';
 
+import { addIcons } from 'ionicons';
+import {
+  checkmarkCircle,
+  alertCircle,
+  warning,
+  informationCircle,
+} from 'ionicons/icons';
+
+addIcons({
+  'checkmark-circle': checkmarkCircle,
+  'alert-circle': alertCircle,
+  'warning': warning,
+  'information-circle': informationCircle,
+});
+
+
 bootstrapApplication(AppComponent, {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),

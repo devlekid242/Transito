@@ -1,297 +1,182 @@
+<!-- En-tête (Style retour circulaire & bouton d'action) -->
 <ion-header class="ion-no-border">
-  <div
-    class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200"
-  >
-    <button
-      (click)="goBack()"
-      class="flex items-center gap-2 text-secondary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded-lg active-scale"
-    >
+  <div class="bg-white flex items-center justify-between px-6 h-16 max-w-md mx-auto sticky top-0 z-40 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+    <button (click)="goBack()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
       <i class="fa-solid fa-arrow-left"></i>
-      <span class="text-sm font-semibold">Retour</span>
     </button>
-    <span class="font-sans text-lg font-bold text-secondary tracking-tight"
-      >Support</span
-    >
-    <button
-      (click)="createNewTicket()"
-      class="text-primary hover:bg-surface-container-low transition-colors duration-200 p-2 rounded-full active-scale"
-    >
-      <i class="fa-solid fa-plus text-lg"></i>
+    
+    <h1 class="text-lg font-bold text-gray-900">Mes Demandes</h1>
+    
+    <button (click)="createNewTicket()" class="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+      <i class="fa-solid fa-plus text-base"></i>
     </button>
   </div>
 </ion-header>
 
-<ion-content class="bg-background">
-  <div class="w-full max-w-[480px] bg-surface min-h-screen mx-auto pb-28">
-    <main
-      class="max-w-[480px] px-container-padding pt-stack-lg flex flex-col gap-stack-lg pb-24 mx-auto"
-    >
-      <!-- ==================== ÉTAT : CHARGEMENT (SKELETON) ==================== -->
-      <ng-container *ngIf="isLoading">
-        <!-- Skeleton : Résumé -->
-        <section
-          class="grid grid-cols-2 md:grid-cols-4 gap-2"
-          aria-hidden="true"
+<ion-content [fullscreen]="true" class="bg-white">
+  <div class="w-full max-w-md mx-auto px-6 py-6 pb-28 min-h-full flex flex-col gap-6">
+
+    <!-- ==================== ÉTAT : CHARGEMENT (SKELETON) ==================== -->
+    <ng-container *ngIf="isLoading">
+      <!-- Skeleton : Filtres -->
+      <section class="flex gap-2 overflow-x-auto pb-1" aria-hidden="true">
+        <span *ngFor="let i of skeletonFilterItems" class="skeleton-block h-9 rounded-full flex-shrink-0" [style.width.px]="i"></span>
+      </section>
+
+      <!-- Skeleton : Liste des tickets -->
+      <section class="flex flex-col gap-4" aria-hidden="true">
+        <div *ngFor="let i of skeletonTicketItems" class="skeleton-card rounded-2xl p-4 border border-gray-100 flex flex-col gap-3">
+          <div class="flex items-start gap-3">
+            <span class="skeleton-block w-11 h-11 rounded-full flex-shrink-0"></span>
+            <div class="flex-1 flex flex-col gap-2">
+              <span class="skeleton-block h-4 w-3/4 rounded"></span>
+              <span class="skeleton-block h-3 w-full rounded"></span>
+              <div class="flex gap-2 mt-1">
+                <span class="skeleton-block h-5 w-16 rounded-full"></span>
+                <span class="skeleton-block h-5 w-16 rounded-full"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
+    <!-- ==================== ÉTAT : CONTENU CHARGÉ ==================== -->
+    <ng-container *ngIf="!isLoading">
+      
+      <!-- Filtres sous forme de pilules modernes -->
+      <section class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button
+          (click)="setFilter('all')"
+          [ngClass]="selectedFilter === 'all' ? 'bg-primary text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200"
         >
-          <div
-            *ngFor="let i of skeletonSummaryItems"
-            class="skeleton-card rounded-lg p-3 border border-surface-variant flex flex-col items-center gap-2"
-          >
-            <span class="skeleton-block h-3 w-12 rounded"></span>
-            <span class="skeleton-block h-6 w-8 rounded"></span>
-          </div>
-        </section>
+          Tous ({{ tickets.length }})
+        </button>
+        <button
+          (click)="setFilter('open')"
+          [ngClass]="selectedFilter === 'open' ? 'bg-primary text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5"
+        >
+          Ouverts
+          <span class="px-1.5 py-0.5 rounded-full text-[10px]" [ngClass]="selectedFilter === 'open' ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'">
+            {{ countByStatus('open') }}
+          </span>
+        </button>
+        <button
+          (click)="setFilter('pending')"
+          [ngClass]="selectedFilter === 'pending' ? 'bg-amber-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5"
+        >
+          En attente
+          <span class="px-1.5 py-0.5 rounded-full text-[10px]" [ngClass]="selectedFilter === 'pending' ? 'bg-white/20 text-white' : 'bg-amber-500/10 text-amber-600'">
+            {{ countByStatus('pending') }}
+          </span>
+        </button>
+        <button
+          (click)="setFilter('answered')"
+          [ngClass]="selectedFilter === 'answered' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5"
+        >
+          Répondus
+          <span class="px-1.5 py-0.5 rounded-full text-[10px]" [ngClass]="selectedFilter === 'answered' ? 'bg-white/20 text-white' : 'bg-emerald-600/10 text-emerald-600'">
+            {{ countByStatus('answered') }}
+          </span>
+        </button>
+      </section>
 
-        <!-- Skeleton : Filtres -->
-        <section class="flex gap-2 overflow-x-auto pb-2" aria-hidden="true">
-          <span
-            *ngFor="let i of skeletonFilterItems"
-            class="skeleton-block h-8 rounded-full flex-shrink-0"
-            [style.width.px]="i"
-          ></span>
-        </section>
-
-        <!-- Skeleton : Liste des tickets -->
-        <section class="flex flex-col gap-3" aria-hidden="true">
-          <div
-            *ngFor="let i of skeletonTicketItems"
-            class="skeleton-card rounded-lg p-4 border border-surface-variant"
-          >
-            <div class="flex items-start gap-3 mb-3">
-              <span
-                class="skeleton-block w-12 h-12 rounded-full flex-shrink-0"
-              ></span>
-              <div class="flex-1 flex flex-col gap-2">
-                <span class="skeleton-block h-4 w-3/4 rounded"></span>
-                <span class="skeleton-block h-3 w-full rounded"></span>
-                <span class="skeleton-block h-3 w-2/3 rounded"></span>
-                <div class="flex gap-2 mt-1">
-                  <span class="skeleton-block h-5 w-16 rounded"></span>
-                  <span class="skeleton-block h-5 w-16 rounded"></span>
-                </div>
-              </div>
-            </div>
+      <!-- Liste des cartes de tickets -->
+      <section class="flex flex-col gap-3">
+        <div
+          *ngFor="let ticket of filteredTickets"
+          (click)="viewTicketDetails(ticket)"
+          class="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-4 transition-all active:scale-[0.99] cursor-pointer hover:border-primary/50"
+        >
+          <div class="flex items-start gap-3.5">
+            <!-- Badge Icône circulaire -->
             <div
-              class="border-t border-surface-variant pt-2 mt-2 flex justify-between items-center"
+              class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+              [ngClass]="{
+                'bg-primary/10 text-primary': ticket.status === 'open',
+                'bg-amber-500/10 text-amber-500': ticket.status === 'pending',
+                'bg-emerald-500/10 text-emerald-600': ticket.status === 'answered',
+                'bg-gray-100 text-gray-400': ticket.status === 'closed'
+              }"
             >
-              <span class="skeleton-block h-3 w-24 rounded"></span>
-              <span class="skeleton-block h-3 w-3 rounded"></span>
+              <i [class]="getStatusIcon(ticket.status)" class="text-base"></i>
             </div>
-          </div>
-        </section>
-      </ng-container>
 
-      <!-- ==================== ÉTAT : CONTENU CHARGÉ ==================== -->
-      <ng-container *ngIf="!isLoading">
-        <!-- Résumé -->
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div
-            class="bg-surface-container-lowest rounded-lg p-3 text-center border border-surface-variant"
-          >
-            <p class="text-xs text-on-surface-variant font-semibold mb-1">
-              Total
-            </p>
-            <p class="text-2xl font-bold text-on-surface">
-              {{ tickets.length }}
-            </p>
-          </div>
-          <div
-            class="bg-surface-container-lowest rounded-lg p-3 text-center border border-surface-variant"
-          >
-            <p class="text-xs text-on-surface-variant font-semibold mb-1">
-              Ouverts
-            </p>
-            <p class="text-2xl font-bold text-primary">
-              {{ countByStatus('open') }}
-            </p>
-          </div>
-          <div
-            class="bg-surface-container-lowest rounded-lg p-3 text-center border border-surface-variant"
-          >
-            <p class="text-xs text-on-surface-variant font-semibold mb-1">
-              En attente
-            </p>
-            <p class="text-2xl font-bold text-warning">
-              {{ countByStatus('pending') }}
-            </p>
-          </div>
-          <div
-            class="bg-surface-container-lowest rounded-lg p-3 text-center border border-surface-variant"
-          >
-            <p class="text-xs text-on-surface-variant font-semibold mb-1">
-              Répondus
-            </p>
-            <p class="text-2xl font-bold text-success">
-              {{ countByStatus('answered') }}
-            </p>
-          </div>
-        </section>
-
-        <!-- Filtres -->
-        <section class="flex gap-2 overflow-x-auto pb-2">
-          <button
-            (click)="setFilter('all')"
-            [class.bg-primary]="selectedFilter === 'all'"
-            [class.text-on-primary]="selectedFilter === 'all'"
-            [class.bg-surface-container]="selectedFilter !== 'all'"
-            [class.text-on-surface]="selectedFilter !== 'all'"
-            class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors"
-          >
-            Tous ({{ tickets.length }})
-          </button>
-          <button
-            (click)="setFilter('open')"
-            [class.bg-primary]="selectedFilter === 'open'"
-            [class.text-on-primary]="selectedFilter === 'open'"
-            [class.bg-surface-container]="selectedFilter !== 'open'"
-            [class.text-on-surface]="selectedFilter !== 'open'"
-            class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors"
-          >
-            Ouverts
-          </button>
-          <button
-            (click)="setFilter('pending')"
-            [class.bg-warning]="selectedFilter === 'pending'"
-            [class.text-white]="selectedFilter === 'pending'"
-            [class.bg-surface-container]="selectedFilter !== 'pending'"
-            [class.text-on-surface]="selectedFilter !== 'pending'"
-            class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors"
-          >
-            En attente
-          </button>
-          <button
-            (click)="setFilter('answered')"
-            [class.bg-success]="selectedFilter === 'answered'"
-            [class.text-white]="selectedFilter === 'answered'"
-            [class.bg-surface-container]="selectedFilter !== 'answered'"
-            [class.text-on-surface]="selectedFilter !== 'answered'"
-            class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors"
-          >
-            Répondus
-          </button>
-        </section>
-
-        <!-- Liste des tickets -->
-        <section class="flex flex-col gap-3">
-          <div
-            *ngFor="let ticket of filteredTickets"
-            (click)="viewTicketDetails(ticket)"
-            class="bg-surface-container-lowest rounded-lg p-4 border border-surface-variant hover:border-primary transition-colors cursor-pointer"
-          >
-            <!-- Header -->
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-start gap-3 flex-1">
-                <!-- Icône -->
-                <div
-                  class="w-12 h-12 rounded-full flex items-center justify-center mt-0.5"
-                  [ngClass]="{
-                       'bg-primary/20': ticket.status === 'open',
-                       'bg-warning/20': ticket.status === 'pending',
-                       'bg-success/20': ticket.status === 'answered',
-                       'bg-medium/20': ticket.status === 'closed'
-                     }"
-                >
-                  <i
-                    [class]="getStatusIcon(ticket.status)"
-                    [ngClass]="{
-                       'text-primary': ticket.status === 'open',
-                       'text-warning': ticket.status === 'pending',
-                       'text-success': ticket.status === 'answered',
-                       'text-medium': ticket.status === 'closed'
-                     }"
-                  >
-                  </i>
-                </div>
-
-                <!-- Infos -->
-                <div class="flex-1">
-                  <h3 class="font-semibold text-on-surface">
-                    {{ ticket.subject }}
-                  </h3>
-                  <p class="text-xs text-on-surface-variant mb-2 line-clamp-2">
-                    {{ ticket.message }}
-                  </p>
-                  <div class="flex gap-2">
-                    <span
-                      class="text-xs font-semibold px-2 py-1 rounded"
-                      [ngClass]="{
-                            'bg-primary/10 text-primary': ticket.status === 'open',
-                            'bg-warning/10 text-warning': ticket.status === 'pending',
-                            'bg-success/10 text-success': ticket.status === 'answered',
-                            'bg-medium/10 text-medium': ticket.status === 'closed'
-                          }"
-                    >
-                      {{ getStatusLabel(ticket.status) }}
-                    </span>
-                    <span
-                      class="text-xs font-semibold px-2 py-1 rounded"
-                      [ngClass]="{
-                            'bg-error/10 text-error': ticket.priority === 'critical',
-                            'bg-warning/10 text-warning': ticket.priority === 'high',
-                            'bg-primary/10 text-primary': ticket.priority === 'medium',
-                            'bg-medium/10 text-medium': ticket.priority === 'low'
-                          }"
-                    >
-                      {{ getPriorityLabel(ticket.priority) }}
-                    </span>
-                  </div>
-                </div>
+            <!-- Détails du ticket -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <h3 class="font-bold text-gray-900 text-base truncate">
+                  {{ ticket.subject }}
+                </h3>
+                <i class="fa-solid fa-chevron-right text-gray-300 text-xs shrink-0"></i>
               </div>
-            </div>
 
-            <!-- Footer -->
-            <div
-              class="border-t border-surface-variant pt-2 mt-2 flex justify-between items-center"
-            >
-              <p class="text-xs text-on-surface-variant">
-                {{ ticket.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              <p class="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
+                {{ ticket.message }}
               </p>
-              <i
-                class="fa-solid fa-chevron-right text-on-surface-variant text-xs"
-              ></i>
+
+              <!-- Tags de Statut et Priorité -->
+              <div class="flex items-center justify-between border-t border-gray-100 pt-3 mt-1">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="text-[11px] font-bold px-2.5 py-1 rounded-full"
+                    [ngClass]="{
+                      'bg-primary/10 text-primary': ticket.status === 'open',
+                      'bg-amber-500/10 text-amber-600': ticket.status === 'pending',
+                      'bg-emerald-500/10 text-emerald-600': ticket.status === 'answered',
+                      'bg-gray-100 text-gray-500': ticket.status === 'closed'
+                    }"
+                  >
+                    {{ getStatusLabel(ticket.status) }}
+                  </span>
+                  
+                  <span
+                    class="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                    [ngClass]="{
+                      'bg-red-500/10 text-red-600': ticket.priority === 'critical',
+                      'bg-amber-500/10 text-amber-600': ticket.priority === 'high',
+                      'bg-primary/10 text-primary': ticket.priority === 'medium',
+                      'bg-gray-100 text-gray-500': ticket.priority === 'low'
+                    }"
+                  >
+                    {{ getPriorityLabel(ticket.priority) }}
+                  </span>
+                </div>
+
+                <span class="text-[11px] font-medium text-gray-400">
+                  {{ ticket.createdAt | date: 'dd/MM/yyyy' }}
+                </span>
+              </div>
             </div>
           </div>
+        </div>
 
-          <!-- Message si aucun résultat -->
-          <div *ngIf="filteredTickets.length === 0" class="text-center py-12">
-            <i
-              class="fa-solid fa-inbox text-4xl text-surface-variant/50 block mb-3"
-            ></i>
-            <p class="text-on-surface-variant text-sm">Aucun ticket trouvé</p>
-            <!-- <button
-              (click)="createNewTicket()"
-              class="mt-4 text-primary font-semibold text-sm hover:underline"
-            >
-              Créer un nouveau ticket
-            </button> -->
+        <!-- État vide -->
+        <div *ngIf="filteredTickets.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+          <div class="w-16 h-16 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-inbox text-2xl"></i>
           </div>
-        </section>
+          <p class="text-gray-900 font-bold text-base mb-1">Aucun ticket trouvé</p>
+          <p class="text-gray-400 text-xs">Vos demandes d'assistance apparaîtront ici.</p>
+        </div>
+      </section>
 
-        <!-- Bouton création nouveau ticket -->
-        <section class="flex flex-col gap-3">
-          <button
-            (click)="createNewTicket()"
-            class="w-full bg-primary text-on-primary font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity active-scale flex items-center justify-center gap-2"
-          >
-            <i class="fa-solid fa-plus"></i>
-            Créer un nouveau ticket
-          </button>
-        </section>
+      <!-- Bouton d'action principal en bas -->
+      <div class="mt-4">
+        <button
+          *ngIf="filteredTickets.length === 0"
+          (click)="createNewTicket()"
+          class="w-full bg-primary text-white font-bold py-3.5 rounded-[9px] shadow-sm transition-all flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-plus text-sm"></i>
+          <span>Créer une nouvelle demande</span>
+        </button>
+      </div>
 
-        <!-- Info -->
-        <section class="bg-secondary-container rounded-lg p-4 flex gap-3">
-          <i
-            class="fa-solid fa-circle-question text-secondary flex-shrink-0 text-lg mt-0.5"
-          ></i>
-          <div class="text-sm text-on-surface">
-            <p class="font-semibold mb-1">Besoin d'aide?</p>
-            <p class="text-xs text-on-surface-variant">
-              Créez un ticket support pour signaler un problème ou poser une
-              question.
-            </p>
-          </div>
-        </section>
-      </ng-container>
-    </main>
+    </ng-container>
   </div>
 </ion-content>

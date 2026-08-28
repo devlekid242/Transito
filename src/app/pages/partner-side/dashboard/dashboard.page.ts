@@ -1,7 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, NavController } from '@ionic/angular';
+import {
+  IonContent,
+  NavController,
+  ViewWillEnter,
+  ViewWillLeave,
+} from '@ionic/angular';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
@@ -62,7 +67,7 @@ interface DetailedStats {
     SkeletonLoaderComponent,
   ],
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage implements ViewWillEnter, ViewWillLeave {
   // Permissions
   canViewDashboard = false;
   isWharfAgent = false;
@@ -103,10 +108,14 @@ export class DashboardPage implements OnInit {
     this.userName = this.AuthService.getUser()?.fullName || 'Agent';
   }
 
-  ngOnInit() {
+  ionViewWillEnter(): void {
     this.loadPermissions();
     this.filterPeriod = 'month';
     this.loadDashboardData();
+  }
+
+  ionViewWillLeave(): void {
+    this.loading = false;
   }
 
   // Période de filtrage: 'day' | 'week' | '6months' | 'year' | 'month'

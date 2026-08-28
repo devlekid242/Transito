@@ -1,96 +1,142 @@
 <ion-tabs (ionTabsDidChange)="onTabChange($event)">
   <router-outlet></router-outlet>
-  @if(role() !== 'partner'){
-    <ion-tab-bar  slot="bottom" class="py-2">
+  
+  @if(role() !== 'partner') {
+    <!-- Tabs Client -->
+    <ion-tab-bar slot="bottom" class="bg-white border-none shadow-[0_-4px_20px_rgba(0,0,0,0.04)] h-16">
+      
       <ion-tab-button
-        [ngClass]="activeTab() === 'home' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="home"
         routerLink="/tabs/home"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-house text-xl" aria-hidden="true"></i>
-        <ion-label>Accueil</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'home' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-house text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'home' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Accueil</span>
+        </div>
       </ion-tab-button>
   
       <ion-tab-button
-        [ngClass]="activeTab() === 'reservation' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="reservation"
         routerLink="/tabs/reservation"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-ticket text-xl" aria-hidden="true"></i>
-        <ion-label>Réservations</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'reservation' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-ticket text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'reservation' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Réservations</span>
+        </div>
       </ion-tab-button>
   
       <ion-tab-button
-        [ngClass]="activeTab() === 'agences' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="agences"
         routerLink="/tabs/agences"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-building text-xl" aria-hidden="true"></i>
-        <ion-label>Agences</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'agences' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-building text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'agences' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Agences</span>
+        </div>
       </ion-tab-button>
   
       <ion-tab-button
-        [ngClass]="activeTab() === 'profil' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="profil"
         routerLink="/tabs/profil"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-user text-xl" aria-hidden="true"></i>
-        <ion-label>Profil</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'profil' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-user text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'profil' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Profil</span>
+        </div>
       </ion-tab-button>
     </ion-tab-bar>
   }
-  @if(role() === 'partner'){
-    <!-- Partner tabs -->
-    <ion-tab-bar slot="bottom" class="py-2">
+  
+  @if(role() === 'partner') {
+    <!-- Tabs Partner -->
+    <ion-tab-bar slot="bottom" class="bg-white border-none shadow-[0_-4px_20px_rgba(0,0,0,0.04)] h-16">
+      
       <ion-tab-button
-        [ngClass]="activeTab() === 'partner-dashboard' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="partner-dashboard"
         routerLink="/tabs/partner-dashboard"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-chart-line text-xl" aria-hidden="true"></i>
-        <ion-label>Dashboard</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'partner-dashboard' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'partner-dashboard' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Dashboard</span>
+        </div>
       </ion-tab-button>
 
       <ion-tab-button
-        [ngClass]="activeTab() === 'partner-trips' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="partner-trips"
         routerLink="/tabs/partner-trips"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-route text-xl" aria-hidden="true"></i>
-        <ion-label>Trajets</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'partner-trips' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-route text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'partner-trips' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Trajets</span>
+        </div>
       </ion-tab-button>
 
       <ion-tab-button
-        [ngClass]="activeTab() === 'partner-control' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="partner-control"
         routerLink="/tabs/partner-control"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-ticket text-xl" aria-hidden="true"></i>
-        <ion-label>Contrôle</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'partner-control' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-ticket text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'partner-control' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Contrôle</span>
+        </div>
       </ion-tab-button>
+      
       <ion-tab-button
-        [ngClass]="activeTab() === 'partner-profil' ? 'text-primary' : 'text-on-surface-variant'"
-        class="flex-1 flex flex-col items-center justify-end gap-1 transition-colors"
         tab="partner-profil"
         routerLink="/tabs/partner-profil"
         routerDirection="root"
+        class="bg-transparent"
       >
-        <i class="fa-solid fa-user text-xl" aria-hidden="true"></i>
-        <ion-label>Profil</ion-label>
+        <div class="flex flex-col items-center justify-center gap-1 w-full h-full pt-1">
+          <div [ngClass]="activeTab() === 'partner-profil' ? 'bg-primary/10 text-primary' : 'text-gray-400'"
+               class="w-12 h-8 flex items-center justify-center rounded-full transition-all duration-300">
+            <i class="fa-solid fa-user text-lg"></i>
+          </div>
+          <span [ngClass]="activeTab() === 'partner-profil' ? 'text-primary font-bold' : 'text-gray-400 font-medium'"
+                class="text-[10px] transition-all duration-300">Profil</span>
+        </div>
       </ion-tab-button>
     </ion-tab-bar>
   }

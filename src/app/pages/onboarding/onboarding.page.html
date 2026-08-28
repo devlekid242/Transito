@@ -1,9 +1,15 @@
 <ion-content [fullscreen]="true">
-  <div class="h-full w-full flex flex-col bg-background overflow-hidden">
-
+  <div class="h-full w-full flex flex-col bg-background overflow-hidden px-6 pt-8">
+    
+   <!-- Barre supérieure : Logo / Nom de l'application -->
+    <div class="flex items-center gap-2 pt-4 mb-4">
+      <!-- Remplacer le <div> ci-dessous par un <img src="assets/logo.png" class="w-8 h-8 object-contain" /> si tu as une image -->
+      <img src="assets/images/logo-full-trans.png" alt="Logo" class="h-11 object-contain" />
+    </div>
+    
     <!-- Illustration -->
     <div class="flex-1 flex items-center justify-center px-6 pt-8 min-h-0">
-      <div class="w-full  flex items-center justify-center">
+      <div class="w-full flex items-center justify-center">
         <img
           src="assets/images/onboarding.png"
           alt="Transito"
@@ -11,22 +17,24 @@
         />
       </div>
     </div>
-    
+
     <!-- Présentation -->
     <div class="shrink-0 px-6 mb-16 relative text-center">
       <h1 class="text-[26px] font-bold leading-tight text-on-background m-0">
         Bienvenue sur Transito
       </h1>
 
-      <p class="text-[14px] leading-[1.5] text-on-surface-variant max-w-[300px] mx-auto mt-2 mb-0">
-        Réservez vos billets de bus interurbain partout au Congo, en toute simplicité.
+      <p
+        class="text-[14px] leading-[1.5] text-on-surface-variant max-w-[300px] mx-auto mt-2 mb-0"
+      >
+        Réservez vos billets de bus interurbain partout au Congo, en toute
+        simplicité.
       </p>
     </div>
 
     <!-- Consentement + bouton -->
     <div class="shrink-0 px-4 pb-5">
       <div class="w-full max-w-[360px] mx-auto text-center">
-
         <p class="text-[10px] leading-[1.45] text-on-surface-variant m-0 px-4">
           En continuant, vous acceptez notre
           <button
@@ -34,8 +42,8 @@
             (click)="openPrivacyPolicy()"
             class="text-primary font-medium underline"
           >
-            politique de confidentialité
-          </button>.
+            politique de confidentialité</button
+          >.
         </p>
 
         <button
@@ -48,7 +56,7 @@
 
           <ion-spinner
             *ngIf="loading()"
-            name="crescent"
+            name="dots"
             color="light"
           ></ion-spinner>
 
@@ -58,9 +66,7 @@
             aria-hidden="true"
           ></i>
         </button>
-
       </div>
     </div>
-
   </div>
 </ion-content>

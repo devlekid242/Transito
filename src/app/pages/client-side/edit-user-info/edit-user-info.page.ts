@@ -11,13 +11,14 @@ import {
   IonContent,
   IonHeader,
   NavController,
-  LoadingController,
+  IonSpinner,
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { User } from '../../../models';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-edit-user-info',
@@ -30,6 +31,7 @@ import { User } from '../../../models';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    IonSpinner
   ],
 })
 export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
@@ -41,6 +43,7 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
   isAgent = false;
 
   constructor(
+    private authService: AuthService,
     private navCtrl: NavController,
     private userService: UserService,
     private notificationService: UiNotificationService,
@@ -140,9 +143,18 @@ export class EditUserInfoPage implements OnInit, ViewWillEnter, ViewWillLeave {
       next: async () => {
         this.isSaving = false;
         await this.notificationService.showSuccess('Informations mises à jour avec succès');
-        setTimeout(() => {
-          this.navCtrl.back();
-        }, 1500);
+        
+        const role = this.authService.getRole(); // Optionnel : rafraîchir les informations de l'utilisateur si nécessaire
+
+        if(role === 'partner') {
+          setTimeout(() => {
+            this.navCtrl.navigateBack('/tabs/partner-dashboard');
+          }, 1500);
+        }else {
+          setTimeout(() => {
+            this.navCtrl.navigateBack('/tabs/home');
+          }, 1500);
+        }
       },
       error: async (err) => {
         this.isSaving = false;

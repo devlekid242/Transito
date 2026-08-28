@@ -92,6 +92,13 @@ export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
     }));
 
     this.notificationService.markAllAsRead().subscribe({
+      next: () => {
+        this.UiNotificationService.showSuccess(
+          'Toutes les notifications ont été marquées comme lues.',
+          2000
+        );
+        this.isMarkingAllRead = false;
+      },
       error: async (err) => {
         console.error('Erreur marquer tout lu :', err);
         this.notifications = previousState;

@@ -82,9 +82,9 @@ export class UiNotificationService {
       duration,
       position,
       color,
+      icon: this.getToastIcon(color),
       buttons: buttons || [
         {
-          icon: this.getToastIcon(color),
           text: color === 'danger' ? 'Fermer' : 'OK',
           handler: () => toast.dismiss(),
         },

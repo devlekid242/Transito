@@ -179,6 +179,6 @@ export class SupportTicketsPage
   }
 
   goBack() {
-    this.navCtrl.back();
+    this.navCtrl.navigateBack('/tabs/profil');
   }
 }

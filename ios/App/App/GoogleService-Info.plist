@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDlDL2_0mJp5ueuPL7UoxYE9W-i0HCdt0c</string>
+	<string>AIzaSyCU2kmTLsyrjk9Yp_8rErcFjiT0dUCa5sI</string>
 	<key>GCM_SENDER_ID</key>
-	<string>975240774783</string>
+	<string>464724672027</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>net.alwaysdata.transito</string>
+	<string>com.transito.app</string>
 	<key>PROJECT_ID</key>
-	<string>transito-congo</string>
+	<string>transito-6808c</string>
 	<key>STORAGE_BUCKET</key>
-	<string>transito-congo.firebasestorage.app</string>
+	<string>transito-6808c.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:975240774783:ios:e183096d93765662386b4a</string>
+	<string>1:464724672027:ios:0562382c5139b6331402be</string>
 </dict>
 </plist>

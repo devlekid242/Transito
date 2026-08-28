@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "975240774783",
-    "project_id": "transito-congo",
-    "storage_bucket": "transito-congo.firebasestorage.app"
+    "project_number": "464724672027",
+    "project_id": "transito-6808c",
+    "storage_bucket": "transito-6808c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:975240774783:android:fe94928a68654e5c386b4a",
+        "mobilesdk_app_id": "1:464724672027:android:08e9b1933edc002e1402be",
         "android_client_info": {
-          "package_name": "net.alwaysdata.transito"
+          "package_name": "com.transito.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCSmRYIxJTVB-PylUanbtuNMaQQROK3-KU"
+          "current_key": "AIzaSyBFHO3kx0aLHA7Nv8jBENHw3_dTHoKNhBw"
         }
       ],
       "services": {

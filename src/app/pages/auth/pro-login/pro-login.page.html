@@ -1,42 +1,88 @@
-<ion-content [fullscreen]="true" class="bg-background"
-  ><div
-    class="min-h-full px-6 py-12 bg-background flex flex-col justify-center max-w-md mx-auto"
-  >
-    <button (click)="back()" class="self-start text-on-surface-variant mb-8">
-      <i class="fa-solid fa-arrow-left mr-2"></i>Retour
-    </button>
-    <h1 class="text-3xl font-extrabold text-secondary">Accès professionnel</h1>
-    <p class="text-sm text-on-surface-variant mt-2 mb-8">
-      Connexion des agents et partenaires Transito.
-    </p>
-    <div class="space-y-2 mb-5">
-      <label
-        class="text-xs font-bold text-on-surface-variant uppercase tracking-wider"
-        >Téléphone</label
-      ><input
-        [(ngModel)]="phoneNumber"
-        type="tel"
-        placeholder="06 000 0000"
-        class="w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 text-on-surface outline-none focus:border-primary"
-      />
+<ion-content [fullscreen]="true" class="bg-white">
+  <!-- Marges globales harmonisées (pt-8, pb-8) -->
+  <div class="flex flex-col justify-between h-full max-w-md mx-auto pt-8 pb-8 px-6">
+    
+    <!-- Barre supérieure : Bouton Retour & Logo -->
+    <div class="flex items-center justify-between pt-4 mb-4">
+      <button (click)="back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      
+      <img src="assets/images/logo-full-trans.png" alt="Logo" class="h-11 object-contain" />
+      
+      <div class="w-10"></div> 
     </div>
-    <div class="space-y-2 mb-5">
-      <label
-        class="text-xs font-bold text-on-surface-variant uppercase tracking-wider"
-        >Mot de passe</label
-      ><input
-        [(ngModel)]="password"
-        type="password"
-        placeholder="••••••••"
-        class="w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 text-on-surface outline-none focus:border-primary"
-      />
+
+    <!-- Wrapper central -->
+    <div class="flex-1 flex flex-col justify-center">
+      <!-- En-tête avec Icône Pro -->
+      <div class="flex flex-col items-center">
+        <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
+          <i class="fa-solid fa-user-tie text-2xl"></i>
+        </div>
+
+        <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">Accès professionnel</h1>
+        <p class="text-center text-gray-500 text-sm mb-10 px-4">
+          Connexion des agents et partenaires Transito.
+        </p>
+
+        <!-- Conteneur pour les inputs -->
+        <div class="w-full space-y-5">
+          
+          <!-- Input Téléphone -->
+          <div class="flex items-center w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all gap-3">
+            <i class="fa-solid fa-phone text-outline text-base"></i>
+            <span class="text-base font-bold text-secondary border-r border-outline-variant pr-3 select-none">+242</span>
+            <input
+              [(ngModel)]="phoneNumber"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              placeholder="06 000 0000"
+              class="w-full bg-transparent border-0 p-0 text-on-surface placeholder:text-outline/60 outline-none focus:ring-0 text-base"
+              (keyup.enter)="login()"
+            />
+          </div>
+
+          <!-- Input Mot de passe avec Toggle Show/Hide -->
+          <div class="flex items-center w-full bg-surface-container-lowest border border-outline-variant rounded-2xl px-4 py-4 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all gap-3">
+            <i class="fa-solid fa-lock text-outline text-base"></i>
+            
+            <input
+              [(ngModel)]="password"
+              [type]="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              placeholder="Mot de passe"
+              class="w-full bg-transparent border-0 p-0 text-on-surface placeholder:text-outline/60 outline-none focus:ring-0 text-base"
+              (keyup.enter)="login()"
+            />
+
+            <!-- Bouton pour afficher/masquer -->
+            <button 
+              type="button"
+              (click)="showPassword = !showPassword"
+              class="text-outline hover:text-primary transition-colors focus:outline-none p-1"
+              tabindex="-1"
+            >
+              <i class="fa-solid text-base" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
     </div>
-    <button
-      (click)="login()"
-      [disabled]="loading"
-      class="w-full bg-primary text-white font-bold py-4 rounded-2xl disabled:opacity-60"
-    >
-      <span *ngIf="!loading">Se connecter</span
-      ><ion-spinner *ngIf="loading" name="crescent" color="light"></ion-spinner>
-    </button></div
-></ion-content>
+
+    <!-- Zone du bouton principal -->
+    <div class="mt-auto flex flex-col gap-2 pt-8">
+      <button
+        (click)="login()"
+        [disabled]="loading || !phoneNumber || !password"
+        class="w-full bg-primary text-white font-bold py-3.5 rounded-full disabled:opacity-50 shadow-sm transition-all"
+      >
+        <span *ngIf="!loading">Se connecter</span>
+        <ion-spinner *ngIf="loading" name="dots" color="light"></ion-spinner>
+      </button>
+    </div>
+    
+  </div>
+</ion-content>

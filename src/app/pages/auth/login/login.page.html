@@ -1,5 +1,12 @@
 <ion-content [fullscreen]="true" class="bg-white">
-  <div class="flex flex-col h-full justify-between py-8 max-w-md mx-auto pt-12 px-6">
+  <div class="flex flex-col h-full justify-between py-8 max-w-md mx-auto pt-8 px-6">
+   
+   <!-- Barre supérieure : Logo / Nom de l'application -->
+    <div class="flex items-center gap-2 pt-4 mb-4">
+      <!-- Remplacer le <div> ci-dessous par un <img src="assets/logo.png" class="w-8 h-8 object-contain" /> si tu as une image -->
+      <img src="assets/images/logo-full-trans.png" alt="Logo" class="h-11 object-contain" />
+    </div>
+
     <!-- En-tête avec Icône -->
     <div class="flex flex-col items-center">
       <div
@@ -43,7 +50,7 @@
       <button
         (click)="requestOtp()"
         [disabled]="loading()"
-        class="bg-primary text-white w-full font-bold py-3 px-12 rounded-full disabled:opacity-50 transition-opacity"
+        class="bg-primary text-white w-full font-bold py-3 px-12 rounded-[9px] disabled:opacity-50 transition-opacity"
       >
         <span *ngIf="!loading()">Suivant</span>
         <ion-spinner *ngIf="loading()" name="dots" color="light"></ion-spinner>

@@ -9,6 +9,7 @@ import {
 } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
+import { QRCodeComponent } from 'angularx-qrcode';
 import { takeUntil } from 'rxjs/operators';
 import {
   Trip,
@@ -18,6 +19,10 @@ import {
   PaymentRequest,
   User,
 } from '../../../models';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import {
   TripService,
   BookingService,
@@ -37,6 +42,7 @@ import { UiNotificationService } from '../../../services/ui-notification.service
     ReactiveFormsModule,
     IonContent,
     IonHeader,
+    QRCodeComponent,
   ],
 })
 export class BookingFormPage implements OnInit, OnDestroy {
@@ -543,10 +549,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
                   backendTicket?.ticketNumber ||
                   `TKT-${this.bookingId}-${index + 1}`,
                 seat: backendTicket?.seat ?? index + 1,
-                qr:
-                  this.generateQrCode(backendTicket?.qr) ||
-                  backendTicket?.qr ||
-                  '',
+                qr: String(backendTicket?.qr),
                 passengerName: passenger.fullName,
                 passengerPhone: passenger.phoneNumber,
               };
@@ -599,8 +602,65 @@ export class BookingFormPage implements OnInit, OnDestroy {
    * Depuis la boîte de dialogue d'impression, l'utilisateur choisit
    * "Enregistrer au format PDF" pour obtenir un PDF.
    */
-  printTicket() {
-    window.print();
+
+  async printTicket() {
+
+    const loading = await this.loadingCtrl.create({
+      message: 'Génération du PDF...',
+    });
+    await loading.present();
+
+    try {
+      const printArea = document.getElementById('printArea');
+      if (!printArea) return;
+
+      // 1. Capture du DOM en image haute résolution
+      const canvas = await html2canvas(printArea, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // 2. Génération du PDF au format A4/ticket
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = pdfWidth - 20; // marges de 10mm de chaque côté
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+
+      // 3. Conversion en base64 (sans le préfixe data:...)
+      const pdfBase64 = pdf.output('datauristring').split(',')[1];
+      const fileName = `billet-${this.tickets[0].ticketNumber}.pdf`;
+
+      // 4. Sauvegarde sur le téléphone
+      const savedFile = await Filesystem.writeFile({
+        path: fileName,
+        data: pdfBase64,
+        directory: Directory.Cache, // ou Directory.Documents si tu veux le garder durablement
+      });
+
+      // 5. Ouverture du sheet natif de partage/impression
+      await Share.share({
+        title: 'Billet ' + this.tickets[0].ticketNumber,
+        url: savedFile.uri,
+        dialogTitle: 'Partager ou imprimer votre billet',
+      });
+    } catch (error) {
+      console.error('Erreur génération PDF:', error);
+      await this.notificationService.showErrorAlert(
+        'Impossible de générer le PDF du billet.',
+        'Erreur',
+      );
+    } finally {
+      await loading.dismiss();
+    }
   }
 
   private generateQrCode(data: string): string {

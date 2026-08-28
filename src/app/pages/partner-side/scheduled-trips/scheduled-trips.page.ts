@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent } from '@ionic/angular';
+import { IonContent, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
@@ -35,7 +35,7 @@ interface ScheduledTrip {
     SkeletonLoaderComponent,
   ],
 })
-export class ScheduledTripsPage implements OnInit {
+export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
   // Filtre d'onglet actif : 'all' | 'planifie' | 'active'
   activeFilter: 'all' | 'planifie' | 'active' = 'all';
 
@@ -56,9 +56,13 @@ export class ScheduledTripsPage implements OnInit {
     private apiService: PartnerApiService,
   ) {}
 
-  ngOnInit() {
+  ionViewWillEnter(): void {
     this.loadPermissions();
     this.loadTrips();
+  }
+
+  ionViewWillLeave(): void {
+    this.loading = false;
   }
 
   private loadPermissions(): void {

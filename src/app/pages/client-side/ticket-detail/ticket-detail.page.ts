@@ -15,6 +15,11 @@ import { BookingService } from '../../../services/booking.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Ticket } from '../../../models';
 import { QrTicketModalComponent } from '../../../components/qr-ticket-modal/qr-ticket-modal.component';
+import { QRCodeComponent } from 'angularx-qrcode';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 interface TicketInfo {
   id: string;
@@ -52,7 +57,7 @@ interface TicketInfo {
   templateUrl: './ticket-detail.page.html',
   styleUrls: ['./ticket-detail.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, CommonModule],
+  imports: [IonContent, IonHeader, CommonModule, QRCodeComponent],
 })
 export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
   ticket: TicketInfo = {
@@ -80,7 +85,7 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     canCancel: false,
   };
   isLoading = true;
-  qrCodeUrl: string = '';
+  qrValue: string = '';
   isCancelling = false;
 
   ticketId: number | null = null;
@@ -181,18 +186,14 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     this.ticketService.getTicket(itemId).subscribe({
       next: (ticket) => {
         this.mapTicket(ticket);
-        this.qrCodeUrl = this.ticket.qrCode
-          ? this.buildQrCodeUrl(String(this.ticket.qrCode))
-          : '';
+        this.qrValue = this.ticket.qrCode ? String(this.ticket.qrCode) : '';
         this.isLoading = false;
       },
       error: async () => {
         this.bookingService.getBookingDetail(itemId).subscribe({
           next: (booking) => {
             this.mapBookingAsTicket(booking);
-            this.qrCodeUrl = this.ticket.qrCode
-              ? this.buildQrCodeUrl(String(this.ticket.qrCode))
-              : '';
+            this.qrValue = this.ticket.qrCode ? String(this.ticket.qrCode) : '';
             this.isLoading = false;
           },
           error: async (err) => {
@@ -417,13 +418,13 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     // l'embarquement).
     if (this.isLocked) return;
 
-    const qrValue = this.ticket.ticketNumber || this.ticket.id;
+    const qrValue = this.ticket.qrCode;
     const modal = await this.modalCtrl.create({
       component: QrTicketModalComponent,
       componentProps: {
         bookingId: this.ticket.ticketNumber,
         qrCodeData: qrValue,
-        qrCodeUrl: this.buildQrCodeUrl(qrValue),
+        qrCodeUrl: qrValue,
         ticketDetails: {
           departureCity: this.ticket.origin,
           departureTime: this.ticket.departureTime,
@@ -501,10 +502,64 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     this.navCtrl.back();
   }
 
-  // À insérer dans votre classe TicketDetailPage
-  printTicket() {
-    // Un billet annulé ou pas encore payé ne doit pas pouvoir être imprimé / exporté en PDF.
+  async printTicket() {
     if (this.isLocked) return;
-    window.print();
+
+    const loading = await this.loadingCtrl.create({
+      message: 'Génération du PDF...',
+    });
+    await loading.present();
+
+    try {
+      const printArea = document.getElementById('printArea');
+      if (!printArea) return;
+
+      // 1. Capture du DOM en image haute résolution
+      const canvas = await html2canvas(printArea, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // 2. Génération du PDF au format A4/ticket
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = pdfWidth - 20; // marges de 10mm de chaque côté
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+
+      // 3. Conversion en base64 (sans le préfixe data:...)
+      const pdfBase64 = pdf.output('datauristring').split(',')[1];
+      const fileName = `billet-${this.ticket.ticketNumber}.pdf`;
+
+      // 4. Sauvegarde sur le téléphone
+      const savedFile = await Filesystem.writeFile({
+        path: fileName,
+        data: pdfBase64,
+        directory: Directory.Cache, // ou Directory.Documents si tu veux le garder durablement
+      });
+
+      // 5. Ouverture du sheet natif de partage/impression
+      await Share.share({
+        title: 'Billet ' + this.ticket.ticketNumber,
+        url: savedFile.uri,
+        dialogTitle: 'Partager ou imprimer votre billet',
+      });
+    } catch (error) {
+      console.error('Erreur génération PDF:', error);
+      await this.notificationService.showErrorAlert(
+        'Impossible de générer le PDF du billet.',
+        'Erreur',
+      );
+    } finally {
+      await loading.dismiss();
+    }
   }
 }

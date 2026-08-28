@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NavController, IonContent, IonHeader, IonFooter } from '@ionic/angular';
+import { NavController, IonContent, IonSpinner, IonHeader, IonFooter } from '@ionic/angular';
 import { SupportService } from 'src/app/services/support.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-support-ticket-detail',
   templateUrl: './support-ticket-detail.page.html',
-  imports: [IonContent, IonHeader, IonFooter, CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [IonContent, IonSpinner, IonHeader, IonFooter, CommonModule, ReactiveFormsModule, FormsModule],
 
 })
 export class SupportTicketDetailPage implements OnInit {

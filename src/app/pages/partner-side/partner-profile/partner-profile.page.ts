@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent,
   IonToggle,
   NavController,
+  ViewWillEnter,
+  ViewWillLeave,
 } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
@@ -27,7 +29,7 @@ import { environment } from 'src/environments/environment.prod';
     SkeletonLoaderComponent,
   ],
 })
-export class PartnerProfilePage implements OnInit {
+export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
   // Permissions
   canEditProfile = false;
   canViewAllFields = false;
@@ -97,9 +99,13 @@ export class PartnerProfilePage implements OnInit {
     private notificationService: UiNotificationService,
   ) {}
 
-  ngOnInit() {
+  ionViewWillEnter(): void {
     this.loadPermissions();
     this.loadProfile();
+  }
+
+  ionViewWillLeave(): void {
+    this.loading = false;
   }
 
   private loadPermissions(): void {
@@ -229,7 +235,7 @@ export class PartnerProfilePage implements OnInit {
   toggleNotifications(event: any) {
     this.userProfile.prefNotifications = event.detail.checked;
     this.notificationService.showSuccess(
-      `Notifications ${event.detail.checked ? 'activées' : 'désactivées'}`
+      `Notifications ${event.detail.checked ? 'activées' : 'désactivées'}`,
     );
   }
 
@@ -237,14 +243,24 @@ export class PartnerProfilePage implements OnInit {
   toggleDarkMode(event: any) {
     this.userProfile.prefDarkMode = event.detail.checked;
     this.notificationService.showSuccess(
-      `Mode sombre ${event.detail.checked ? 'activé' : 'désactivé'}`
+      `Mode sombre ${event.detail.checked ? 'activé' : 'désactivé'}`,
     );
   }
 
   // Changer la langue
   changeLanguage(lang: string) {
+    if (this.languages[lang] !== 'fr') {
+      this.notificationService.showWarning(
+        "La langue sélectionnée n'est pas encore disponible. Le français reste la langue par défaut.",
+      );
+      return;
+    }
+
     this.userProfile.prefLanguage = lang;
-    this.notificationService.showSuccess(`Langue changée en ${this.languages[lang]}`);
+
+    this.notificationService.showSuccess(
+      `Langue changée en ${this.languages[lang]}`,
+    );
   }
 
   goBack() {
@@ -253,8 +269,22 @@ export class PartnerProfilePage implements OnInit {
 
   // Déconnexion de l'espace partenaire
 
-  logout() {
-    console.log("Déconnexion de l'utilisateur...");
-    this.authService.logout();
+  // logout() {
+  //   console.log("Déconnexion de l'utilisateur...");
+  //   this.authService.logout();
+  // }
+
+  async logout() {
+    const confirmed = await this.notificationService.showConfirmAlert(
+      'Confirmer',
+      'Êtes-vous sûr de vouloir vous déconnecter?',
+      () => undefined,
+      undefined,
+      'Déconnexion',
+    );
+    if (confirmed) {
+      this.authService.logout();
+      this.navCtrl.navigateRoot('/auth/login');
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'net.alwaysdata.transito', // Remplace par ton ID de package
+  appId: 'com.transito.app', // Remplace par ton ID de package
   appName: 'Transito',
   webDir: 'www',
   server: {
@@ -14,6 +14,14 @@ const config: CapacitorConfig = {
     StatusBar: {
       overlaysWebView: false,
       style: 'DARK'
+    },
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: "#ffffffff",
+      androidSplashResourceName: "splash",
+      showSpinner: false,
+      splashFullScreen: true,
+      splashImmersive: true
     }
   },
 

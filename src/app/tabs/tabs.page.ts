@@ -12,7 +12,6 @@ import {
   IonTabs,
   IonTabButton,
   IonTabBar,
-  IonLabel,
   NavController,
 } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
@@ -27,7 +26,6 @@ import { AuthService } from '../services/auth.service';
     IonTabs,
     IonTabButton,
     IonTabBar,
-    IonLabel,
     CommonModule,
     RouterModule,
     RouterOutlet,

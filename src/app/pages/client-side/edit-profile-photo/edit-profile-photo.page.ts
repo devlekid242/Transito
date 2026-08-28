@@ -11,6 +11,7 @@ import {
 import { UserService } from '../../../services/user.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { environment } from 'src/environments/environment.prod';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-edit-profile-photo',
@@ -28,6 +29,7 @@ export class EditProfilePhotoPage
   isUploading = false;
 
   constructor(
+    private authService: AuthService,
     private navCtrl: NavController,
     private userService: UserService,
     private notificationService: UiNotificationService,
@@ -108,9 +110,17 @@ export class EditProfilePhotoPage
         await this.notificationService.showSuccess('Photo de profil mise à jour avec succès');
         this.currentPhoto = this.previewPhoto;
         this.selectedFile = null;
-        setTimeout(() => {
-          this.navCtrl.back();
-        }, 1500);
+        const role = this.authService.getRole(); // Optionnel : rafraîchir les informations de l'utilisateur si nécessaire
+
+        if(role === 'partner') {
+          setTimeout(() => {
+            this.navCtrl.navigateBack('/tabs/partner-dashboard');
+          }, 1500);
+        }else {
+          setTimeout(() => {
+            this.navCtrl.navigateBack('/tabs/home');
+          }, 1500);
+        }
       },
       error: async (err) => {
         this.isUploading = false;

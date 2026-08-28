@@ -1,134 +1,126 @@
+<!-- En-tête (Style retour circulaire & Titre centré) -->
 <ion-header class="ion-no-border">
-  <div
-    class="bg-surface-container-lowest flex justify-between items-center px-container-padding h-16 w-full sticky top-0 z-40 border-b border-surface-variant/40 shadow-sm transition-colors duration-200"
-  >
-    <button
-      (click)="goBack()"
-      class="flex items-center gap-2 text-secondary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded-lg active-scale"
-    >
+  <div class="bg-white flex items-center justify-between px-6 h-16 max-w-md mx-auto sticky top-0 z-40 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+    <!-- Bouton Retour -->
+    <button (click)="goBack()" class="w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
       <i class="fa-solid fa-arrow-left"></i>
-      <span class="text-sm font-semibold">Retour</span>
     </button>
-    <div class="flex flex-col items-center">
-      <span
-        class="font-sans text-base font-bold text-secondary tracking-tight truncate max-w-[150px]"
-      >
+    
+    <!-- Titre et Badge de Statut -->
+    <div class="flex flex-row justify-between items-center flex-1 min-w-0 w-full px-2">
+      <span class="font-bold text-gray-900 text-base truncate w-full text-center">
         {{ ticket?.subject || 'Chargement...' }}
       </span>
       <span
         *ngIf="ticket"
-        class="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+        class="text-[10px] font-bold px-2.5 py-0.5 rounded-full mt-0.5"
         [ngClass]="{
-              'bg-primary/10 text-primary': ticket.status === 'open',
-              'bg-warning/10 text-warning': ticket.status === 'pending',
-              'bg-success/10 text-success': ticket.status === 'answered',
-              'bg-medium/10 text-medium': ticket.status === 'closed'
-            }"
+          'bg-primary/10 text-primary': ticket.status === 'open',
+          'bg-amber-500/10 text-amber-600': ticket.status === 'pending',
+          'bg-emerald-500/10 text-emerald-600': ticket.status === 'answered',
+          'bg-gray-100 text-gray-500': ticket.status === 'closed'
+        }"
       >
         {{ getStatusLabel(ticket.status) }}
       </span>
     </div>
-    <div class="w-10"></div>
-    <!-- Espaceur pour centrer le titre -->
+    
+    <!-- Spacer pour l'équilibre -->
+    <div class="w-10 shrink-0"></div>
   </div>
 </ion-header>
 
-<ion-content class="bg-background">
-  <div class="w-full max-w-[480px] mx-auto flex flex-col h-full relative pb-20">
+<!-- Contenu principal avec un fond très légèrement grisé pour faire ressortir les bulles -->
+<ion-content [fullscreen]="true" class="bg-gray-50">
+  <div class="w-full max-w-md mx-auto flex flex-col min-h-full pb-4">
+    
     <!-- État de chargement -->
     <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-      <i class="fa-solid fa-circle-notch fa-spin text-primary text-3xl"></i>
+      <ion-spinner name="dots" color="success"></ion-spinner>
     </div>
 
     <!-- Fil de discussion -->
     <main
       *ngIf="!isLoading && ticket"
-      class="flex-1 px-container-padding py-stack-md flex flex-col gap-4"
+      class="flex-1 px-4 py-6 flex flex-col gap-4"
     >
-      <!-- Message initial du ticket -->
+      <!-- Message initial du ticket (Utilisateur) -->
       <div class="flex justify-end mb-2">
-        <div
-          class="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-3 bg-primary text-on-primary shadow-sm"
-        >
-          <p class="text-sm whitespace-pre-wrap">{{ ticket.message }}</p>
-          <p class="text-[10px] text-on-primary/70 text-right mt-1">
+        <div class="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-3 bg-primary text-white shadow-sm">
+          <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ ticket.message }}</p>
+          <p class="text-[10px] text-white/70 text-right mt-1.5 font-medium">
             {{ ticket.createdAt | date: 'dd/MM/yyyy HH:mm' }}
           </p>
         </div>
       </div>
 
-      <!-- Réponses -->
+      <!-- Boucle sur les Réponses -->
       <ng-container *ngFor="let response of ticket.responses">
-        <!-- Message de l'utilisateur courant (droite) -->
+        
+        <!-- Message de l'utilisateur courant (Droite, bulles primaires) -->
         <div *ngIf="response.author?.isCurrentUser" class="flex justify-end">
-          <div
-            class="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-3 bg-primary text-on-primary shadow-sm"
-          >
-            <p class="text-sm whitespace-pre-wrap">{{ response.message }}</p>
-            <p class="text-[10px] text-on-primary/70 text-right mt-1">
+          <div class="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-3 bg-primary text-white shadow-sm">
+            <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ response.message }}</p>
+            <p class="text-[10px] text-white/70 text-right mt-1.5 font-medium">
               {{ response.createdAt | date: 'dd/MM/yyyy HH:mm' }}
             </p>
           </div>
         </div>
 
-        <!-- Message de l'agent / Support (gauche) -->
-        <div
-          *ngIf="!response.author?.isCurrentUser"
-          class="flex justify-start items-end gap-2"
-        >
-          <div
-            class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0 mb-1"
-          >
-            <i class="fa-solid fa-headset text-secondary text-sm"></i>
+        <!-- Message de l'agent / Support (Gauche, bulles blanches) -->
+        <div *ngIf="!response.author?.isCurrentUser" class="flex justify-start items-end gap-2">
+          <!-- Avatar de l'agent -->
+          <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center shrink-0 mb-1">
+            <i class="fa-solid fa-headset text-xs"></i>
           </div>
-          <div
-            class="max-w-[80%] rounded-2xl rounded-tl-sm px-4 py-3 bg-surface-container-lowest border border-surface-variant text-on-surface shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
-          >
-            <p class="text-sm whitespace-pre-wrap">{{ response.message }}</p>
-            <p class="text-[10px] text-on-surface-variant text-left mt-1">
+          <!-- Bulle de l'agent -->
+          <div class="max-w-[80%] rounded-2xl rounded-tl-sm px-4 py-3 bg-white border border-gray-100 text-gray-800 shadow-sm">
+            <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ response.message }}</p>
+            <p class="text-[10px] text-gray-400 text-left mt-1.5 font-medium">
               {{ response.createdAt | date: 'dd/MM/yyyy HH:mm' }}
             </p>
           </div>
         </div>
       </ng-container>
 
-      <div
-        *ngIf="ticket.status === 'closed'"
-        class="text-center py-6 border-t border-surface-variant/40 mt-4"
-      >
-        <span class="text-xs font-semibold text-on-surface-variant"
-          >Ce ticket est fermé.</span
-        >
+      <!-- Message de ticket fermé -->
+      <div *ngIf="ticket.status === 'closed'" class="text-center py-4 mt-2">
+        <div class="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full">
+          <i class="fa-solid fa-lock text-gray-400 text-xs"></i>
+          <span class="text-xs font-bold text-gray-500">Cette conversation est fermée.</span>
+        </div>
       </div>
     </main>
   </div>
 </ion-content>
 
-<!-- Zone de saisie en footer fixée en bas -->
+<!-- Zone de saisie en footer -->
 <ion-footer
   *ngIf="ticket && ticket.status !== 'closed'"
-  class="ion-no-border bg-surface-container-lowest"
+  class="ion-no-border bg-white"
 >
-  <div
-    class="w-full max-w-[480px] mx-auto px-container-padding py-3 border-t border-surface-variant/40 flex items-end gap-2"
-  >
-    <textarea
-      [(ngModel)]="newMessage"
-      (keydown.enter)="$event.preventDefault(); sendResponse()"
-      rows="1"
-      placeholder="Écrivez votre message..."
-      class="flex-1 bg-background border border-outline-variant rounded-2xl px-4 py-3 text-sm text-on-surface outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none min-h-[48px] max-h-[120px]"
-    ></textarea>
+  <div class="w-full max-w-md mx-auto px-4 py-3 border-t border-gray-100 flex items-end gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
+    
+    <!-- Textarea inspirée de nos inputs (effet de halo vert au clic) -->
+    <div class="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-1 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all flex items-center">
+      <textarea
+        [(ngModel)]="newMessage"
+        (keydown.enter)="$event.preventDefault(); sendResponse()"
+        rows="1"
+        placeholder="Écrivez votre message..."
+        class="w-full bg-transparent border-0 p-0 py-2 text-gray-800 placeholder:text-gray-400 outline-none focus:ring-0 text-sm resize-none min-h-[40px] max-h-[120px]"
+      ></textarea>
+    </div>
+
+    <!-- Bouton d'envoi circulaire -->
     <button
       (click)="sendResponse()"
       [disabled]="isSubmitting || !newMessage.trim()"
-      class="w-12 h-12 flex-shrink-0 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-md transition-opacity disabled:opacity-50 active-scale"
+      class="w-12 h-12 shrink-0 bg-primary text-white rounded-full flex items-center justify-center shadow-sm transition-all disabled:opacity-50 hover:bg-primary/90"
     >
-      <i *ngIf="!isSubmitting" class="fa-solid fa-paper-plane text-lg"></i>
-      <i
-        *ngIf="isSubmitting"
-        class="fa-solid fa-circle-notch fa-spin text-lg"
-      ></i>
+      <!-- Le -ml-1 aide à centrer visuellement l'icône d'avion en papier -->
+      <i *ngIf="!isSubmitting" class="fa-solid fa-paper-plane text-base -ml-1"></i>
+      <ion-spinner *ngIf="isSubmitting" name="dots" color="light"></ion-spinner>
     </button>
   </div>
 </ion-footer>

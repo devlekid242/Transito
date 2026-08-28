@@ -36,6 +36,10 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
     if (this.timer) clearInterval(this.timer);
   }
 
+  navigateToLogin(): void {
+    this.nav.navigateBack('/auth/login');
+  }
+
   startTimer(): void {
     this.countdown = 60;
     if (this.timer) clearInterval(this.timer);
@@ -49,7 +53,9 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
     const code = this.code.trim();
 
     if (!/^\d{4,6}$/.test(code)) {
-      await this.notificationService.showErrorAlert('Saisissez le code reçu par SMS.');
+      await this.notificationService.showErrorAlert(
+        'Saisissez le code reçu par SMS.',
+      );
       return;
     }
 
@@ -58,7 +64,9 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
     this.loading = false;
 
     if (!result.success) {
-      await this.notificationService.showErrorAlert('Code incorrect ou expiré.');
+      await this.notificationService.showErrorAlert(
+        'Code incorrect ou expiré.',
+      );
       return;
     }
 
@@ -83,6 +91,21 @@ export class VerifyLoginPage implements OnInit, OnDestroy {
     this.loading = false;
 
     if (ok) this.startTimer();
-    else await this.notificationService.showErrorAlert('Impossible de renvoyer le code.');
+    else
+      await this.notificationService.showErrorAlert(
+        'Impossible de renvoyer le code.',
+      );
+  }
+
+  // Assure-toi d'avoir l'import de ngModel, CommonModule, NgClass, etc.
+  onCodeChange(value: string) {
+    // Garde uniquement les chiffres
+    const digitsOnly = (value || '').replace(/\D/g, '').slice(0, 6);
+    this.code = digitsOnly;
+
+    // Déclencher automatiquement la vérification à 6 chiffres
+    if (this.code.length === 6 && !this.loading) {
+      this.verify();
+    }
   }
 }

@@ -58,23 +58,40 @@
      TOASTS
   ========================================================================== */
   .custom-toast {
+    /* Ionic donne un style de bordure par défaut à ion-toast (--border-width,
+       --border-color) — jamais explicitement retiré jusqu'ici, d'où le
+       filet visible. On le neutralise, et on utilise --start/--end/--width
+       (propriétés officiellement supportées) pour sortir du mode "barre
+       collée aux bords" et faire flotter le toast comme une vraie carte. */
     --background: var(--color-surface-container-lowest);
     --color: var(--color-on-surface);
+    --border-width: 0;
+    --border-style: none;
     --border-radius: var(--radius-lg, 8px);
-    --box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-    --padding-top: 14px;
-    --padding-bottom: 14px;
-    --padding-start: 16px;
-    --padding-end: 12px;
+    --box-shadow: 0 4px 20px rgba(15, 23, 42, 0.12);
+    --width: calc(100% - 24px);
+    --start: 12px;
+    --end: 12px;
+    --min-height: 52px;
 
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
     font-family: var(--font-sans);
     font-weight: 500;
     font-size: 14px;
-    border-inline-start: 4px solid var(--toast-accent, var(--color-on-surface-variant));
 
     animation: toastSlideIn 0.3s ease-out;
+  }
+
+  /* Filet de sécurité : si le thème md force son propre radius/bordure sur
+     le bloc visible malgré les variables ci-dessus, on l'écrase directement. */
+  .custom-toast::part(container) {
+    border: none !important;
+    border-radius: var(--radius-lg, 8px) !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.12) !important;
+  }
+
+  .custom-toast::part(icon) {
+    font-size: 20px;
+    margin-inline-end: 4px;
   }
 
   /* Chaque variante ne colore qu'un liseré + une pastille d'icône,
@@ -82,9 +99,10 @@
      de l'app plutôt qu'un aplat de couleur criard. */
   ion-toast[color="success"] {
     --toast-accent: var(--color-primary);
+    --background: var(--color-primary-container);
   }
   ion-toast[color="success"]::part(container) {
-    --background: var(--color-primary-container);
+    background: var(--color-primary-container) !important;
   }
   ion-toast[color="success"]::part(message) {
     color: var(--color-on-primary-container);
@@ -92,9 +110,10 @@
 
   ion-toast[color="danger"] {
     --toast-accent: var(--color-error);
+    --background: var(--color-error-container);
   }
   ion-toast[color="danger"]::part(container) {
-    --background: var(--color-error-container);
+    background: var(--color-error-container) !important;
   }
   ion-toast[color="danger"]::part(message) {
     color: var(--color-on-error-container);
@@ -102,9 +121,10 @@
 
   ion-toast[color="warning"] {
     --toast-accent: var(--color-warning);
+    --background: var(--color-warning-container);
   }
   ion-toast[color="warning"]::part(container) {
-    --background: var(--color-warning-container);
+    background: var(--color-warning-container) !important;
   }
   ion-toast[color="warning"]::part(message) {
     color: var(--color-on-warning-container);
@@ -112,9 +132,10 @@
 
   ion-toast[color="primary"] {
     --toast-accent: var(--color-tertiary);
+    --background: var(--color-tertiary-container);
   }
   ion-toast[color="primary"]::part(container) {
-    --background: var(--color-tertiary-container);
+    background: var(--color-tertiary-container) !important;
   }
   ion-toast[color="primary"]::part(message) {
     color: var(--color-on-tertiary-container);

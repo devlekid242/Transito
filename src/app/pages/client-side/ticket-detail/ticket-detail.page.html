@@ -56,42 +56,73 @@
       *ngIf="!isLoading && isCancelled"
       class="flex flex-col items-center text-center gap-4 py-14 px-2 animate-[fadeIn_0.5s_ease-out]"
     >
-      <div class="w-16 h-16 rounded-full bg-red-50 border border-red-200/60 flex items-center justify-center text-red-500">
+      <div
+        class="w-16 h-16 rounded-full bg-red-50 border border-red-200/60 flex items-center justify-center text-red-500"
+      >
         <i class="fa-solid fa-ban text-2xl"></i>
       </div>
       <div>
         <h2 class="text-lg font-black text-on-surface">Billet annulé</h2>
-        <p class="text-sm text-on-surface-variant mt-1.5 max-w-[300px] leading-relaxed">
-          Ce billet a été annulé et n'est plus valide : il ne peut plus être scanné,
-          imprimé ni utilisé pour l'embarquement.
-          <ng-container *ngIf="hasRefund">Le remboursement est en cours de traitement par notre équipe.</ng-container>
-          <ng-container *ngIf="!hasRefund">Le paiement n'avait pas été finalisé, aucun remboursement n'est nécessaire.</ng-container>
+        <p
+          class="text-sm text-on-surface-variant mt-1.5 max-w-[300px] leading-relaxed"
+        >
+          Ce billet a été annulé et n'est plus valide : il ne peut plus être
+          scanné, imprimé ni utilisé pour l'embarquement.
+          <ng-container *ngIf="hasRefund"
+            >Le remboursement est en cours de traitement par notre
+            équipe.</ng-container
+          >
+          <ng-container *ngIf="!hasRefund"
+            >Le paiement n'avait pas été finalisé, aucun remboursement n'est
+            nécessaire.</ng-container
+          >
         </p>
       </div>
 
-      <div class="w-full bg-surface-container-lowest rounded-2xl border border-surface-variant p-4 text-left mt-2">
-        <div class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60">
+      <div
+        class="w-full bg-surface-container-lowest rounded-2xl border border-surface-variant p-4 text-left mt-2"
+      >
+        <div
+          class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60"
+        >
           <span class="text-on-surface-variant">Référence</span>
-          <span class="font-bold text-on-surface font-mono">{{ ticket.ticketNumber }}</span>
+          <span class="font-bold text-on-surface font-mono"
+            >{{ ticket.ticketNumber }}</span
+          >
         </div>
-        <div class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60">
+        <div
+          class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60"
+        >
           <span class="text-on-surface-variant">Trajet</span>
-          <span class="font-bold text-on-surface text-right">{{ ticket.origin }} → {{ ticket.destination }}</span>
+          <span class="font-bold text-on-surface text-right"
+            >{{ ticket.origin }} → {{ ticket.destination }}</span
+          >
         </div>
         <div
           *ngIf="ticket.boardingPoint"
           class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60"
         >
           <span class="text-on-surface-variant">Embarquement</span>
-          <span class="font-bold text-on-surface text-right">{{ ticket.boardingPoint }}</span>
+          <span class="font-bold text-on-surface text-right"
+            >{{ ticket.boardingPoint }}</span
+          >
         </div>
-        <div class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60">
+        <div
+          class="flex justify-between items-center text-sm py-1.5 border-b border-surface-variant/60"
+        >
           <span class="text-on-surface-variant">Passager</span>
-          <span class="font-bold text-on-surface text-right">{{ ticket.passengerName || 'N/A' }}</span>
+          <span class="font-bold text-on-surface text-right"
+            >{{ ticket.passengerName || 'N/A' }}</span
+          >
         </div>
         <div class="flex justify-between items-center text-sm py-1.5">
-          <span class="text-on-surface-variant">{{ hasRefund ? 'Montant à rembourser' : 'Montant du billet' }}</span>
-          <span class="font-bold text-primary">{{ ticket.price | number:'1.0-0' }} FCFA</span>
+          <span class="text-on-surface-variant"
+            >{{ hasRefund ? 'Montant à rembourser' : 'Montant du billet'
+            }}</span
+          >
+          <span class="font-bold text-primary"
+            >{{ ticket.price | number:'1.0-0' }} FCFA</span
+          >
         </div>
       </div>
 
@@ -102,14 +133,20 @@
         class="w-full rounded-xl bg-slate-100 border border-slate-200/70 text-slate-600 text-xs px-4 py-3 flex items-center gap-2 text-left"
       >
         <i class="fa-solid fa-circle-info"></i>
-        <span>Aucun paiement n'avait été débité pour cette réservation : aucun remboursement n'est nécessaire.</span>
+        <span
+          >Aucun paiement n'avait été débité pour cette réservation : aucun
+          remboursement n'est nécessaire.</span
+        >
       </div>
       <div
         *ngIf="hasRefund && !isRefundCompleted"
         class="w-full rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-xs px-4 py-3 flex items-center gap-2 text-left"
       >
         <i class="fa-solid fa-hourglass-half"></i>
-        <span>Remboursement en cours de traitement — vous serez notifié dès sa confirmation.</span>
+        <span
+          >Remboursement en cours de traitement — vous serez notifié dès sa
+          confirmation.</span
+        >
       </div>
       <div
         *ngIf="hasRefund && isRefundCompleted"
@@ -140,7 +177,8 @@
           class="w-full bg-primary text-on-primary text-sm font-black py-4 rounded-2xl shadow-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100"
         >
           <i class="fa-solid fa-print text-sm"></i>
-          {{ isPaymentPending ? 'Impression indisponible (paiement en attente)' : 'Imprimer le billet / PDF' }}
+          {{ isPaymentPending ? 'Impression indisponible (paiement en attente)'
+          : 'Imprimer le billet / PDF' }}
         </button>
       </div>
 
@@ -151,10 +189,12 @@
       >
         <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
         <span>
-          {{ getPaymentStatusLabel() }} — votre billet est réservé mais le QR code et l'impression restent
-          indisponibles tant que le paiement n'est pas confirmé.
+          {{ getPaymentStatusLabel() }} — votre billet est réservé mais le QR
+          code et l'impression restent indisponibles tant que le paiement n'est
+          pas confirmé.
           <ng-container *ngIf="paymentExpiresAtLabel">
-            Merci de finaliser le paiement avant le {{ paymentExpiresAtLabel }}, sans quoi la réservation sera annulée automatiquement.
+            Merci de finaliser le paiement avant le {{ paymentExpiresAtLabel }},
+            sans quoi la réservation sera annulée automatiquement.
           </ng-container>
         </span>
       </div>
@@ -279,16 +319,15 @@
                 <span
                   class="text-[10px] font-bold text-primary/70 uppercase tracking-widest flex items-center gap-1 mb-0.5"
                 >
-                  <i class="fa-solid fa-flag-checkered text-[10px]"></i>Point
-                  de débarquement
+                  <i class="fa-solid fa-flag-checkered text-[10px]"></i>Point de
+                  débarquement
                 </span>
                 <span class="text-sm font-black text-slate-800">
                   {{ ticket.deboardingPoint || 'Non renseigné' }}
                 </span>
               </div>
             </div>
-            
-            
+
             <!-- Horaires -->
             <div class="grid grid-cols-2 gap-4 mb-6 p-3 bg-slate-50 rounded-xl">
               <div>
@@ -365,23 +404,27 @@
             <div
               class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-3"
             >
-              <img
+              <qrcode
                 *ngIf="!isPaymentPending"
-                [src]="qrCodeUrl"
-                alt="QR Code"
-                class="w-64 h-64"
-              />
+                [qrdata]="qrValue"
+                [width]="256"
+                [errorCorrectionLevel]="'M'"
+                [margin]="0"
+                elementType="canvas"
+              ></qrcode>
+
               <div
                 *ngIf="isPaymentPending"
                 class="w-64 h-64 flex flex-col items-center justify-center gap-2 text-center px-4 bg-slate-50 rounded-xl"
               >
                 <i class="fa-solid fa-lock text-2xl text-slate-300"></i>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">
-                  QR code verrouillé
-                </span>
-                <span class="text-[11px] text-slate-400">
-                  Disponible après confirmation du paiement
-                </span>
+                <span
+                  class="text-xs font-bold text-slate-400 uppercase tracking-wide"
+                  >QR code verrouillé</span
+                >
+                <span class="text-[11px] text-slate-400"
+                  >Disponible après confirmation du paiement</span
+                >
               </div>
             </div>
             <p
@@ -416,7 +459,8 @@
           [disabled]="!ticket.canCancel || isCancelling"
           class="w-full bg-secondary text-on-secondary font-bold py-4 rounded-2xl shadow-md transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {{ isCancelling ? 'Annulation en cours...' : 'Annuler la réservation' }}
+          {{ isCancelling ? 'Annulation en cours...' : 'Annuler la réservation'
+          }}
         </button>
       </div>
     </div>

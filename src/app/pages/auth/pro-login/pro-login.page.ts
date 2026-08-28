@@ -15,11 +15,14 @@ export class ProLoginPage {
   phoneNumber = '';
   password = '';
   loading = false;
+  showPassword = false;
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
     private notificationService: UiNotificationService,
   ) {}
+
+
   async login() {
     const d = this.phoneNumber.replace(/\D/g, '');
     const p = d.startsWith('242') ? `+${d}` : `+242${d}`;
@@ -34,11 +37,13 @@ export class ProLoginPage {
       await this.notificationService.showErrorAlert('Échec de la connexion. Vérifiez vos identifiants.');
       return;
     }
-    this.navCtrl.navigateRoot(
-      this.authService.getRole() === 'partner'
-        ? '/tabs/partner-dashboard'
-        : '/tabs/home',
-    );
+    const role = this.authService.getRole();
+    if (role !== 'partner') {
+      await this.notificationService.showErrorAlert('Vous n\'êtes pas autorisé à accéder à cette section.');
+      this.authService.logout(false);
+      return;
+    }
+    this.navCtrl.navigateRoot('/tabs/partner-dashboard');
   }
   back() {
     this.navCtrl.navigateBack('/auth/login');
