@@ -128,9 +128,8 @@ export class MyBookingsPage
 
   /**
    * Séparer les réservations par segment : en cours, passées, annulées.
-   * Le statut renvoyé par l'API (`Confirmé` | `En attente` | `Annulé` | `Remboursé` | `Expiré`)
-   * fait foi — une réservation annulée ou remboursée reste dans le segment "Annulés"
-   * même si sa date de voyage est encore à venir ou déjà passée.
+   * Le statut renvoyé par l'API (`Confirmé` | `En attente` | `Annulé` | `Remboursé` | `Expiré` | `Utilisé`)
+   * fait foi — un billet embarqué/utilisé va dans "passés" (pas "expiré").
    */
   private separateBookings() {
     const now = new Date();
@@ -207,25 +206,53 @@ export class MyBookingsPage
   }
 
   /**
+   * Billet validé à l'embarquement par l'agent (scanné ou marqué comme embarqué).
+   *
+   * ⚠️ L'API renvoie booking.status = "Expiré" même pour un billet physiquement
+   * embarqué. Le vrai statut de l'acte d'embarquement est dans tickets[0].status.
+   * → On inspecte TOUJOURS tickets[].status, pas booking.status.
+   *
+   * Statuts possibles dans tickets[].status : 'Utilisé', 'Embarqué', 'USED', 'BOARDED'
+   */
+  isUsed(booking: Reservation): boolean {
+    if (!booking?.tickets?.length) return false;
+    return booking.tickets.some((t) => {
+      const s = (t.status ?? '').toLowerCase();
+      return s === 'utilisé' || s === 'embarqué' || s === 'used' || s === 'boarded';
+    });
+  }
+
+  /**
+   * Billet expiré sans avoir été utilisé (délai de paiement dépassé sans paiement).
+   */
+  isExpired(booking: Reservation): boolean {
+    const s = (booking?.status ?? '').toLowerCase();
+    return s === 'expiré' || s === 'expired';
+  }
+
+  /**
    * Un remboursement n'est dû QUE si un paiement avait réellement été
-   * effectué avant l'annulation (voir BookingController::cancel(), champ
-   * `refund` non-null uniquement dans ce cas). Sans ça : annulation système
-   * pour paiement jamais abouti (échec/expiration), ou annulation du client
-   * avant tout paiement — dans les deux cas, rien n'a été débité.
+   * effectué avant l'annulation (champ `refund` non-null uniquement dans ce cas).
    */
   hasRefund(booking: Reservation): boolean {
     return !!(booking as any)?.refund;
   }
 
   isRefundCompleted(booking: Reservation): boolean {
+    const refundStatus = ((booking as any)?.refund?.status ?? '').toLowerCase();
     return (
       booking?.status === 'Remboursé' ||
-      (booking as any)?.refund?.status === 'REFUNDED'
+      refundStatus === 'refunded' ||
+      refundStatus === 'refunded_completed' ||
+      refundStatus === 'refund_completed'
     );
   }
 
   /** Le voyage n'a pas encore eu lieu — utilisé pour choisir la carte "billet actif" vs carte compacte. */
   isUpcoming(booking: Reservation): boolean {
+    if (this.isCancelled(booking) || this.isUsed(booking) || this.isExpired(booking)) {
+      return false;
+    }
     return !!booking?.bookingDate && new Date(booking.bookingDate) > new Date();
   }
 

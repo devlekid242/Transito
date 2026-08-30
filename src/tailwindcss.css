@@ -191,6 +191,7 @@ body {
 
 ion-content {
   --height: 100%;
+  padding-bottom: var(--ion-safe-area-bottom, env(safe-area-inset-bottom)) !important;
 }
 
 ion-tab-bar {

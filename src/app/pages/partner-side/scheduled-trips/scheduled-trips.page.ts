@@ -8,14 +8,18 @@ import { PartnerApiService } from '../../../services/partner-api.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
 
+type TripFilter = 'all' | 'planifie' | 'active' | 'termine';
+
 interface ScheduledTrip {
   id: number;
   busNumber: string;
   classType: 'VIP' | 'Classique';
   price: number;
-  status: 'En cours' | 'Planifié';
+  status: 'En cours' | 'Planifié' | 'Terminé' | 'Annulé';
   origin: string;
   destination: string;
+  date: string;
+  tripDate?: string;
   departureTime: string;
   arrivalTime: string;
   occupiedSeats: number;
@@ -36,8 +40,12 @@ interface ScheduledTrip {
   ],
 })
 export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
-  // Filtre d'onglet actif : 'all' | 'planifie' | 'active'
-  activeFilter: 'all' | 'planifie' | 'active' = 'all';
+  // Filtre d'onglet actif : 'all' | 'planifie' | 'active' | 'termine'
+  activeFilter: TripFilter = 'all';
+
+  // Filtres complémentaires pour recherche et date
+  searchTerm: string = '';
+  selectedDate: string = '';
 
   // Liste globale des voyages planifiés (chargée depuis API)
   trips: ScheduledTrip[] = [];
@@ -74,51 +82,115 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
   /**
    * Charger les trajets depuis l'API
    */
-  private loadTrips(): void {
+  private normalizeTripStatus(rawStatus?: string | null): ScheduledTrip['status'] {
+    if (!rawStatus) return 'Planifié';
+
+    const normalized = rawStatus.trim().toLowerCase();
+
+    if (
+      ['active', 'in_progress', 'in-progress', 'en cours', 'encours'].includes(
+        normalized,
+      )
+    ) {
+      return 'En cours';
+    }
+
+    if (
+      ['scheduled', 'planifie', 'planifié', 'future', 'pending'].includes(
+        normalized,
+      )
+    ) {
+      return 'Planifié';
+    }
+
+    if (
+      ['completed', 'termine', 'terminé', 'finished', 'done'].includes(
+        normalized,
+      )
+    ) {
+      return 'Terminé';
+    }
+
+    if (
+      ['cancelled', 'canceled', 'annulé', 'annule', 'cancel'].includes(
+        normalized,
+      )
+    ) {
+      return 'Annulé';
+    }
+
+    return rawStatus as ScheduledTrip['status'];
+  }
+
+  private loadTrips(
+    date?: string,
+    status?: 'all' | 'scheduled' | 'active' | 'completed',
+    search?: string,
+  ): void {
     this.loading = true;
-    this.apiService.getTrips().subscribe(
+    this.apiService.getTrips(date, status, search).subscribe(
       (trips: any[]) => {
         this.trips = trips.map((trip) => ({
           id: trip.id,
-          busNumber: trip.bus?.registrationNumber,
+          busNumber: trip.bus?.registrationNumber || trip.busNumber || 'N/A',
           classType: trip.classType || 'VIP',
-          price: trip.price,
-          status: trip.status,
+          price: Number(trip.price ?? trip.pricePerSeat ?? 0),
+          status: this.normalizeTripStatus(trip.status),
           origin: trip.departureCity || 'Brazzaville',
           destination: trip.arrivalCity || 'Pointe-Noire',
-          departureTime: trip.departureTimeOfDay || '08:00',
-          arrivalTime: trip.arrivalTimeOfDay,
-          occupiedSeats: trip.seatsReserved,
-          totalSeats: trip.maxSeats || 50,
+          date: trip.tripDate || 'N/A',
+          departureTime: trip.departureTimeOfDay || trip.departureTime || '08:00',
+          arrivalTime: trip.arrivalTimeOfDay || trip.arrivalTime || '12:00',
+          occupiedSeats: Number(trip.seatsReserved ?? trip.occupiedSeats ?? 0),
+          totalSeats: Number(trip.maxSeats ?? trip.totalSeats ?? 50),
         }));
-        console.log('Trajets chargés:', this.trips);
-        this.applyTabFilter(this.activeFilter);
+
+        this.filteredTrips = [...this.trips].sort(
+          (a, b) => this.getTripDateValue(a) - this.getTripDateValue(b),
+        );
         this.loading = false;
       },
       (error: any) => {
         console.error('Erreur lors du chargement des trajets:', error);
-        // Les données par défaut restent utilisées en cas d'erreur
-        this.applyTabFilter(this.activeFilter);
+        this.filteredTrips = [];
         this.loading = false;
       },
     );
   }
 
-  // Appliquer le filtre de segment
-  applyTabFilter(filter: 'all' | 'planifie' | 'active') {
+  // Appliquer le filtre de segment et déclencher la requête côté backend
+  applyTabFilter(filter: TripFilter) {
     this.activeFilter = filter;
+    this.applyFilters();
+  }
 
-    if (filter === 'all') {
-      this.filteredTrips = [...this.trips];
-    } else if (filter === 'active') {
-      this.filteredTrips = this.trips.filter((t) => t.status === 'En cours');
-    } else if (filter === 'planifie') {
-      this.filteredTrips = this.trips.filter((t) => t.status === 'Planifié');
-    }
+  applyFilters(): void {
+    const statusMap: Record<TripFilter, 'all' | 'scheduled' | 'active' | 'completed'> = {
+      all: 'all',
+      planifie: 'scheduled',
+      active: 'active',
+      termine: 'completed',
+    };
+
+    const date = this.selectedDate || undefined;
+    const status = statusMap[this.activeFilter];
+    const search = this.searchTerm || undefined;
+
+    this.loadTrips(date, status, search);
+  }
+
+  private getTripDateValue(trip: ScheduledTrip): number {
+    const rawDate = trip.date || trip.tripDate || trip.departureTime || trip.arrivalTime || '';
+    if (!rawDate) return Number.MAX_SAFE_INTEGER;
+
+    const date = new Date(rawDate);
+    return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
   }
 
   // Réinitialiser les filtres depuis l'état vide
   resetFilters(): void {
+    this.searchTerm = '';
+    this.selectedDate = '';
     this.applyTabFilter('all');
   }
 
@@ -133,6 +205,10 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
 
   get activeCount(): number {
     return this.trips.filter((t) => t.status === 'En cours').length;
+  }
+
+  get completedCount(): number {
+    return this.trips.filter((t) => t.status === 'Terminé').length;
   }
 
   // Calcul du taux de remplissage en pourcentage pour la barre de progression

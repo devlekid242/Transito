@@ -73,11 +73,11 @@
     </div>
 
     <!-- Zone du bouton principal -->
-    <div class="mt-auto flex flex-col gap-2 pt-8">
+    <div class="mt-auto flex flex-col gap-2 pb-8">
       <button
         (click)="login()"
         [disabled]="loading || !phoneNumber || !password"
-        class="w-full bg-primary text-white font-bold py-3.5 rounded-full disabled:opacity-50 shadow-sm transition-all"
+        class="w-full bg-primary text-white font-bold py-3.5 rounded-[9px] disabled:opacity-50 shadow-sm transition-all"
       >
         <span *ngIf="!loading">Se connecter</span>
         <ion-spinner *ngIf="loading" name="dots" color="light"></ion-spinner>

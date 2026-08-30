@@ -3,6 +3,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent,
+  IonHeader,
   NavController,
   ViewWillEnter,
   ViewWillLeave,
@@ -57,7 +58,7 @@ const EMPTY_TICKET: TicketData = {
   templateUrl: './ticket-validation.page.html',
   styleUrls: ['./ticket-validation.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, SkeletonLoaderComponent],
+  imports: [IonContent, IonHeader, CommonModule, FormsModule, SkeletonLoaderComponent],
 })
 export class TicketValidationPage
   implements ViewWillEnter, ViewWillLeave, OnDestroy

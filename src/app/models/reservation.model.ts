@@ -1,3 +1,19 @@
+export interface ReservationTicket {
+  id: number;
+  ticketNumber: string;
+  seatNumber: number;
+  passengerName: string;
+  passengerPhone: string;
+  qrCodeToken: string | null;
+  /** 'Utilisé' | 'En attente' | 'Annulé' | '' */
+  status: string;
+}
+
+export interface ReservationRefund {
+  status: string; // e.g. 'REFUNDED_COMPLETED'
+  amount: string;
+}
+
 export interface Reservation {
   id: number;
   tripId: number;
@@ -7,10 +23,16 @@ export interface Reservation {
   passengerPhone: string;
   seatNumber: string;
   totalPrice: number;
+  /** Statut de la RÉSERVATION (niveau contrat) */
   status: 'Confirmé' | 'En attente' | 'Annulé' | 'Expiré' | 'Remboursé';
-  bookingDate: string;
+  boardingPoint?: string;
+  deboardingPoint?: string;
+  paymentExpiresAt?: string;
+  refund?: ReservationRefund | null;
   canCancel?: boolean;
-  // Propriétés optionnelles - infos du trajet et agence
+  bookingDate: string;
+  /** Billets rattachés — le statut du ticket (Utilisé, En attente…) est DISTINCT du statut de la réservation */
+  tickets?: ReservationTicket[];
   trip?: {
     id: number;
     departureCity: string;
@@ -22,6 +44,7 @@ export interface Reservation {
     agencyId: number;
     agencyName?: string;
     pricePerSeat: number;
+    busLicensePlate?: string;
   };
   createdAt: string;
   updatedAt: string;

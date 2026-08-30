@@ -280,7 +280,13 @@
             >
 
             <span
-              [ngClass]="booking.status === 'Payé' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'"
+              [ngClass]="
+                booking.status === 'Payé' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                booking.status === 'En attente' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                booking.status === 'Annulé' ? 'bg-red-50 text-red-700 border border-red-200' :
+                booking.status === 'Remboursé' ? 'bg-violet-50 text-violet-700 border border-violet-200' :
+                'bg-orange-50 text-orange-700 border border-orange-200'
+              "
               class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
             >
               {{ booking.status }} • {{ booking.paymentMethod }}

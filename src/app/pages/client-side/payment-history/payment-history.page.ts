@@ -51,11 +51,16 @@ export class PaymentHistoryPage
 
     this.paymentService.getPaymentHistory().subscribe({
       next: (payments: PaymentLog[]) => {
-        this.payments = payments.sort((a, b) => {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        });
+        this.payments = payments
+          .map((payment) => ({
+            ...payment,
+            amount: this.toNumber(payment.amount),
+          }))
+          .sort((a, b) => {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          });
         this.calculateTotal();
         this.applyFilter();
         this.isLoading = false;
@@ -71,10 +76,22 @@ export class PaymentHistoryPage
     });
   }
 
+  private toNumber(value: number | string | null | undefined): number {
+    if (value === null || value === undefined || value === '') {
+      return 0;
+    }
+
+    const parsed = Number(String(value).replace(/\s+/g, '').replace(',', '.'));
+
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
   private calculateTotal() {
     this.totalSpent = this.payments
       .filter((p) => p.status === 'SUCCESS')
-      .reduce((sum, p) => sum + p.amount, 0);
+      .reduce((sum, p) => sum + this.toNumber(p.amount), 0);
+
+    console.log('Total dépensé calculé:', this.totalSpent);
   }
 
   applyFilter() {

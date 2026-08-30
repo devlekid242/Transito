@@ -79,17 +79,31 @@ export class BoardingControlPage implements ViewWillEnter, ViewWillLeave {
     this.isWharfAgent = this.permissionService.isWharfAgent();
   }
 
+  private formatDateForApi(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
   private loadTrips(): void {
     this.loading = true;
     this.loadingTrips = true;
     this.errorMessage = '';
-    const date = new Date().toLocaleDateString('fr-FR', {});
-    // console.log(date);
+    const date = this.formatDateForApi(new Date());
+
     this.apiService.getTrips(date).subscribe(
       (trips) => {
         this.trips = trips || [];
         if (this.trips.length > 0) {
           this.selectTrip(this.trips[0].id);
+        } else {
+          this.selectedTripId = null;
+          this.selectedTrip = null;
+          this.selectedManifest = null;
+          this.passengers = [];
+          this.filteredPassengers = [];
         }
         this.loading = false;
       },

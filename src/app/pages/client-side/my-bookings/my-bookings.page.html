@@ -323,21 +323,90 @@
                   </button>
                 </div>
               </div>
-
-              <!-- Bouton d'annulation rapide -->
-              <!-- <div class="px-5 pb-5 -mt-1">
-                <button
-                  (click)="cancelBooking(booking)"
-                  class="w-full text-center text-[11px] font-bold text-red-600 hover:text-red-700 py-2 rounded-xl transition-colors"
-                >
-                  Annuler cette réservation
-                </button>
-              </div> -->
             </div>
 
-            <!-- ============ CARTE COMPACTE (passé / expiré / annulé) ============ -->
+            <!-- ============ CARTE "VOYAGE EFFECTUÉ" (billet embarqué/utilisé) ============ -->
             <div
-              *ngIf="isCancelled(booking) || !isUpcoming(booking)"
+              *ngIf="isUsed(booking)"
+              class="border border-emerald-200/60 bg-white rounded-[2rem] p-5 soft-shadow flex flex-col gap-3"
+            >
+              <div class="flex justify-between items-start">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                    Voyage effectué • {{ booking.trip?.departureDate | date: 'dd/MM/yyyy' }}
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="font-price-lg font-black text-base text-emerald-600"
+                    >{{ booking.totalPrice | number:'1.0-0' }}</span
+                  >
+                  <span class="text-[10px] font-bold text-emerald-600/70 uppercase">FCFA</span>
+                </div>
+              </div>
+
+              <div class="h-[1px] bg-emerald-200/50 w-full"></div>
+
+              <!-- Agence + trajet -->
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-inner border border-emerald-200/40"
+                  >
+                    <i class="fa-solid fa-bus-simple text-sm"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-sm text-on-surface tracking-tight">
+                      {{ booking.trip?.agencyName || 'Agence' }}
+                    </p>
+                    <p class="text-[11px] font-semibold text-on-surface-variant/70 flex items-center gap-1">
+                      {{ booking.trip?.departureCity || '-' }}
+                      <i class="fa-solid fa-arrow-right-long text-[9px] text-outline-variant"></i>
+                      {{ booking.trip?.arrivalCity || '-' }}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  (click)="rebookTrip(booking)"
+                  class="text-[11px] font-bold text-primary border border-primary/20 rounded-xl px-4 py-2 bg-primary-container/30 hover:bg-primary-container/50 transition-colors active:scale-95 flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-rotate-right text-[10px]"></i>
+                  Reprendre
+                </button>
+              </div>
+
+              <!-- Détails du billet embarqué (depuis tickets[0]) -->
+              <div
+                *ngIf="booking.tickets && booking.tickets.length > 0"
+                class="flex items-center gap-3 bg-white/60 rounded-xl px-3.5 py-2.5 border border-emerald-200/40"
+              >
+                <i class="fa-solid fa-ticket text-emerald-500 text-sm flex-shrink-0"></i>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[11px] font-bold text-emerald-800 truncate">
+                    {{ booking.tickets[0].ticketNumber }} — Siège {{ booking.tickets[0].seatNumber }}
+                  </p>
+                  <p class="text-[10px] text-emerald-600 font-semibold mt-0.5" *ngIf="booking.boardingPoint">
+                    <i class="fa-solid fa-location-dot text-[9px]"></i>
+                    {{ booking.boardingPoint }}
+                  </p>
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-wide text-white bg-emerald-500 px-2 py-1 rounded-lg flex-shrink-0">
+                  Embarqué
+                </span>
+              </div>
+
+              <!-- Badge embarquement confirmé -->
+              <div
+                class="rounded-xl bg-emerald-100 border border-emerald-200/70 text-emerald-800 text-[11px] px-3.5 py-2.5 flex items-center gap-2"
+              >
+                <i class="fa-solid fa-person-walking-luggage text-[11px]"></i>
+                <span>Embarquement confirmé — ce billet a bien été utilisé.</span>
+              </div>
+            </div>
+
+            <!-- ============ CARTE COMPACTE (passé sans embarquement / expiré / annulé) ============ -->
+            <div
+              *ngIf="!isUsed(booking) && (isCancelled(booking) || !isUpcoming(booking))"
               [ngClass]="isCancelled(booking) ? 'border-red-200/50 bg-surface-container-lowest' : 'border-outline-variant/20 bg-surface-container-lowest'"
               class="border rounded-[2rem] p-5 soft-shadow hover:border-primary/20 active:scale-[0.99] transition-all flex flex-col gap-3"
             >
@@ -349,14 +418,14 @@
                   @if(booking.status === 'En attente'){
                     <i class="fa-solid fa-hourglass-half text-amber-500 text-sm"></i>
                   }
-                  @if(booking.status === 'Expiré'){
-                    <i class="fa-solid fa-clock-rotate-left text-amber-500 text-sm"></i>
+                  @if(isExpired(booking)){
+                    <i class="fa-solid fa-clock text-slate-400 text-sm"></i>
                   }
                   @if(booking.status === 'Annulé' || booking.status === 'Remboursé'){
                     <i class="fa-solid fa-ban text-red-500 text-sm"></i>
                   }
                   <span
-                    [ngClass]="isCancelled(booking) ? 'text-red-600' : 'text-on-surface-variant/70'"
+                    [ngClass]="isCancelled(booking) ? 'text-red-600' : (isExpired(booking) ? 'text-slate-400' : 'text-on-surface-variant/70')"
                     class="text-[10px] font-black uppercase tracking-wider"
                   >
                     {{ booking.status }} • {{ booking.trip?.departureDate ||

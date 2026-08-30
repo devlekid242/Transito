@@ -1,7 +1,7 @@
 export interface PaymentLog {
   id: number;
   reservationId: number;
-  amount: number;
+  amount: number | string;
   currency: string;
   reference: string;
   paymentMethod: 'Card' | 'Mobile Money' | 'Bank Transfer' | 'Cash';

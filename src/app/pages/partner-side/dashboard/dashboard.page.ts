@@ -21,7 +21,7 @@ interface Booking {
   destination: string;
   timeLabel: string;
   price: number;
-  status: 'Payé' | 'En attente' | 'Annulé';
+  status: 'Payé' | 'En attente' | 'Annulé' | 'Échoué' | 'Remboursé';
   paymentMethod: string;
   avatarBg: string;
 }
@@ -216,19 +216,38 @@ export class DashboardPage implements ViewWillEnter, ViewWillLeave {
             });
           }
 
-          // Convertir paymentStatus en status lisible
-          const statusMap: { [key: string]: 'Payé' | 'En attente' | 'Annulé' } =
-            {
-              paye: 'Payé',
-              paid: 'Payé',
-              en_attente: 'En attente',
-              pending: 'En attente',
-              annule: 'Annulé',
-              cancelled: 'Annulé',
-              rembourse: 'Annulé',
-            };
+          // Convertir paymentStatus / ticketStatus en statut lisible selon la réponse API
+          const paymentStatus = String(booking.paymentStatus || '').toLowerCase();
+          const ticketStatus = String(booking.ticketStatus || '').toLowerCase();
+
+          const statusMap: {
+            [key: string]: Booking['status'];
+          } = {
+            paye: 'Payé',
+            paid: 'Payé',
+            embarque: 'Payé',
+            boarded: 'Payé',
+            valid: 'Payé',
+            en_attente: 'En attente',
+            pending: 'En attente',
+            attente: 'En attente',
+            echoue: 'Échoué',
+            failed: 'Échoué',
+            error: 'Échoué',
+            annule: 'Annulé',
+            cancelled: 'Annulé',
+            cancel: 'Annulé',
+            rembourse: 'Remboursé',
+            refunded: 'Remboursé',
+            refund: 'Remboursé',
+            no_show: 'Échoué',
+            noshow: 'Échoué',
+          };
+
           const displayStatus =
-            statusMap[booking.paymentStatus?.toLowerCase()] || 'En attente';
+            statusMap[paymentStatus] ||
+            statusMap[ticketStatus] ||
+            'En attente';
 
           return {
             id: booking.id || index,
@@ -241,6 +260,7 @@ export class DashboardPage implements ViewWillEnter, ViewWillLeave {
             status: displayStatus,
             paymentMethod: booking.paymentMethod || 'Mobile Money',
             avatarBg: this.getRandomAvatarColor(),
+            imageUrl: booking.imageUrl || null,
           };
         });
         console.log('Réservations chargées:', this.recentBookings);

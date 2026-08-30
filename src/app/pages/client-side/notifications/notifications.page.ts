@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent,
+  IonHeader,
   NavController,
   ViewWillEnter, // 👈 nouveau
   ViewWillLeave, // 👈 nouveau (optionnel, pour le nettoyage)
@@ -16,7 +17,7 @@ import { Notification } from '../../../models';
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule],
+  imports: [IonContent, IonHeader, CommonModule, FormsModule],
 })
 export class NotificationsPage implements OnInit, ViewWillEnter, ViewWillLeave {
   notifications: Notification[] = [];

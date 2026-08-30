@@ -193,17 +193,24 @@ export class PartnerApiService {
    * Récupère tous les trajets du partenaire
    */
   getTrips(
-    date?: any,
-    status?: 'active' | 'scheduled' | 'completed',
+    date?: string | null,
+    status?: 'active' | 'scheduled' | 'completed' | 'all' | null,
+    search?: string | null,
   ): Observable<Trip[]> {
     let params = new HttpParams();
-    if (status) {
-      params = params.set('status', status.toUpperCase());
+
+    if (status && status !== 'all') {
+      params = params.set('status', status);
     }
+
     if (date) {
       params = params.set('departure_date', date);
     }
-    // console.log(date);
+
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+
     return this.http
       .get<any>(`${this.apiUrl}/trips`, { params })
       .pipe(unwrapCollection<Trip>());

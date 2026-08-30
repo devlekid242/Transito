@@ -38,6 +38,42 @@
       </div>
     </div>
 
+    <!-- Filtres de recherche et date -->
+    <div class="rounded-2xl border border-surface-variant bg-surface-container-lowest p-3 shadow-sm">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center">
+        <label class="relative flex-1">
+          <span class="sr-only">Rechercher un trajet</span>
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilters()"
+            placeholder="Rechercher un trajet, ville, bus..."
+            class="w-full rounded-xl border border-surface-variant bg-white py-2.5 pl-9 pr-3 text-body-md text-on-surface outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+          />
+        </label>
+
+        <label class="relative md:w-52">
+          <span class="sr-only">Filtrer par date</span>
+          <i class="fa-regular fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"></i>
+          <input
+            type="date"
+            [(ngModel)]="selectedDate"
+            (ngModelChange)="applyFilters()"
+            class="w-full rounded-xl border border-surface-variant bg-white py-2.5 pl-9 pr-3 text-body-md text-on-surface outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+          />
+        </label>
+
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="rounded-xl border border-surface-variant bg-white px-3 py-2.5 text-label-md font-semibold text-on-surface-variant transition hover:border-secondary/40 hover:text-secondary"
+        >
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+
     <!-- Filtres segmentés avec compteurs -->
     <div class="flex gap-2 overflow-x-auto no-scrollbar">
       <button
@@ -76,6 +112,18 @@
           >{{ activeCount }}</span
         >
       </button>
+      <button
+        (click)="applyTabFilter('termine')"
+        [ngClass]="activeFilter === 'termine' ? 'bg-secondary text-white border-secondary' : 'bg-surface-container-lowest text-on-surface-variant border-surface-variant'"
+        class="px-4 py-2 rounded-full border text-label-md font-semibold whitespace-nowrap active-scale transition-colors flex items-center gap-1.5"
+      >
+        Terminés
+        <span
+          [ngClass]="activeFilter === 'termine' ? 'bg-white/20 text-white' : 'bg-surface-container text-on-surface-variant'"
+          class="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+          >{{ completedCount }}</span
+        >
+      </button>
     </div>
 
     <!-- Liste de cartes de voyages -->
@@ -105,7 +153,7 @@
                   [ngClass]="trip.status === 'En cours' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container text-on-surface-variant'"
                   class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1"
                 >
-                  {{ trip.status }}
+                  {{ trip.status }} - {{ trip?.date }}
                 </span>
                 <div
                   class="text-body-md font-semibold text-on-surface-variant truncate"

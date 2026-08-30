@@ -22,6 +22,7 @@
       </div>
 
       <div
+        *ngIf="trips.length > 0; else noTodayTrips"
         class="overflow-x-auto no-scrollbar pb-1 -mx-container-padding px-container-padding"
       >
         <div class="flex gap-3 min-w-max">
@@ -64,6 +65,20 @@
           </button>
         </div>
       </div>
+
+      <ng-template #noTodayTrips>
+        <div
+          class="rounded-2xl border border-dashed border-surface-variant bg-surface-container-lowest p-6 text-center flex flex-col items-center gap-2"
+        >
+          <i class="fa-solid fa-calendar-xmark text-3xl text-outline-variant"></i>
+          <p class="text-body-lg font-semibold text-on-surface">
+            Aucun voyage prévu aujourd’hui.
+          </p>
+          <p class="text-label-md text-on-surface-variant">
+            Aucun départ n’est prévu pour aujourd’hui.
+          </p>
+        </div>
+      </ng-template>
     </section>
 
     <!-- Voyage sélectionné : trajet + progression -->

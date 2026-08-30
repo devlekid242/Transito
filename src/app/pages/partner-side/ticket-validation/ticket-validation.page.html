@@ -1,3 +1,16 @@
+<!-- Barre supérieure minimale -->
+<ion-header class="ion-no-border">
+  <div class="flex items-center sticky top-0 gap-2 px-container-padding pt-4">
+    <button
+      (click)="goBack()"
+      class="text-on-surface hover:bg-surface-container rounded-full p-2 transition-colors flex items-center justify-center"
+      aria-label="Retour"
+    >
+      <i class="fa-solid fa-arrow-left text-lg"></i>
+    </button>
+    <h1 class="text-title-lg text-on-surface">Validation de ticket</h1>
+  </div>
+</ion-header>
 <ion-content class="bg-background">
   <app-skeleton-loader *ngIf="loading"></app-skeleton-loader>
 
@@ -5,18 +18,6 @@
     *ngIf="!loading"
     class="max-w-[480px] mx-auto min-h-screen relative pb-24"
   >
-    <!-- Barre supérieure minimale -->
-    <div class="flex items-center gap-2 px-container-padding pt-4">
-      <button
-        (click)="goBack()"
-        class="text-on-surface hover:bg-surface-container rounded-full p-2 transition-colors flex items-center justify-center"
-        aria-label="Retour"
-      >
-        <i class="fa-solid fa-arrow-left text-lg"></i>
-      </button>
-      <h1 class="text-title-lg text-on-surface">Validation de ticket</h1>
-    </div>
-
     <main class="px-container-padding py-6 flex flex-col items-center gap-6">
       <!-- Cadre de visée -->
       <section class="w-full flex flex-col items-center gap-4 pt-2">
