@@ -14,7 +14,7 @@ import { Trip, TripSearchParams, User } from '../../../models';
 import { TripService, UserService } from '../../../services';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -63,7 +63,7 @@ export class HomePage
     private navCtrl: NavController,
     private tripService: TripService,
     private userService: UserService,
-    private notificationService: UiNotificationService,
+    private notificationService: UiNotificationService
   ) {}
 
   ngOnInit() {
@@ -175,7 +175,7 @@ export class HomePage
           error: (err) => {
             console.error(
               'Erreur lors de la récupération des plannings de voyage:',
-              err,
+              err
             );
             reject(err);
           },

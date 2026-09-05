@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonInfiniteScroll, IonInfiniteScrollContent,
+  IonContent,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   NavController,
   InfiniteScrollCustomEvent,
   LoadingController,
@@ -14,7 +16,7 @@ import { AgencyService } from '../../../services/agency.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Agency } from '../../../models';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 interface AgencyCard {
   id: number;
@@ -32,7 +34,14 @@ interface AgencyCard {
   templateUrl: './agencies-list.page.html',
   styleUrls: ['./agencies-list.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonInfiniteScroll, IonInfiniteScrollContent, SharedHeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    SharedHeaderComponent,
+  ],
 })
 export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   searchQuery = '';
@@ -50,7 +59,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
     private navCtrl: NavController,
     private route: Router,
     private agencyService: AgencyService,
-    private notificationService: UiNotificationService,
+    private notificationService: UiNotificationService
   ) {}
 
   ngOnInit() {
@@ -67,7 +76,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
   private async loadAgencies(
     page: number = 1,
-    event?: InfiniteScrollCustomEvent,
+    event?: InfiniteScrollCustomEvent
   ) {
     this.isLoading = true;
     if (page === 1) {
@@ -124,7 +133,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   private extractAgencyList(response: any): AgencyCard[] {
     const apiAgencies: Agency[] = Array.isArray(response)
       ? response
-      : (response?.data ?? response?.['hydra:member'] ?? []);
+      : response?.data ?? response?.['hydra:member'] ?? [];
 
     return apiAgencies.map((agency) => ({
       id: agency.id,
@@ -150,7 +159,7 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
       (agency) =>
         agency.name.toLowerCase().includes(query) ||
         agency.destinations.toLowerCase().includes(query) ||
-        agency.tags.some((tag) => tag.toLowerCase().includes(query)),
+        agency.tags.some((tag) => tag.toLowerCase().includes(query))
     );
   }
 

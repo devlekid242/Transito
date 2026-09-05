@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Agency, AgencyResponse, AgencyPoint } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +18,7 @@ export class AgencyService {
    */
   getAgencies(
     page: number = 1,
-    pageSize: number = 10,
+    pageSize: number = 10
   ): Observable<AgencyResponse> {
     const params = new HttpParams()
       .set('page', page.toString())
@@ -85,7 +85,7 @@ export class AgencyService {
   rateAgency(
     agencyId: number,
     rating: number,
-    comment: string,
+    comment: string
   ): Observable<any> {
     return this.http.post(`${this.apiUrl}/${agencyId}/rate`, {
       rating,

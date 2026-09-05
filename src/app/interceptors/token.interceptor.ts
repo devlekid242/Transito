@@ -10,7 +10,7 @@ import { Observable, from, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { PartnerPermissionService } from '../services/partner-permission.service';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -19,7 +19,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
   constructor(
     private injector: Injector, // 👈 On injecte l'Injector à la place de AuthService
-    private partnerPermissionService: PartnerPermissionService,
+    private partnerPermissionService: PartnerPermissionService
   ) {}
 
   /**
@@ -54,7 +54,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
   private addAuthHeaders(
     req: HttpRequest<any>,
-    token: string,
+    token: string
   ): HttpRequest<any> {
     const userType = this.getUserType();
     const headers: { [key: string]: string } = {
@@ -79,7 +79,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
   intercept(
     req: HttpRequest<any>,
-    next: HttpHandler,
+    next: HttpHandler
   ): Observable<HttpEvent<any>> {
     const isApiRequest = req.url.startsWith(environment.apiUrl);
     const shouldAttachToken = isApiRequest && !this.isPublicAuthRoute(req.url);
@@ -116,9 +116,9 @@ export class TokenInterceptor implements HttpInterceptor {
 
             const retriedRequest = this.addAuthHeaders(req, newToken);
             return next.handle(retriedRequest);
-          }),
+          })
         );
-      }),
+      })
     );
   }
 }

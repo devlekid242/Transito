@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonInfiniteScroll, IonInfiniteScrollContent, IonHeader,
+  IonContent,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+  IonHeader,
   NavController,
   ViewWillEnter,
   ViewWillLeave,
@@ -14,7 +17,7 @@ import { TripService } from '../../../services/trip.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Agency, AgencyPoint } from '../../../models/agency.model';
 import { Trip as ApiTrip } from '../../../models/trip.model';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 interface DisplayTrip {
   id: number;
@@ -35,7 +38,14 @@ interface DisplayTrip {
   templateUrl: './agency-profile.page.html',
   styleUrls: ['./agency-profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonInfiniteScroll, IonInfiniteScrollContent, IonHeader],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonHeader,
+  ],
 })
 export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   activeTab: 'trips' | 'points' = 'trips';
@@ -66,7 +76,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     private agencyService: AgencyService,
     private tripService: TripService,
     private notificationService: UiNotificationService,
-    private sanitizer: DomSanitizer,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
@@ -86,7 +96,9 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
 
     if (!agencyId || agencyId <= 0) {
       this.isLoading = false;
-      await this.notificationService.showErrorAlert('Identifiant d\'agence invalide.');
+      await this.notificationService.showErrorAlert(
+        "Identifiant d'agence invalide."
+      );
       return;
     }
 
@@ -101,7 +113,9 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       },
       error: async () => {
         this.isLoading = false;
-        await this.notificationService.showErrorAlert('Impossible de charger le profil de l agence.');
+        await this.notificationService.showErrorAlert(
+          'Impossible de charger le profil de l agence.'
+        );
       },
     });
   }
@@ -114,7 +128,9 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
         this.currentOffset = this.displayedTrips.length;
       },
       error: () => {
-        this.notificationService.showErrorAlert('Impossible de charger les trajets de cette agence.');
+        this.notificationService.showErrorAlert(
+          'Impossible de charger les trajets de cette agence.'
+        );
       },
     });
   }
@@ -137,7 +153,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   loadMoreTrips(event?: any) {
     const nextChunk = this.allTrips.slice(
       this.currentOffset,
-      this.currentOffset + this.itemsPerPage,
+      this.currentOffset + this.itemsPerPage
     );
     this.displayedTrips = [...this.displayedTrips, ...nextChunk];
     this.currentOffset += nextChunk.length;
@@ -213,7 +229,7 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     if (lat != null && lng != null) {
       window.open(
         `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
-        '_blank',
+        '_blank'
       );
     }
   }
@@ -322,6 +338,4 @@ export class AgencyProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       month: 'short',
     });
   }
-
-
 }

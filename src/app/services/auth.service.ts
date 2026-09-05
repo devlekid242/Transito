@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 import { PartnerPermissionService } from './partner-permission.service';
 import { NativePushService } from './NativePushService.service';
 import { NotificationService } from './notification.service';
@@ -56,7 +56,7 @@ export class AuthService {
     private router: Router,
     private http: HttpClient,
     private partnerPermission: PartnerPermissionService,
-    private injector: Injector,
+    private injector: Injector
   ) {
     this.loadFromStorage();
 
@@ -64,7 +64,7 @@ export class AuthService {
       setTimeout(() => {
         this.getNotificationService().connectRealtime(
           this.user!.id,
-          this.token!,
+          this.token!
         );
         this.subscribeAgencyChannelIfPartner();
       }, 0);
@@ -89,7 +89,7 @@ export class AuthService {
   private subscribeAgencyChannelIfPartner(): void {
     if (this.user?.role === 'partner' && this.user.agencyId) {
       this.getNotificationService().subscribeToAgencyChannel(
-        this.user.agencyId,
+        this.user.agencyId
       );
     }
   }
@@ -192,7 +192,7 @@ export class AuthService {
   async requestLoginOtp(phoneNumber: string): Promise<boolean> {
     try {
       await firstValueFrom(
-        this.http.post(`${this.apiBaseUrl}/auth/request-otp`, { phoneNumber }),
+        this.http.post(`${this.apiBaseUrl}/auth/request-otp`, { phoneNumber })
       );
       return true;
     } catch {
@@ -202,7 +202,7 @@ export class AuthService {
 
   async verifyLoginOtp(
     phoneNumber: string,
-    code: string,
+    code: string
   ): Promise<{
     success: boolean;
     requiresProfile: boolean;
@@ -213,7 +213,7 @@ export class AuthService {
         this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/verify-otp`, {
           phoneNumber,
           code,
-        }),
+        })
       );
 
       // Un compte existant est authentifié immédiatement.
@@ -239,7 +239,7 @@ export class AuthService {
 
   async completeClientProfile(
     registrationToken: string,
-    fullName: string,
+    fullName: string
   ): Promise<boolean> {
     try {
       const response = await firstValueFrom(
@@ -248,8 +248,8 @@ export class AuthService {
           {
             registrationToken,
             fullName,
-          },
-        ),
+          }
+        )
       );
 
       if (!response.token || !response.refresh_token || !response.user) {
@@ -269,7 +269,7 @@ export class AuthService {
         this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/login`, {
           phoneNumber,
           password,
-        }),
+        })
       );
 
       await this.applyAuthResponse(response);
@@ -287,7 +287,7 @@ export class AuthService {
     quartier: string,
     emergencyContactName: string,
     emergencyContactPhone: string,
-    password: string,
+    password: string
   ): Promise<boolean> {
     try {
       await firstValueFrom(
@@ -300,7 +300,7 @@ export class AuthService {
           quartier,
           emergencyContactName,
           emergencyContactPhone,
-        }),
+        })
       );
 
       return this.login(phoneNumber, password);
@@ -314,7 +314,7 @@ export class AuthService {
       await firstValueFrom(
         this.http.post(`${this.apiBaseUrl}/auth/request-reset`, {
           phoneNumber,
-        }),
+        })
       );
       return true;
     } catch {
@@ -325,7 +325,7 @@ export class AuthService {
   async verifyReset(
     phoneNumber: string,
     code: string,
-    newPassword: string,
+    newPassword: string
   ): Promise<boolean> {
     try {
       await firstValueFrom(
@@ -333,7 +333,7 @@ export class AuthService {
           phoneNumber,
           code,
           newPassword,
-        }),
+        })
       );
       return true;
     } catch {
@@ -350,17 +350,17 @@ export class AuthService {
       const response = await firstValueFrom(
         this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/refresh`, {
           refresh_token: this.refreshToken,
-        }),
+        })
       );
 
       this.persistTokens(
         String(response.token),
-        String(response.refresh_token),
+        String(response.refresh_token)
       );
       if (this.user) {
         this.getNotificationService().connectRealtime(
           this.user.id,
-          String(response.token),
+          String(response.token)
         );
         this.subscribeAgencyChannelIfPartner();
       }

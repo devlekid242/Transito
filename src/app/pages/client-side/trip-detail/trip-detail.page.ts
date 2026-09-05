@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { TripDetail, TripPoint } from '../../../models';
 import { TripService } from '../../../services';
 import { UiNotificationService } from '../../../services/ui-notification.service';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-trip-detail',
@@ -34,7 +34,7 @@ export class TripDetailPage implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private tripService: TripService,
-    private notificationService: UiNotificationService,
+    private notificationService: UiNotificationService
   ) {}
 
   ngOnInit(): void {

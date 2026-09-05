@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, catchError, of, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 import { unwrapCollection } from '../shared/rxjs-operators';
 
 // export interface Trip {
@@ -195,7 +195,7 @@ export class PartnerApiService {
   getTrips(
     date?: string | null,
     status?: 'active' | 'scheduled' | 'completed' | 'all' | null,
-    search?: string | null,
+    search?: string | null
   ): Observable<Trip[]> {
     let params = new HttpParams();
 
@@ -242,11 +242,11 @@ export class PartnerApiService {
    */
   cancelTrip(
     tripId: number,
-    reason: string,
+    reason: string
   ): Observable<{ success: boolean; message: string }> {
     return this.http.post<{ success: boolean; message: string }>(
       `${this.apiUrl}/trips/${tripId}/cancel`,
-      { reason },
+      { reason }
     );
   }
 
@@ -257,11 +257,11 @@ export class PartnerApiService {
    */
   validateTicket(
     qrCode: string,
-    TicketCode?: string,
+    TicketCode?: string
   ): Observable<TicketValidationResponse> {
     return this.http.patch<TicketValidationResponse>(
       `${this.apiUrl}/tickets/validate`,
-      { qrCodeToken: qrCode, ticketCode: TicketCode },
+      { qrCodeToken: qrCode, ticketCode: TicketCode }
     );
   }
 
@@ -300,7 +300,7 @@ export class PartnerApiService {
    * Met à jour le profil du partenaire
    */
   updatePartnerProfile(
-    updates: Partial<PartnerProfile>,
+    updates: Partial<PartnerProfile>
   ): Observable<PartnerProfile> {
     return this.http.patch<PartnerProfile>(`${this.apiUrl}/users/me`, updates);
   }
@@ -351,7 +351,7 @@ export class PartnerApiService {
    */
   deleteBus(busId: number): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
-      `${this.apiUrl}/buses/${busId}`,
+      `${this.apiUrl}/buses/${busId}`
     );
   }
 
@@ -378,11 +378,11 @@ export class PartnerApiService {
    */
   updateBusPoint(
     pointId: number,
-    updates: Partial<BusPoint>,
+    updates: Partial<BusPoint>
   ): Observable<BusPoint> {
     return this.http.patch<BusPoint>(
       `${this.apiUrl}/agency-points/${pointId}`,
-      updates,
+      updates
     );
   }
 
@@ -390,10 +390,10 @@ export class PartnerApiService {
    * Supprime un point de bus
    */
   deleteBusPoint(
-    pointId: number,
+    pointId: number
   ): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
-      `${this.apiUrl}/agency-points/${pointId}`,
+      `${this.apiUrl}/agency-points/${pointId}`
     );
   }
 
@@ -410,7 +410,7 @@ export class PartnerApiService {
         catchError((error) => {
           console.error('Erreur lors du chargement des notifications:', error);
           return of([]); // Retourner un tableau vide en cas d'erreur
-        }),
+        })
       )
       .subscribe((notifications) => {
         this.notificationsSubject.next(notifications);
@@ -430,11 +430,11 @@ export class PartnerApiService {
    * Marque une notification comme lue
    */
   markNotificationAsRead(
-    notificationId: number,
+    notificationId: number
   ): Observable<{ success: boolean }> {
     return this.http.post<{ success: boolean }>(
       `${this.apiUrl}/user-notifications/${notificationId}/read`,
-      {},
+      {}
     );
   }
 
@@ -444,7 +444,7 @@ export class PartnerApiService {
   markAllNotificationsAsRead(): Observable<{ success: boolean }> {
     return this.http.post<{ success: boolean }>(
       `${this.apiUrl}/user-notifications/mark-all-read`,
-      {},
+      {}
     );
   }
 
@@ -453,7 +453,7 @@ export class PartnerApiService {
    */
   deleteNotification(notificationId: number): Observable<{ success: boolean }> {
     return this.http.delete<{ success: boolean }>(
-      `${this.apiUrl}/notifications/${notificationId}`,
+      `${this.apiUrl}/notifications/${notificationId}`
     );
   }
 
@@ -481,7 +481,7 @@ export class PartnerApiService {
    * Récupère les statistiques comparatives (jour vs semaine vs mois, etc.)
    */
   getAgentStatsComparison(
-    period: 'day' | 'week' | 'month' | 'year' = 'month',
+    period: 'day' | 'week' | 'month' | 'year' = 'month'
   ): Observable<any> {
     const params = new HttpParams().set('period', period);
     return this.http.get(`${this.apiUrl}/statistics/agent/comparison`, {
@@ -533,7 +533,7 @@ export class PartnerApiService {
    */
   getUnreadNotificationCount(): Observable<number> {
     return this.http.get<number>(
-      `${this.apiUrl}/user-notifications/unread/count`,
+      `${this.apiUrl}/user-notifications/unread/count`
     );
   }
 
@@ -555,7 +555,7 @@ export class PartnerApiService {
   searchTrips(
     departure: string,
     arrival: string,
-    date: string,
+    date: string
   ): Observable<Trip[]> {
     const params = new HttpParams()
       .set('departure', departure)
@@ -599,7 +599,7 @@ export class PartnerApiService {
       map(({ trip, tickets }) => {
         const processedPassengers = tickets.map((t: any) => {
           const statusCode = String(
-            t.statusCode || t.status || '',
+            t.statusCode || t.status || ''
           ).toLowerCase();
           let boardingStatus: 'BOARDED' | 'PENDING' | 'NO_SHOW' | 'CANCELLED' =
             'PENDING';
@@ -638,16 +638,16 @@ export class PartnerApiService {
 
         const total = processedPassengers.length;
         const boarded = processedPassengers.filter(
-          (p) => p.boardingStatus === 'BOARDED',
+          (p) => p.boardingStatus === 'BOARDED'
         ).length;
         const pending = processedPassengers.filter(
-          (p) => p.boardingStatus === 'PENDING',
+          (p) => p.boardingStatus === 'PENDING'
         ).length;
         const noShow = processedPassengers.filter(
-          (p) => p.boardingStatus === 'NO_SHOW',
+          (p) => p.boardingStatus === 'NO_SHOW'
         ).length;
         const cancelled = processedPassengers.filter(
-          (p) => p.boardingStatus === 'CANCELLED',
+          (p) => p.boardingStatus === 'CANCELLED'
         ).length;
 
         return {
@@ -704,7 +704,7 @@ export class PartnerApiService {
             occupancyRate: total ? Math.round((boarded / total) * 100) : 0,
           },
         } as any;
-      }),
+      })
     );
   }
 }

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BookingRequest, Reservation } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 import { IdempotencyService } from './idempotency.service';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class BookingService {
 
   constructor(
     private http: HttpClient,
-    private idempotency: IdempotencyService,
+    private idempotency: IdempotencyService
   ) {}
 
   /**
@@ -70,10 +70,10 @@ export class BookingService {
       {
         headers: {
           'Idempotency-Key': this.idempotency.create(
-            `booking-cancel-${bookingId}`,
+            `booking-cancel-${bookingId}`
           ),
         },
-      },
+      }
     );
   }
 
@@ -82,7 +82,7 @@ export class BookingService {
    */
   updateBooking(
     bookingId: number,
-    booking: Partial<BookingRequest>,
+    booking: Partial<BookingRequest>
   ): Observable<any> {
     return this.http.put(`${this.apiUrl}/${bookingId}`, booking);
   }

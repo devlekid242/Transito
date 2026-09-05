@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Trip, TripSearchParams, TripResponse, TripDetail } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,7 @@ export class TripService {
   searchTrips(
     params: TripSearchParams,
     page: number = 1,
-    limit: number = 10,
+    limit: number = 10
   ): Observable<TripResponse> {
     let httpParams = new HttpParams()
       .set('departure_city', params.departureCity)

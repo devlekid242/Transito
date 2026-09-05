@@ -12,7 +12,7 @@ import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { User } from '../../../models';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 
 @Component({
@@ -45,7 +45,7 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
     private authService: AuthService,
     private userService: UserService,
     private loadingCtrl: LoadingController,
-    private notificationService: UiNotificationService,
+    private notificationService: UiNotificationService
   ) {}
 
   ngOnInit() {
@@ -84,7 +84,7 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
         console.error('Erreur chargement profil:', err);
         await this.notificationService.showErrorAlert(
           'Impossible de charger votre profil',
-          'Erreur',
+          'Erreur'
         );
       },
     });
@@ -128,7 +128,7 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
       'Êtes-vous sûr de vouloir vous déconnecter?',
       () => undefined,
       undefined,
-      'Déconnexion',
+      'Déconnexion'
     );
     if (confirmed) {
       this.authService.logout();

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentLog, PaymentRequest, PaymentResponse } from '../models';
 import { unwrapCollection } from 'src/app/shared/rxjs-operators';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { IdempotencyService } from 'src/app/services/idempotency.service';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class PaymentService {
 
   constructor(
     private http: HttpClient,
-    private idempotency: IdempotencyService,
+    private idempotency: IdempotencyService
   ) {}
 
   /**
@@ -25,7 +25,7 @@ export class PaymentService {
     return this.http.post<PaymentResponse>(
       `${this.apiUrl}/initiate`,
       paymentRequest,
-      { headers: { 'Idempotency-Key': key } },
+      { headers: { 'Idempotency-Key': key } }
     );
   }
 
@@ -34,7 +34,7 @@ export class PaymentService {
    */
   confirmPayment(
     transactionId: string,
-    otp?: string,
+    otp?: string
   ): Observable<PaymentResponse> {
     return this.http.post<PaymentResponse>(`${this.apiUrl}/confirm`, {
       transaction_id: transactionId,
@@ -80,7 +80,7 @@ export class PaymentService {
   validateCard(
     cardNumber: string,
     expiryMonth: number,
-    expiryYear: number,
+    expiryYear: number
   ): Observable<any> {
     return this.http.post(`${this.apiUrl}/validate-card`, {
       card_number: cardNumber,
@@ -118,7 +118,7 @@ export class PaymentService {
   setDefaultPaymentMethod(methodId: string): Observable<any> {
     return this.http.patch(
       `${this.apiUrl}/saved-methods/${methodId}/default`,
-      {},
+      {}
     );
   }
 

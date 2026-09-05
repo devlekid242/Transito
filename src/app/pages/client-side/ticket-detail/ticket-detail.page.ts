@@ -16,10 +16,7 @@ import { UiNotificationService } from '../../../services/ui-notification.service
 import { Ticket } from '../../../models';
 import { QrTicketModalComponent } from '../../../components/qr-ticket-modal/qr-ticket-modal.component';
 import { QRCodeComponent } from 'angularx-qrcode';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
+import { TicketPdfService } from '../../../services/ticket-pdf.service';
 
 interface TicketInfo {
   id: string;
@@ -98,6 +95,7 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     private loadingCtrl: LoadingController,
     private notificationService: UiNotificationService,
     private modalCtrl: ModalController,
+    private ticketPdfService: TicketPdfService,
   ) {}
 
   ngOnInit() {
@@ -511,46 +509,10 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     await loading.present();
 
     try {
-      const printArea = document.getElementById('printArea');
-      if (!printArea) return;
-
-      // 1. Capture du DOM en image haute résolution
-      const canvas = await html2canvas(printArea, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-
-      // 2. Génération du PDF au format A4/ticket
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pdfWidth - 20; // marges de 10mm de chaque côté
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-
-      // 3. Conversion en base64 (sans le préfixe data:...)
-      const pdfBase64 = pdf.output('datauristring').split(',')[1];
-      const fileName = `billet-${this.ticket.ticketNumber}.pdf`;
-
-      // 4. Sauvegarde sur le téléphone
-      const savedFile = await Filesystem.writeFile({
-        path: fileName,
-        data: pdfBase64,
-        directory: Directory.Cache, // ou Directory.Documents si tu veux le garder durablement
-      });
-
-      // 5. Ouverture du sheet natif de partage/impression
-      await Share.share({
-        title: 'Billet ' + this.ticket.ticketNumber,
-        url: savedFile.uri,
-        dialogTitle: 'Partager ou imprimer votre billet',
+      await this.ticketPdfService.exportToPdf({
+        containerId: 'printArea',
+        fileName: `billet-${this.ticket.ticketNumber}`,
+        shareTitle: 'Billet ' + this.ticket.ticketNumber,
       });
     } catch (error) {
       console.error('Erreur génération PDF:', error);

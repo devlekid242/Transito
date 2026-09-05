@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 export interface AgencyPoint {
   id: number;
@@ -73,7 +73,7 @@ export class AgencyPointService {
    */
   updateAgencyPoint(
     pointId: number,
-    point: Partial<AgencyPoint>,
+    point: Partial<AgencyPoint>
   ): Observable<AgencyPoint> {
     return this.http.put<AgencyPoint>(`${this.apiUrl}/${pointId}`, point);
   }

@@ -592,6 +592,22 @@
               >{{ tripDetails.serviceFee | number:'1.0-0' }} FCFA</span
             >
           </div>
+          <div class="flex justify-between items-center">
+            <span class="text-on-surface-variant font-medium">
+              Frais mobile money
+              <ng-container *ngIf="selectedOperatorRate as rate"
+                >({{ rate }}%)</ng-container
+              >
+            </span>
+            <span class="font-bold" *ngIf="selectedOperator; else noOperator"
+              >{{ momoFeeAmount | number:'1.0-0' }} FCFA</span
+            >
+            <ng-template #noOperator>
+              <span class="text-xs text-on-surface-variant italic"
+                >Choisir un opérateur ci-dessous</span
+              >
+            </ng-template>
+          </div>
           <div
             class="pt-4 mt-2 border-t border-outline-variant/20 flex justify-between items-end"
           >
@@ -616,46 +632,40 @@
 
         <div class="grid grid-cols-2 gap-3 mb-5">
           <button
-            (click)="selectedOperator = 'MTN_MOMO'"
-            [ngClass]="selectedOperator === 'MTN_MOMO' ? 'border-amber-500 bg-amber-50 shadow-sm' : 'border-outline-variant/30 bg-surface-container-lowest'"
+            *ngFor="let operator of paymentConfig?.momoOperators ?? []"
+            (click)="selectOperator(operator.id)"
+            [ngClass]="selectedOperator === operator.id
+              ? (operator.id === 'AIRTEL_MOMO' ? 'border-red-500 bg-red-50 shadow-sm' : 'border-amber-500 bg-amber-50 shadow-sm')
+              : 'border-outline-variant/30 bg-surface-container-lowest'"
             class="p-4 rounded-2xl border-2 hover:border-amber-400 flex flex-col items-center gap-3 transition-all relative overflow-hidden"
           >
             <div
-              class="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-white shadow-inner"
+              class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-inner"
+              [ngClass]="operator.id === 'AIRTEL_MOMO' ? 'bg-white' : 'bg-amber-400'"
             >
               <img
-                [src]="'/assets/images/mtn-momo-logo.png'"
+                *ngIf="operator.id === 'MTN_MOMO'"
+                src="/assets/images/mtn-momo-logo.png"
                 alt=""
-                srcset=""
               />
-            </div>
-            <span class="text-xs font-black text-on-surface">MTN MoMo</span>
-            <div
-              *ngIf="selectedOperator === 'MTN_MOMO'"
-              class="absolute top-2 right-2 text-amber-500"
-            >
-              <i class="fa-solid fa-circle-check"></i>
-            </div>
-          </button>
-
-          <button
-            (click)="selectedOperator = 'AIRTEL_MONEY'"
-            [ngClass]="selectedOperator === 'AIRTEL_MONEY' ? 'border-red-500 bg-red-50 shadow-sm' : 'border-outline-variant/30 bg-surface-container-lowest'"
-            class="p-4 rounded-2xl border-2 hover:border-red-400 flex flex-col items-center gap-3 transition-all relative overflow-hidden"
-          >
-            <div
-              class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-white shadow-inner"
-            >
               <img
-                [src]="'/assets/images/airtel-momo-logo.png'"
+                *ngIf="operator.id === 'AIRTEL_MOMO'"
+                src="/assets/images/airtel-momo-logo.png"
                 alt=""
-                srcset=""
               />
+              <i
+                *ngIf="operator.id !== 'MTN_MOMO' && operator.id !== 'AIRTEL_MOMO'"
+                class="fa-solid fa-mobile-screen-button text-primary"
+              ></i>
             </div>
-            <span class="text-xs font-black text-on-surface">Airtel Money</span>
+            <span class="text-xs font-black text-on-surface">{{ operator.name }}</span>
+            <span class="text-[10px] text-on-surface-variant"
+              >+{{ operator.collectionFeeRate }}%</span
+            >
             <div
-              *ngIf="selectedOperator === 'AIRTEL_MONEY'"
-              class="absolute top-2 right-2 text-red-500"
+              *ngIf="selectedOperator === operator.id"
+              class="absolute top-2 right-2"
+              [ngClass]="operator.id === 'AIRTEL_MOMO' ? 'text-red-500' : 'text-amber-500'"
             >
               <i class="fa-solid fa-circle-check"></i>
             </div>
@@ -1001,7 +1011,7 @@
             >
               <!-- booking-form.page.html -->
               <qrcode
-                [qrdata]="tickets[0]?.qr || 'N/A'"
+                [qrdata]="ticket.qr || 'N/A'"
                 [width]="256"
                 elementType="canvas"
               ></qrcode>

@@ -73,7 +73,7 @@ export interface BookingRequest {
   passengers: Passenger[];
   baggages: Baggage[];
   paymentPhone: string;
-  paymentMethod: 'MTN_MOMO' | 'AIRTEL_MONEY';
+  paymentMethod: any;
   totalPrice: number;
   promoCodeId?: number;
   boardingPoint?: string;

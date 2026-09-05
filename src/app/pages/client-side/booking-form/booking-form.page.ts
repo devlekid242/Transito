@@ -19,10 +19,7 @@ import {
   PaymentRequest,
   User,
 } from '../../../models';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
+import { TicketPdfService } from '../../../services/ticket-pdf.service';
 import {
   TripService,
   BookingService,
@@ -30,6 +27,10 @@ import {
   PaymentService,
 } from '../../../services';
 import { UiNotificationService } from '../../../services/ui-notification.service';
+import {
+  PaymentConfigService,
+  PaymentConfig,
+} from '../../../services/payment-config.service';
 
 @Component({
   selector: 'app-booking-form',
@@ -55,8 +56,17 @@ export class BookingFormPage implements OnInit, OnDestroy {
   baggages: Baggage[] = [];
   phoneNumber = '';
 
-  // Alignement Backend : Enumération des méthodes de paiement
-  selectedOperator: 'MTN_MOMO' | 'AIRTEL_MONEY' | null = null;
+  // Alignement Backend : Enumération des méthodes de paiement.
+  // NB : l'identifiant "AIRTEL_MOMO" (et non "AIRTEL_MONEY") doit être
+  // strictement identique à celui utilisé par PaymentController/PayoutService
+  // et par la config momoOperators des paramètres système côté back.
+  selectedOperator: string | null = null;
+
+  // Frais de service + taux mobile money, chargés depuis l'API publique
+  // (voir PublicPaymentConfigController). Ne jamais coder ces valeurs en
+  // dur : un admin peut les modifier à tout moment depuis le back-office.
+  paymentConfig: PaymentConfig | null = null;
+  momoFeeAmount = 0;
 
   tripDetails: any = {
     origin: '',
@@ -114,6 +124,8 @@ export class BookingFormPage implements OnInit, OnDestroy {
     private paymentService: PaymentService,
     private notificationService: UiNotificationService,
     private loadingCtrl: LoadingController,
+    private ticketPdfService: TicketPdfService,
+    private paymentConfigService: PaymentConfigService,
   ) {}
 
   ngOnInit() {
@@ -127,6 +139,18 @@ export class BookingFormPage implements OnInit, OnDestroy {
 
   private loadData() {
     this.isLoading = true;
+
+    this.paymentConfigService
+      .getConfig()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((config) => {
+        this.paymentConfig = config;
+        // Le frais de service affiché avant même le chargement du trajet
+        // vient désormais de l'API, plus d'une valeur figée à 500.
+        this.tripDetails.serviceFee = config.platformFee;
+        this.updateTotals();
+      });
+
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.tripId = Number(params['tripId']);
       if (this.tripId) {
@@ -170,7 +194,7 @@ export class BookingFormPage implements OnInit, OnDestroy {
               'fr-FR',
               { hour: '2-digit', minute: '2-digit' },
             ),
-            serviceFee: 500, // Frais de plateforme standardisés
+            serviceFee: this.paymentConfig?.platformFee ?? this.tripDetails.serviceFee,
             // Champs optionnels selon ce que renvoie l'API trajet ; utilisés pour
             // enrichir le reçu (nom d'agence, immatriculation du bus).
             agencyName:
@@ -352,7 +376,34 @@ export class BookingFormPage implements OnInit, OnDestroy {
     this.ticketSubtotal = this.trip
       ? this.passengers.length * this.trip.pricePerSeat
       : 0;
-    this.totalAmountToPay = this.ticketSubtotal + this.tripDetails.serviceFee;
+
+    const baseAmount = this.ticketSubtotal + this.tripDetails.serviceFee;
+
+    this.momoFeeAmount = this.paymentConfig
+      ? this.paymentConfigService.computeMomoFee(
+          this.paymentConfig,
+          this.selectedOperator,
+          baseAmount,
+        )
+      : 0;
+
+    this.totalAmountToPay = baseAmount + this.momoFeeAmount;
+  }
+
+  /** Taux (%) de l'opérateur momo actuellement sélectionné, pour affichage. */
+  get selectedOperatorRate(): number | null {
+    if (!this.paymentConfig || !this.selectedOperator) {
+      return null;
+    }
+    const operator = this.paymentConfig.momoOperators.find(
+      (op) => op.id === this.selectedOperator,
+    );
+    return operator ? operator.collectionFeeRate : null;
+  }
+
+  selectOperator(operatorId: string) {
+    this.selectedOperator = operatorId;
+    this.updateTotals();
   }
 
   async processPayment() {
@@ -435,9 +486,10 @@ export class BookingFormPage implements OnInit, OnDestroy {
             const paymentRequest: PaymentRequest = {
               reservationId: Number(this.bookingId),
               amount: this.totalAmountToPay,
-              paymentMethod: this.selectedOperator as
-                | 'MTN_MOMO'
-                | 'AIRTEL_MONEY',
+              // NB : le type strict de PaymentRequest.paymentMethod (models.ts)
+              // référence encore 'AIRTEL_MONEY' au lieu de 'AIRTEL_MOMO' — à
+              // corriger dans models.ts pour retirer ce cast.
+              paymentMethod: this.selectedOperator as PaymentRequest['paymentMethod'],
             };
 
             this.paymentService
@@ -611,46 +663,19 @@ export class BookingFormPage implements OnInit, OnDestroy {
     await loading.present();
 
     try {
-      const printArea = document.getElementById('printArea');
-      if (!printArea) return;
+      // Nom de fichier basé sur la référence de transaction/réservation
+      // quand elle existe (couvre le cas où il y a plusieurs passagers),
+      // sinon on retombe sur le numéro du premier billet.
+      const fileBaseName =
+        this.transactionId || this.tickets?.[0]?.ticketNumber || 'reservation';
 
-      // 1. Capture du DOM en image haute résolution
-      const canvas = await html2canvas(printArea, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-
-      // 2. Génération du PDF au format A4/ticket
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pdfWidth - 20; // marges de 10mm de chaque côté
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-
-      // 3. Conversion en base64 (sans le préfixe data:...)
-      const pdfBase64 = pdf.output('datauristring').split(',')[1];
-      const fileName = `billet-${this.tickets[0].ticketNumber}.pdf`;
-
-      // 4. Sauvegarde sur le téléphone
-      const savedFile = await Filesystem.writeFile({
-        path: fileName,
-        data: pdfBase64,
-        directory: Directory.Cache, // ou Directory.Documents si tu veux le garder durablement
-      });
-
-      // 5. Ouverture du sheet natif de partage/impression
-      await Share.share({
-        title: 'Billet ' + this.tickets[0].ticketNumber,
-        url: savedFile.uri,
-        dialogTitle: 'Partager ou imprimer votre billet',
+      await this.ticketPdfService.exportToPdf({
+        containerId: 'printArea',
+        fileName: `billets-${fileBaseName}`,
+        shareTitle:
+          this.tickets.length > 1
+            ? `${this.tickets.length} billets`
+            : 'Billet ' + (this.tickets?.[0]?.ticketNumber ?? ''),
       });
     } catch (error) {
       console.error('Erreur génération PDF:', error);
@@ -661,9 +686,5 @@ export class BookingFormPage implements OnInit, OnDestroy {
     } finally {
       await loading.dismiss();
     }
-  }
-
-  private generateQrCode(data: string): string {
-    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data)}`;
   }
 }

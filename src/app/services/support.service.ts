@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 /**
  * 👈 CORRIGÉ : les statuts déclarés ici ('in_progress' | 'resolved') ne
@@ -91,7 +91,7 @@ export class SupportService {
   reopenTicket(ticketId: number): Observable<SupportTicket> {
     return this.http.post<SupportTicket>(
       `${this.apiUrl}/${ticketId}/reopen`,
-      {},
+      {}
     );
   }
 
@@ -101,7 +101,7 @@ export class SupportService {
   addResponse(ticketId: number, message: string): Observable<{ id: number }> {
     return this.http.post<{ id: number }>(
       `${this.apiUrl}/${ticketId}/responses`,
-      { message },
+      { message }
     );
   }
 

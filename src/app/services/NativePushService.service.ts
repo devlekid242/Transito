@@ -8,7 +8,7 @@ import {
   ActionPerformed,
   Token,
 } from '@capacitor/push-notifications';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 /**
  * Push natif (Capacitor / FCM) : c'est LUI qui fait apparaître une
@@ -27,10 +27,7 @@ import { environment } from '../../environments/environment.prod';
 export class NativePushService {
   private currentToken: string | null = null;
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-  ) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   /**
    * À appeler une fois au démarrage de l'app pour un utilisateur authentifié
@@ -70,7 +67,7 @@ export class NativePushService {
       'pushNotificationReceived',
       (notification: PushNotificationSchema) => {
         console.log('Push reçu (premier plan)', notification);
-      },
+      }
     );
 
     // L'utilisateur a tapé la notification dans la barre système (app en
@@ -80,7 +77,7 @@ export class NativePushService {
       'pushNotificationActionPerformed',
       (action: ActionPerformed) => {
         this.handleNotificationTap(action.notification.data);
-      },
+      }
     );
   }
 

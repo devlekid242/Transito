@@ -5,7 +5,7 @@ import { tap } from 'rxjs/operators';
 import Pusher, { Channel } from 'pusher-js';
 import { Notification } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -100,7 +100,7 @@ export class NotificationService {
     this.agencyChannel.bind('pusher:subscription_error', (status: unknown) => {
       console.error(
         'Échec de la souscription au canal Pusher (agence)',
-        status,
+        status
       );
     });
   }
@@ -162,11 +162,11 @@ export class NotificationService {
     return this.http.patch(`${this.apiUrl}/${notificationId}/read`, {}).pipe(
       tap(() => {
         const remaining = this.notificationsSubject.value.filter(
-          (n) => n.id !== notificationId,
+          (n) => n.id !== notificationId
         );
         this.notificationsSubject.next(remaining);
         this.unreadCount$.next(remaining.length);
-      }),
+      })
     );
   }
 
@@ -179,7 +179,7 @@ export class NotificationService {
       tap(() => {
         this.notificationsSubject.next([]);
         this.unreadCount$.next(0);
-      }),
+      })
     );
   }
 
@@ -191,11 +191,11 @@ export class NotificationService {
     return this.http.delete(`${this.apiUrl}/${notificationId}`).pipe(
       tap(() => {
         const remaining = this.notificationsSubject.value.filter(
-          (n) => n.id !== notificationId,
+          (n) => n.id !== notificationId
         );
         this.notificationsSubject.next(remaining);
         this.unreadCount$.next(remaining.length);
-      }),
+      })
     );
   }
 

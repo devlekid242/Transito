@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonHeader, IonSpinner,
+  IonContent,
+  IonHeader,
+  IonSpinner,
   NavController,
   LoadingController,
   ViewWillEnter,
@@ -10,7 +12,7 @@ import {
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -32,7 +34,7 @@ export class EditProfilePhotoPage
     private authService: AuthService,
     private navCtrl: NavController,
     private userService: UserService,
-    private notificationService: UiNotificationService,
+    private notificationService: UiNotificationService
   ) {}
 
   ngOnInit() {
@@ -76,7 +78,7 @@ export class EditProfilePhotoPage
       // Vérifier la taille (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         await this.notificationService.showErrorAlert(
-          'La taille de l\'image ne doit pas dépasser 5MB',
+          "La taille de l'image ne doit pas dépasser 5MB",
           'Erreur'
         );
         return;
@@ -107,16 +109,18 @@ export class EditProfilePhotoPage
     this.userService.updateProfilePhoto(this.selectedFile).subscribe({
       next: async (response) => {
         this.isUploading = false;
-        await this.notificationService.showSuccess('Photo de profil mise à jour avec succès');
+        await this.notificationService.showSuccess(
+          'Photo de profil mise à jour avec succès'
+        );
         this.currentPhoto = this.previewPhoto;
         this.selectedFile = null;
         const role = this.authService.getRole(); // Optionnel : rafraîchir les informations de l'utilisateur si nécessaire
 
-        if(role === 'partner') {
+        if (role === 'partner') {
           setTimeout(() => {
             this.navCtrl.navigateBack('/tabs/partner-dashboard');
           }, 1500);
-        }else {
+        } else {
           setTimeout(() => {
             this.navCtrl.navigateBack('/tabs/home');
           }, 1500);

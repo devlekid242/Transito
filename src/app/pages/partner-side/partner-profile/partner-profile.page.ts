@@ -14,7 +14,7 @@ import { PartnerApiService } from '../../../services/partner-api.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-partner-profile',
   templateUrl: './partner-profile.page.html',
@@ -96,7 +96,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
     private authService: AuthService,
     private permissionService: PartnerPermissionService,
     private apiService: PartnerApiService,
-    private notificationService: UiNotificationService,
+    private notificationService: UiNotificationService
   ) {}
 
   ionViewWillEnter(): void {
@@ -157,7 +157,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
       (error: any) => {
         console.error('Erreur lors du chargement du profil:', error);
         this.loading = false;
-      },
+      }
     );
   }
 
@@ -223,7 +223,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
     this.securitySettings.is2FAEnabled = event.detail.checked;
     console.log(
       'Statut de la sécurité 2FA modifié :',
-      this.securitySettings.is2FAEnabled,
+      this.securitySettings.is2FAEnabled
     );
     const status = this.securitySettings.is2FAEnabled
       ? 'activée'
@@ -235,7 +235,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
   toggleNotifications(event: any) {
     this.userProfile.prefNotifications = event.detail.checked;
     this.notificationService.showSuccess(
-      `Notifications ${event.detail.checked ? 'activées' : 'désactivées'}`,
+      `Notifications ${event.detail.checked ? 'activées' : 'désactivées'}`
     );
   }
 
@@ -243,7 +243,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
   toggleDarkMode(event: any) {
     this.userProfile.prefDarkMode = event.detail.checked;
     this.notificationService.showSuccess(
-      `Mode sombre ${event.detail.checked ? 'activé' : 'désactivé'}`,
+      `Mode sombre ${event.detail.checked ? 'activé' : 'désactivé'}`
     );
   }
 
@@ -251,7 +251,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
   changeLanguage(lang: string) {
     if (this.languages[lang] !== 'fr') {
       this.notificationService.showWarning(
-        "La langue sélectionnée n'est pas encore disponible. Le français reste la langue par défaut.",
+        "La langue sélectionnée n'est pas encore disponible. Le français reste la langue par défaut."
       );
       return;
     }
@@ -259,7 +259,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
     this.userProfile.prefLanguage = lang;
 
     this.notificationService.showSuccess(
-      `Langue changée en ${this.languages[lang]}`,
+      `Langue changée en ${this.languages[lang]}`
     );
   }
 
@@ -280,7 +280,7 @@ export class PartnerProfilePage implements ViewWillEnter, ViewWillLeave {
       'Êtes-vous sûr de vouloir vous déconnecter?',
       () => undefined,
       undefined,
-      'Déconnexion',
+      'Déconnexion'
     );
     if (confirmed) {
       this.authService.logout();

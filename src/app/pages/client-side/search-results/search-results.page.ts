@@ -2,16 +2,18 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  IonContent, IonHeader, IonInfiniteScroll,
+  IonContent,
+  IonHeader,
+  IonInfiniteScroll,
   InfiniteScrollCustomEvent,
   NavController,
-  } from '@ionic/angular';
+} from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams } from '../../../models';
 import { TripService, UiNotificationService } from '../../../services';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 /** Forme de travail du panneau de filtres avancés (brouillon, appliqué seulement au clic sur "Appliquer"). */
 interface FilterDraft {
@@ -29,7 +31,14 @@ interface FilterDraft {
   templateUrl: './search-results.page.html',
   styleUrls: ['./search-results.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonInfiniteScroll, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    IonContent,
+    IonHeader,
+    IonInfiniteScroll,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
 })
 export class SearchResultsPage implements OnInit, OnDestroy {
   // Paramètres de recherche unifiés
@@ -88,8 +97,8 @@ export class SearchResultsPage implements OnInit, OnDestroy {
   constructor(
     private navCtrl: NavController,
     private tripService: TripService,
-    private notificationService: UiNotificationService,    
-    private route: ActivatedRoute,
+    private notificationService: UiNotificationService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -193,7 +202,7 @@ export class SearchResultsPage implements OnInit, OnDestroy {
 
     if (this.agencyFilter.length) {
       filtered = filtered.filter((t) =>
-        this.agencyFilter.includes(String(t.agencyName)),
+        this.agencyFilter.includes(String(t.agencyName))
       );
     }
 
@@ -203,18 +212,18 @@ export class SearchResultsPage implements OnInit, OnDestroy {
         break;
       case 'earliest':
         filtered.sort((a, b) =>
-          (a.departureTime || '').localeCompare(b.departureTime || ''),
+          (a.departureTime || '').localeCompare(b.departureTime || '')
         );
         break;
       case 'vip':
         filtered = filtered.filter((t) => t.category === 'VIP');
         filtered.sort((a, b) =>
-          (a.departureTime || '').localeCompare(b.departureTime || ''),
+          (a.departureTime || '').localeCompare(b.departureTime || '')
         );
         break;
       default:
         filtered.sort((a, b) =>
-          (a.departureTime || '').localeCompare(b.departureTime || ''),
+          (a.departureTime || '').localeCompare(b.departureTime || '')
         );
     }
 
@@ -379,7 +388,7 @@ export class SearchResultsPage implements OnInit, OnDestroy {
         next: (response) => {
           const newTrips = (response.data || []).filter(
             (t: Trip) =>
-              !this.allTripsFromSearch.some((existing) => existing.id === t.id),
+              !this.allTripsFromSearch.some((existing) => existing.id === t.id)
           );
 
           this.allTripsFromSearch = [...this.allTripsFromSearch, ...newTrips];
