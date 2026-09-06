@@ -323,12 +323,12 @@ export class DashboardPage implements ViewWillEnter, ViewWillLeave {
   }
 
   viewTicketDetails(bookingId: number) {
-    const booking = this.recentBookings.find((b) => b.id === bookingId);
-    if (booking) {
-      this.navCtrl.navigateForward(`/ticket/${bookingId}`, {
-        state: { booking },
-      });
-    }
+    // const booking = this.recentBookings.find((b) => b.id === bookingId);
+    // if (booking) {
+    //   this.navCtrl.navigateForward(`/ticket/${bookingId}`, {
+    //     state: { booking },
+    //   });
+    // }
   }
   /**
    * Génère les initiales d'un nom

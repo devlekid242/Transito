@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 /**
  * 👈 CORRIGÉ : les statuts déclarés ici ('in_progress' | 'resolved') ne

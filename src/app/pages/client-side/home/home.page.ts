@@ -14,7 +14,7 @@ import { Trip, TripSearchParams, User } from '../../../models';
 import { TripService, UserService } from '../../../services';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-home',

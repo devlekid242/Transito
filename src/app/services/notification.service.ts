@@ -5,7 +5,7 @@ import { tap } from 'rxjs/operators';
 import Pusher, { Channel } from 'pusher-js';
 import { Notification } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',

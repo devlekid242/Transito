@@ -17,7 +17,7 @@ import { TripService } from '../../../services/trip.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Agency, AgencyPoint } from '../../../models/agency.model';
 import { Trip as ApiTrip } from '../../../models/trip.model';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 interface DisplayTrip {
   id: number;

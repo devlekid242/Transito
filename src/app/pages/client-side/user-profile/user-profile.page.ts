@@ -12,7 +12,7 @@ import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { User } from '../../../models';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
 
 @Component({

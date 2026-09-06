@@ -14,7 +14,7 @@ import { PartnerApiService } from '../../../services/partner-api.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { PartnerHeaderComponent } from '../../../components/partner-header/partner-header.component';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 @Component({
   selector: 'app-partner-profile',
   templateUrl: './partner-profile.page.html',

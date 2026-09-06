@@ -10,7 +10,6 @@ import {
   ViewWillEnter,
   ViewWillLeave,
 } from '@ionic/angular';
-import { TicketService } from '../../../services/ticket.service';
 import { BookingService } from '../../../services/booking.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Ticket } from '../../../models';
@@ -90,7 +89,6 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private ticketService: TicketService,
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
     private notificationService: UiNotificationService,
@@ -181,32 +179,20 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
   private async loadTicket(itemId: number) {
     this.isLoading = true;
-    this.ticketService.getTicket(itemId).subscribe({
-      next: (ticket) => {
-        this.mapTicket(ticket);
+    this.bookingService.getBookingDetail(itemId).subscribe({
+      next: (booking) => {
+        this.mapBookingAsTicket(booking);
         this.qrValue = this.ticket.qrCode ? String(this.ticket.qrCode) : '';
         this.isLoading = false;
       },
-      error: async () => {
-        this.bookingService.getBookingDetail(itemId).subscribe({
-          next: (booking) => {
-            this.mapBookingAsTicket(booking);
-            this.qrValue = this.ticket.qrCode ? String(this.ticket.qrCode) : '';
-            this.isLoading = false;
-          },
-          error: async (err) => {
-            this.isLoading = false;
-            console.error(
-              'Impossible de charger le ticket ou la réservation',
-              err,
-            );
-            await this.notificationService.showErrorAlert(
-              'Impossible de charger le ticket.',
-              'Erreur',
-            );
-            this.goBack();
-          },
-        });
+      error: async (err) => {
+        this.isLoading = false;
+        console.error('Impossible de charger la réservation', err);
+        await this.notificationService.showErrorAlert(
+          'Impossible de charger le ticket.',
+          'Erreur',
+        );
+        this.goBack();
       },
     });
   }

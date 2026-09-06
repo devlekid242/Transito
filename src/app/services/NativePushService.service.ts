@@ -8,7 +8,7 @@ import {
   ActionPerformed,
   Token,
 } from '@capacitor/push-notifications';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 
 /**
  * Push natif (Capacitor / FCM) : c'est LUI qui fait apparaître une

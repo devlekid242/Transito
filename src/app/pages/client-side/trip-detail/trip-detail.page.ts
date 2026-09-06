@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { TripDetail, TripPoint } from '../../../models';
 import { TripService } from '../../../services';
 import { UiNotificationService } from '../../../services/ui-notification.service';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-trip-detail',

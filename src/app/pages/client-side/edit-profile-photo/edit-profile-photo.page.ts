@@ -12,7 +12,7 @@ import {
 } from '@ionic/angular';
 import { UserService } from '../../../services/user.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, catchError, of, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 import { unwrapCollection } from '../shared/rxjs-operators';
 
 // export interface Trip {

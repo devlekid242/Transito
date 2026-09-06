@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentLog, PaymentRequest, PaymentResponse } from '../models';
 import { unwrapCollection } from 'src/app/shared/rxjs-operators';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 import { IdempotencyService } from 'src/app/services/idempotency.service';
 
 @Injectable({

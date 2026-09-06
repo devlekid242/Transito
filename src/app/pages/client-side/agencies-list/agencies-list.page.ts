@@ -16,7 +16,7 @@ import { AgencyService } from '../../../services/agency.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { Agency } from '../../../models';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 interface AgencyCard {
   id: number;

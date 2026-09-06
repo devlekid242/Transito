@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import html2canvas from 'html2canvas';
+import { domToCanvas } from 'modern-screenshot';
 import jsPDF from 'jspdf';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -20,13 +20,23 @@ export interface TicketExportOptions {
  * Remplace la logique précédemment dupliquée dans BookingFormPage et
  * TicketDetailPage, qui ne fonctionnait pas pour plusieurs raisons :
  *
- * 1. html2canvas ne sait pas interpréter les fonctions de couleur CSS
- *    modernes (oklch(), color-mix(), lab()...) que les thèmes
- *    Material/Tailwind actuels utilisent via des variables CSS
- *    (--color-*, bg-primary, text-on-primary, etc.). Sur ce type de thème,
- *    html2canvas lève une exception dès la capture ("Attempting to parse
- *    an unsupported color function"), ce qui explique un échec systématique
- *    (on tombe directement dans le bloc `catch`, d'où "ça ne marche jamais").
+ * 1. La capture DOM → image utilisait `html2canvas`, qui réimplémente son
+ *    propre mini-moteur CSS en JavaScript plutôt que de s'appuyer sur le
+ *    moteur de rendu natif du navigateur. Ce moteur maison ne comprend
+ *    QUE la syntaxe couleur historique (rgb(), hsl(), hex, noms) : dès
+ *    qu'il rencontre une fonction couleur CSS Color Level 4 (oklch(),
+ *    oklab(), lab(), lch(), color-mix()...), il lève une exception et la
+ *    capture échoue entièrement ("Attempting to parse an unsupported
+ *    color function"). Or Tailwind v4 (utilisé ici) génère justement sa
+ *    palette par défaut en oklch — donc TOUTE capture d'une zone stylée
+ *    avec ce thème plantait, quelle que soit la propriété en cause
+ *    (background, bordure, ombre, dégradé...). html2canvas n'étant plus
+ *    activement maintenu, patcher couleur par couleur revient à jouer à
+ *    la taupe sans fin. On utilise à la place `modern-screenshot`, qui
+ *    sérialise le DOM dans un SVG (`<foreignObject>`) et laisse le
+ *    NAVIGATEUR LUI-MÊME le dessiner : n'importe quelle couleur CSS
+ *    valide (y compris oklch/color-mix) fonctionne donc nativement, sans
+ *    aucun bricolage de conversion de couleurs.
  *
  * 2. Aucune des deux pages ne faisait de distinction entre plateforme
  *    native (Android/iOS via Capacitor) et web (navigateur/PWA). Or
@@ -40,9 +50,23 @@ export interface TicketExportOptions {
  *    UNE seule image qu'il écrasait sur UNE seule page A4 : billets
  *    minuscules, illisibles, voire coupés. On capture maintenant chaque
  *    billet séparément et on ajoute une page PDF par billet.
+ *
+ * 4. Le format de page n'est plus un A4 fixe (qui laissait de grandes
+ *    marges blanches autour d'un billet bien plus petit). Chaque page du
+ *    PDF est désormais dimensionnée exactement à la taille du billet
+ *    capturé (+ une petite marge constante), quelle que soit sa hauteur
+ *    réelle (billet annulé plus court, points d'embarquement en plus,
+ *    etc.).
  */
 @Injectable({ providedIn: 'root' })
 export class TicketPdfService {
+  /** Résolution de capture (plus haut = image plus nette, PDF plus lourd). */
+  private readonly captureScale = 2;
+  /** Marge autour du billet sur chaque page, en millimètres. */
+  private readonly pageMarginMm = 8;
+  /** Conversion pixel CSS (96 dpi, standard navigateur) → millimètre. */
+  private readonly pxToMm = 25.4 / 96;
+
   async exportToPdf(options: TicketExportOptions): Promise<void> {
     const container = document.getElementById(options.containerId);
     if (!container) {
@@ -62,47 +86,53 @@ export class TicketPdfService {
     // changement de vue.
     await this.waitForRenderReady();
 
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
+    let pdf: jsPDF | null = null;
 
     for (let i = 0; i < elementsToCapture.length; i++) {
       const el = elementsToCapture[i];
 
-      const canvas = await html2canvas(el, {
-        scale: 2,
+      const canvas = await domToCanvas(el, {
+        scale: this.captureScale,
         backgroundColor: '#ffffff',
-        useCORS: true,
-        allowTaint: false,
-        onclone: (_doc, clonedEl) =>
-          this.flattenComputedColors(el, clonedEl as HTMLElement),
+        // Laisse un peu plus de marge que le défaut pour les polices/QR
+        // codes avant d'abandonner la capture.
+        timeout: 15000,
       });
 
+      // Taille réelle du billet (en CSS px, indépendante de captureScale)
+      // convertie en millimètres, pour que la page fasse exactement la
+      // taille du contenu plutôt qu'un format papier standard.
+      const contentWidthMm = (canvas.width / this.captureScale) * this.pxToMm;
+      const contentHeightMm =
+        (canvas.height / this.captureScale) * this.pxToMm;
+      const pageWidth = contentWidthMm + this.pageMarginMm * 2;
+      const pageHeight = contentHeightMm + this.pageMarginMm * 2;
+      const orientation = pageWidth > pageHeight ? 'landscape' : 'portrait';
+
       const imgData = canvas.toDataURL('image/png');
-      const availableWidth = pdfWidth - margin * 2;
-      const availableHeight = pdfHeight - margin * 2;
 
-      let drawWidth = availableWidth;
-      let drawHeight = (canvas.height * drawWidth) / canvas.width;
-
-      // Si le billet est plus haut qu'une page A4, on le réduit pour qu'il
-      // tienne entièrement dedans plutôt que de le laisser déborder.
-      if (drawHeight > availableHeight) {
-        drawHeight = availableHeight;
-        drawWidth = (canvas.width * drawHeight) / canvas.height;
+      if (!pdf) {
+        pdf = new jsPDF({
+          orientation,
+          unit: 'mm',
+          format: [pageWidth, pageHeight],
+        });
+      } else {
+        pdf.addPage([pageWidth, pageHeight], orientation);
       }
 
-      if (i > 0) {
-        pdf.addPage();
-      }
+      pdf.addImage(
+        imgData,
+        'PNG',
+        this.pageMarginMm,
+        this.pageMarginMm,
+        contentWidthMm,
+        contentHeightMm,
+      );
+    }
 
-      const x = margin + (availableWidth - drawWidth) / 2;
-      pdf.addImage(imgData, 'PNG', x, margin, drawWidth, drawHeight);
+    if (!pdf) {
+      throw new Error('Aucun billet à exporter.');
     }
 
     const fileName = `${options.fileName}.pdf`;
@@ -135,53 +165,6 @@ export class TicketPdfService {
       url: savedFile.uri,
       dialogTitle: 'Partager ou imprimer votre billet',
     });
-  }
-
-  /**
-   * Copie, élément par élément, les couleurs déjà résolues par le
-   * navigateur (`getComputedStyle` renvoie toujours du rgb()/rgba(), quelle
-   * que soit la syntaxe CSS d'origine : oklch, color-mix, variable CSS...)
-   * depuis l'élément source vers son clone. C'est ce clone que html2canvas
-   * capture réellement (voir option `onclone`), donc il ne voit jamais les
-   * fonctions de couleur qu'il ne sait pas interpréter.
-   */
-  private flattenComputedColors(source: Element, clone: Element): void {
-    const props = [
-      'color',
-      'backgroundColor',
-      'borderTopColor',
-      'borderRightColor',
-      'borderBottomColor',
-      'borderLeftColor',
-      'boxShadow',
-      'fill',
-      'stroke',
-    ] as const;
-
-    const walk = (srcNode: Element, cloneNode: Element) => {
-      const computed = window.getComputedStyle(srcNode);
-      const style = (cloneNode as HTMLElement).style;
-
-      props.forEach((prop) => {
-        const value = computed.getPropertyValue(
-          prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase()),
-        );
-        if (value) {
-          style.setProperty(
-            prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase()),
-            value,
-          );
-        }
-      });
-
-      const srcChildren = Array.from(srcNode.children);
-      const cloneChildren = Array.from(cloneNode.children);
-      srcChildren.forEach((child, idx) => {
-        if (cloneChildren[idx]) walk(child, cloneChildren[idx]);
-      });
-    };
-
-    walk(source, clone);
   }
 
   private waitForRenderReady(): Promise<void> {

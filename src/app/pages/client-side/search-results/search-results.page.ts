@@ -13,7 +13,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Trip, TripSearchParams } from '../../../models';
 import { TripService, UiNotificationService } from '../../../services';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 /** Forme de travail du panneau de filtres avancés (brouillon, appliqué seulement au clic sur "Appliquer"). */
 interface FilterDraft {
