@@ -22,6 +22,9 @@
       "updateMode": "prefetch",
       "resources": {
         "files": [
+          "/assets/images/**",
+          "/assets/icon/**",
+          "/assets/icons/**",
           "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
       }

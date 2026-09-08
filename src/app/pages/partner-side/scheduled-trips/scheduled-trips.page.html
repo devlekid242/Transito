@@ -39,11 +39,15 @@
     </div>
 
     <!-- Filtres de recherche et date -->
-    <div class="rounded-2xl border border-surface-variant bg-surface-container-lowest p-3 shadow-sm">
+    <div
+      class="rounded-2xl border border-surface-variant bg-surface-container-lowest p-3 shadow-sm"
+    >
       <div class="flex flex-col gap-3 md:flex-row md:items-center">
         <label class="relative flex-1">
           <span class="sr-only">Rechercher un trajet</span>
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"></i>
+          <i
+            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"
+          ></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
@@ -53,16 +57,46 @@
           />
         </label>
 
-        <label class="relative md:w-52">
-          <span class="sr-only">Filtrer par date</span>
-          <i class="fa-regular fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"></i>
-          <input
-            type="date"
-            [(ngModel)]="selectedDate"
-            (ngModelChange)="applyFilters()"
-            class="w-full rounded-xl border border-surface-variant bg-white py-2.5 pl-9 pr-3 text-body-md text-on-surface outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20"
-          />
-        </label>
+        <div class="relative md:w-52">
+          <div
+            id="filter-date-trigger"
+            class="flex items-center w-full rounded-xl border border-surface-variant bg-white py-2.5 pl-9 pr-3 text-body-md cursor-pointer transition active-scale relative"
+          >
+            <i
+              class="fa-regular fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"
+            ></i>
+            <span
+              class="truncate"
+              [ngClass]="selectedDate ? 'text-on-surface' : 'text-on-surface-variant/60'"
+            >
+              {{ formattedSelectedDate }}
+            </span>
+            <button
+              *ngIf="selectedDate"
+              type="button"
+              (click)="clearDate($event)"
+              class="ml-auto shrink-0 text-on-surface-variant/60 hover:text-secondary px-1"
+              aria-label="Effacer la date"
+            >
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+          </div>
+
+          <ion-modal
+            #filterDateModal
+            trigger="filter-date-trigger"
+            [keepContentsMounted]="true"
+            class="date-picker-modal"
+          >
+            <ng-template>
+              <ion-datetime
+                presentation="date"
+                [value]="isoSelectedDate"
+                (ionChange)="onDateChange($event, filterDateModal)"
+              ></ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </div>
 
         <button
           type="button"

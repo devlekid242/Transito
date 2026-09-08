@@ -7,6 +7,8 @@ import {
   NavController,
   ViewWillEnter,
   ViewWillLeave,
+  IonModal, 
+  IonDatetime
 } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -26,6 +28,8 @@ import { environment } from 'src/environments/environment.prod';
     FormsModule,
     ReactiveFormsModule,
     IonContent,
+    IonModal,
+    IonDatetime,
     SharedHeaderComponent,
   ],
 })
@@ -58,6 +62,24 @@ export class HomePage
   totalResults = 0;
   hasUnreadNotifications = false;
   private destroy$ = new Subject<void>();
+
+  readonly minDate = this.getTodayDate(); // empêche de sélectionner une date passée
+
+  // Formatage lisible pour l'affichage (le modèle reste au format ISO YYYY-MM-DD)
+  get formattedDepartureDate(): string {
+    if (!this.searchParams.departureDate) return 'jj/mm/aaaa';
+    const [year, month, day] = this.searchParams.departureDate.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  onDateChange(event: CustomEvent) {
+    // ion-datetime renvoie une chaîne ISO complète (ex: 2026-09-08T00:00:00)
+    // on ne garde que la partie date pour rester cohérent avec ton format existant
+    const value = event.detail.value as string;
+    if (value) {
+      this.searchParams.departureDate = value.split('T')[0];
+    }
+  }
 
   constructor(
     private navCtrl: NavController,

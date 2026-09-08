@@ -13,3 +13,18 @@ ion-content {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+// global.scss
+ion-modal.date-picker-modal {
+  --width: 320px;
+  --height: auto;
+  --border-radius: 1.5rem;
+
+  &::part(content) {
+    padding: 1rem;
+  }
+}
+
+ion-datetime {
+  --background: var(--color-surface-container-lowest);
+}

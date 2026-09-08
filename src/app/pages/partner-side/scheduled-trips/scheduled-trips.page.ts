@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
+import { IonContent, IonModal, IonDatetime, ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import { PartnerApiService } from '../../../services/partner-api.service';
@@ -37,6 +37,8 @@ interface ScheduledTrip {
     FormsModule,
     PartnerHeaderComponent,
     SkeletonLoaderComponent,
+    IonModal,
+    IonDatetime,
   ],
 })
 export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
@@ -57,6 +59,31 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
   canViewTrips = false;
   partnerRole: string | null = null;
   loading: boolean = true;
+
+   // Format ISO attendu par ion-datetime pour préremplir le calendrier
+  get isoSelectedDate(): string | undefined {
+    return this.selectedDate ? `${this.selectedDate}T00:00:00` : undefined;
+  }
+
+  // Affichage lisible dans le trigger
+  get formattedSelectedDate(): string {
+    if (!this.selectedDate) return 'Toutes les dates';
+    const [year, month, day] = this.selectedDate.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  onDateChange(event: CustomEvent, modal: IonModal): void {
+    const value = event.detail.value as string;
+    this.selectedDate = value ? value.split('T')[0] : '';
+    this.applyFilters();
+    modal.dismiss();
+  }
+
+  clearDate(event: Event): void {
+    event.stopPropagation(); // évite de rouvrir la modal (le bouton est dans le trigger)
+    this.selectedDate = '';
+    this.applyFilters();
+  }
 
   constructor(
     private router: Router,

@@ -21,6 +21,20 @@ article {
   }
 }
 
+ion-modal.date-picker-modal {
+  --width: 320px;
+  --height: auto;
+  --border-radius: 1.5rem;
+
+  &::part(content) {
+    padding: 1rem;
+  }
+}
+
+ion-datetime {
+  --background: var(--color-surface-container-lowest);
+}
+
 /* Remplissage personnalisé pour les éléments natifs de sélection HTML */
 select {
   background-image: none; /* Nettoyage pour laisser place aux icônes FontAwesome personnalisées */
