@@ -4,11 +4,7 @@
 
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css");
 
-
-
 @layer ionic-base, theme, base, components, utilities;
-
-
 
 /* 2. CSS Ionic → dans le layer de priorité la plus basse */
 
@@ -32,20 +28,19 @@
 
 @import "@ionic/angular/css/flex-utils.css" layer(ionic-base);
 
-
-
 /* 3. Tailwind après → ses utilities passent AU-DESSUS d'Ionic */
 
 @import "./tailwindcss.css";
-
 
 /* ==========================================================================
    4. STYLES PERSONNALISÉS — TOASTS & ALERTS
    Design aligné sur les tokens du thème (@theme dans tailwindcss.css) :
    cartes claires, coins arrondis, boutons pill, badge-icône signature.
    ========================================================================== */
+:root {
+  color-scheme: light only;
+}
 @layer components {
-
   /* On force le rendu clair : le reste de l'app n'a pas de mode sombre,
      donc on évite qu'iOS/Android en dark mode ne fasse basculer
      UNIQUEMENT ces composants (c'était la cause du rendu bordeaux). */
@@ -146,16 +141,26 @@
     font-weight: 600;
     transition: opacity 0.2s;
   }
-  ion-toast::part(button):hover { opacity: 1; }
-  ion-toast::part(button):active { opacity: 0.7; }
+  ion-toast::part(button):hover {
+    opacity: 1;
+  }
+  ion-toast::part(button):active {
+    opacity: 0.7;
+  }
   ion-toast::part(button) ion-icon {
     margin-right: 8px;
     font-size: 18px;
   }
 
   @keyframes toastSlideIn {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   /* ==========================================================================
@@ -311,8 +316,14 @@
   }
 
   @keyframes alertZoomIn {
-    from { transform: scale(0.92); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from {
+      transform: scale(0.92);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 }
 

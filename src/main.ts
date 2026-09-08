@@ -9,7 +9,7 @@ import {
   provideIonicAngular,
 } from '@ionic/angular';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideZoneChangeDetection } from '@angular/core';
+import { provideZoneChangeDetection, isDevMode } from '@angular/core';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
@@ -27,6 +27,7 @@ import {
   warning,
   informationCircle,
 } from 'ionicons/icons';
+import { provideServiceWorker } from '@angular/service-worker';
 
 addIcons({
   'checkmark-circle': checkmarkCircle,
@@ -44,6 +45,9 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular({ mode: 'md' }),
     provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-    provideRouter(routes, withComponentInputBinding()),
+    provideRouter(routes, withComponentInputBinding()), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }),
   ],
 }).catch((err) => console.error(err));

@@ -13,19 +13,21 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       overlaysWebView: false,
-      style: 'DARK'
+      style: 'DARK',
     },
     SplashScreen: {
       launchShowDuration: 2000,
-      backgroundColor: "#ffffffff",
-      androidSplashResourceName: "splash",
+      backgroundColor: '#ffffffff',
+      androidSplashResourceName: 'splash',
       showSpinner: false,
       splashFullScreen: true,
-      splashImmersive: true
-    }
+      splashImmersive: true,
+    },
+    LocalNotifications: {
+      smallIcon: 'ic_stat_notification',
+      iconColor: '#059669', // ton --color-primary
+    },
   },
-
-
 };
 
 export default config;
