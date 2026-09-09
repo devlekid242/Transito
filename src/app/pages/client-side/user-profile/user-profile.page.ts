@@ -39,6 +39,11 @@ export class UserProfilePage implements OnInit, ViewWillEnter, ViewWillLeave {
   };
 
   isLoading = false;
+  isScrolled = false;
+
+  onScroll(event: any) {
+    this.isScrolled = (event?.detail?.scrollTop || 0) > 35;
+  }
 
   constructor(
     private navCtrl: NavController,

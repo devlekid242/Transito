@@ -43,19 +43,68 @@
       class="rounded-2xl border border-surface-variant bg-surface-container-lowest p-3 shadow-sm"
     >
       <div class="flex flex-col gap-3 md:flex-row md:items-center">
-        <label class="relative flex-1">
-          <span class="sr-only">Rechercher un trajet</span>
-          <i
-            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant"
-          ></i>
-          <input
-            type="text"
-            [(ngModel)]="searchTerm"
-            (ngModelChange)="applyFilters()"
-            placeholder="Rechercher un trajet, ville, bus..."
-            class="w-full rounded-xl border border-surface-variant bg-white py-2.5 pl-9 pr-3 text-body-md text-on-surface outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20"
-          />
-        </label>
+        <div class="relative space-y-4 flex-1">
+          <div class="relative">
+            <label
+              class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider ml-1"
+              >Ville de départ</label
+            >
+            <div class="relative flex items-center mt-1.5">
+              <span class="absolute left-4 text-primary z-10">
+                <i class="fa-solid fa-location-dot text-sm"></i>
+              </span>
+              <select
+                [(ngModel)]="selectedDepartureCity"
+                (ngModelChange)="applyFilters()"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-10 py-3 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">Toutes les villes</option>
+                <option *ngFor="let city of departureCities" [value]="city">
+                  {{ city }}
+                </option>
+              </select>
+              <i
+                class="fa-solid fa-chevron-down absolute right-4 text-on-surface-variant/40 text-xs pointer-events-none"
+              ></i>
+            </div>
+          </div>
+
+          <div class="absolute right-6 top-[42%] -translate-y-1/2 z-30">
+            <button
+              type="button"
+              (click)="swapCities()"
+              class="w-9 h-9 bg-primary text-on-primary rounded-xl flex items-center justify-center shadow-md active:scale-90 hover:brightness-105 transition-all border-2 border-surface-container-lowest"
+              aria-label="Échanger les villes"
+            >
+              <i class="fa-solid fa-arrows-rotate text-xs"></i>
+            </button>
+          </div>
+
+          <div class="relative">
+            <label
+              class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-wider ml-1"
+              >Ville d'arrivée</label
+            >
+            <div class="relative flex items-center mt-1.5">
+              <span class="absolute left-4 text-secondary z-10">
+                <i class="fa-solid fa-location-crosshairs text-sm"></i>
+              </span>
+              <select
+                [(ngModel)]="selectedArrivalCity"
+                (ngModelChange)="applyFilters()"
+                class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-10 py-3 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">Toutes les villes</option>
+                <option *ngFor="let city of arrivalCities" [value]="city">
+                  {{ city }}
+                </option>
+              </select>
+              <i
+                class="fa-solid fa-chevron-down absolute right-4 text-on-surface-variant/40 text-xs pointer-events-none"
+              ></i>
+            </div>
+          </div>
+        </div>
 
         <div class="relative md:w-52">
           <div

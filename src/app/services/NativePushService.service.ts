@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
@@ -13,6 +13,7 @@ import {
   ActionPerformed as LocalActionPerformed,
 } from '@capacitor/local-notifications';
 import { environment } from '../../environments/environment.prod';
+import { UiNotificationService } from './ui-notification.service';
 
 /**
  * Push natif (Capacitor / FCM) : c'est LUI qui fait apparaître une
@@ -35,6 +36,7 @@ import { environment } from '../../environments/environment.prod';
 @Injectable({ providedIn: 'root' })
 export class NativePushService {
   private currentToken: string | null = null;
+  private readonly uiNotificationService = inject(UiNotificationService);
 
   /** Doit être identique au channel_id envoyé par FcmPushService.php (back) */
   private readonly CHANNEL_ID = 'transito_notifications';
@@ -54,20 +56,25 @@ export class NativePushService {
       return;
     }
 
-    // 👈 NOUVEAU : canal HIGH importance, utilisé à la fois par le push natif
-    // (background/killed, référencé par FcmPushService côté back) ET par les
-    // notifications locales qu'on construit nous-mêmes en foreground.
-    // Sans ceci, Android crée un canal par défaut à importance normale et le
-    // heads-up n'apparaît jamais, quel que soit ce qu'envoie le back.
-    await PushNotifications.createChannel({
+    // 👈 NOUVEAU : canal HIGH importance (5 / MAX), enregistré à la fois
+    // sur PushNotifications ET LocalNotifications pour garantir le heads-up
+    // en background et en foreground.
+    const channelConfig = {
       id: this.CHANNEL_ID,
       name: 'Alertes Transito',
       description: 'Réservations, paiements, annonces',
-      importance: 5, // MAX -> heads-up popup garanti, cohérent avec PRIORITY_HIGH côté back
-      visibility: 1, // public, cohérent avec 'PUBLIC' côté back
+      importance: 5 as const, // MAX -> heads-up popup garanti
+      visibility: 1 as const, // public
       vibration: true,
       lights: true,
-    });
+    };
+
+    try {
+      await PushNotifications.createChannel(channelConfig);
+      await LocalNotifications.createChannel(channelConfig);
+    } catch (e) {
+      console.warn('Erreur lors de la création du canal de notification', e);
+    }
 
     // 👈 NOUVEAU : type d'action pour reproduire les boutons "Voir" / "Pas
     // intéressé" façon Snapchat — actif uniquement pour les notifications
@@ -109,26 +116,41 @@ export class NativePushService {
       console.error('Échec de l’enregistrement push natif', error);
     });
 
-    // 👈 MODIFIÉ : app au premier plan. Android n'affiche JAMAIS une
-    // notification FCM automatiquement dans ce cas — on la construit donc
-    // nous-mêmes via LocalNotifications, sur le même canal (donc même son,
-    // même comportement heads-up que le push natif en arrière-plan).
+    // 👈 MODIFIÉ : app au premier plan.
+    // 1) On planifie une notification locale native pour la barre système
+    // 2) On affiche instantanément une bannière in-app style WhatsApp en haut de l'écran avec retour haptique
     PushNotifications.addListener(
       'pushNotificationReceived',
       async (notification: PushNotificationSchema) => {
+        const title = notification.title ?? 'Transito';
+        const body = notification.body ?? '';
         const data = notification.data ?? {};
-        await LocalNotifications.schedule({
-          notifications: [
-            {
-              id: Date.now() % 2147483647,
-              title: notification.title ?? 'Transito',
-              body: notification.body ?? '',
-              channelId: this.CHANNEL_ID,
-              actionTypeId: this.BOOKING_ACTION_TYPE,
-              smallIcon: 'ic_stat_notification',
-              extra: data,
-            },
-          ],
+
+        // 1. Notification locale native (heads-up / barre système Android)
+        try {
+          await LocalNotifications.schedule({
+            notifications: [
+              {
+                id: Date.now() % 2147483647,
+                title,
+                body,
+                channelId: this.CHANNEL_ID,
+                actionTypeId: this.BOOKING_ACTION_TYPE,
+                smallIcon: 'ic_stat_notification',
+                extra: data,
+              },
+            ],
+          });
+        } catch (e) {
+          console.warn('Erreur lors de la planification de la notification locale', e);
+        }
+
+        // 2. Bannière in-app flottante WhatsApp en haut de l'écran
+        this.uiNotificationService.showInAppPushBanner({
+          title,
+          body,
+          category: data?.category,
+          onClick: () => this.handleNotificationTap(data),
         });
       }
     );
@@ -187,11 +209,11 @@ export class NativePushService {
    * Déduit la page à ouvrir à partir des données jointes par le backend
    * (`FcmPushService::sendForNotification`). Adapte les routes à ton app.
    */
-  private handleNotificationTap(data: any): void {
+  public handleNotificationTap(data: any): void {
     const category = data?.category;
     const payload = this.safeParse(data?.payload);
 
-    switch (category) {
+    switch (category?.toUpperCase()) {
       case 'BOOKING':
       case 'TICKET':
         if (payload?.reservationId || payload?.ticketId) {
@@ -205,6 +227,9 @@ export class NativePushService {
         break;
       case 'PAYMENT':
         this.router.navigate(['/tabs/reservation']);
+        break;
+      case 'TRIP':
+        this.router.navigate(['/tabs/home']);
         break;
       default:
         this.router.navigate(['/notifications']);

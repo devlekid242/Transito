@@ -57,6 +57,7 @@ export class HomePage
   // États de l'interface graphique
   isLoading = false;
   isSearching = false;
+  isScrolled = false;
   currentPage = 1;
   pageSize = 10;
   totalResults = 0;
@@ -64,6 +65,10 @@ export class HomePage
   private destroy$ = new Subject<void>();
 
   readonly minDate = this.getTodayDate(); // empêche de sélectionner une date passée
+
+  onScroll(event: any) {
+    this.isScrolled = (event?.detail?.scrollTop || 0) > 35;
+  }
 
   // Formatage lisible pour l'affichage (le modèle reste au format ISO YYYY-MM-DD)
   get formattedDepartureDate(): string {

@@ -49,11 +49,16 @@ export class AgenciesListPage implements OnInit, ViewWillEnter, ViewWillLeave {
   pageSize = 10;
   hasMore = true;
   isLoading = false;
+  isScrolled = false;
 
   readonly baseApiUrl = environment.baseApiUrl;
 
   allAgencies: AgencyCard[] = [];
   filteredAgencies: AgencyCard[] = [];
+
+  onScroll(event: any) {
+    this.isScrolled = (event?.detail?.scrollTop || 0) > 35;
+  }
 
   constructor(
     private navCtrl: NavController,

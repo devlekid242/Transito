@@ -1,10 +1,15 @@
-<ion-content [fullscreen]="true" class="bg-background">
+<ion-content [scrollEvents]="true" (ionScroll)="onScroll($event)" class="bg-background">
   <div
     id="home"
     class="w-full max-w-[480px] bg-surface min-h-screen relative pb-28 mx-auto shadow-sm"
   >
+    <!-- Header Général Fixe & Animé au Scroll -->
+    <div class="sticky top-0 z-50 w-full">
+      <app-shared-header [isScrolled]="isScrolled" [pageTitle]="'Accueil'"></app-shared-header>
+    </div>
+
     <header
-      class="hero-gradient text-on-primary px-6 pt-10 pb-32 rounded-b-[3rem] relative overflow-hidden top-0 shadow-lg"
+      class="hero-gradient text-on-primary px-6 -mt-18 pt-22 pb-32 rounded-b-[3rem] relative overflow-hidden top-0 shadow-lg"
     >
       <div
         class="absolute -right-10 -top-10 w-48 h-48 bg-white/5 rounded-full blur-3xl"
@@ -12,8 +17,6 @@
       <div
         class="absolute -left-10 -bottom-10 w-48 h-48 bg-primary-container/10 rounded-full blur-3xl"
       ></div>
-
-      <app-shared-header></app-shared-header>
 
       <div class="mt-2 z-10 relative px-1">
         <h1

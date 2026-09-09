@@ -1,11 +1,20 @@
+export type PaymentStatus =
+  | 'PENDING'
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'REFUNDED'
+  | 'REFUND_PENDING'
+  | 'REFUNDED_COMPLETED'
+  | 'DUPLICATE';
+
 export interface PaymentLog {
   id: number;
   reservationId: number;
   amount: number | string;
   currency: string;
   reference: string;
-  paymentMethod: 'Card' | 'Mobile Money' | 'Bank Transfer' | 'Cash';
-  status: 'Initié' | 'Complété' | 'Échoué' | 'Remboursé' | 'SUCCESS';
+  paymentMethod: string;
+  status: PaymentStatus;
   transactionId?: string;
   paymentGateway?: string;
   createdAt: string;

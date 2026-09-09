@@ -52,13 +52,18 @@ export class SearchResultsPage implements OnInit, OnDestroy {
 
   // Résumé textuel pour le bandeau d'en-tête (trajet, date, passager)
   searchSummary = {
-    origin: 'Départ',
-    destination: 'Destination',
+    origin: '',
+    destination: '',
     date: '',
     passengersCount: 1,
     passengerName: '',
     passengerPhone: '',
   };
+
+  // Listes de villes dynamiques pour les sélecteurs
+  departureCities: string[] = [];
+  arrivalCities: string[] = [];
+  readonly minDate = new Date().toISOString().split('T')[0];
 
   // Listes de stockage des lignes
   displayedTrips: Trip[] = [];
@@ -102,6 +107,7 @@ export class SearchResultsPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.loadCities();
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
@@ -111,9 +117,9 @@ export class SearchResultsPage implements OnInit, OnDestroy {
           departureDate: params['date'] || '',
         };
 
-        this.searchSummary.origin = this.searchParams.departureCity || 'Congo';
+        this.searchSummary.origin = this.searchParams.departureCity || '';
         this.searchSummary.destination =
-          this.searchParams.arrivalCity || 'Destination';
+          this.searchParams.arrivalCity || '';
         this.searchSummary.date = this.searchParams.departureDate
           ? this.formatDisplayDate(this.searchParams.departureDate)
           : "Aujourd'hui";
@@ -134,6 +140,29 @@ export class SearchResultsPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Charger les référentiels de villes depuis l'API
+   */
+  private loadCities(): void {
+    this.tripService
+      .getDepartureCities()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cities) => (this.departureCities = cities || []),
+        error: (err) =>
+          console.error('Erreur lors du chargement des villes de départ:', err),
+      });
+
+    this.tripService
+      .getArrivalCities()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cities) => (this.arrivalCities = cities || []),
+        error: (err) =>
+          console.error('Erreur lors du chargement des villes d\'arrivée:', err),
+      });
   }
 
   /**

@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { Capacitor } from '@capacitor/core';
 import Pusher, { Channel } from 'pusher-js';
 import { Notification } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
 import { environment } from '../../environments/environment.prod';
+import { UiNotificationService } from './ui-notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,11 +22,17 @@ export class NotificationService {
   // nombre de notifications non lues, dérivé de notifications$.
   public unreadCount$ = new BehaviorSubject<number>(0);
 
+  private readonly uiNotificationService = inject(UiNotificationService);
+  private readonly router = inject(Router);
+
   private pusher: Pusher | null = null;
   private channel: Channel | null = null; // private-user-{id}
   private agencyChannel: Channel | null = null; // private-agency-{agencyId}, agents/partenaires uniquement
   private activeConnectionKey: string | null = null;
   private activeAgencyId: number | null = null;
+
+  /** Cache court pour éviter les doublons de toast entre Pusher et FCM natif */
+  private recentlyDisplayedIds = new Set<string>();
 
   constructor(private http: HttpClient) {}
 
@@ -210,11 +219,60 @@ export class NotificationService {
   /**
    * Ajouter une notification à l'état local (appelé aussi bien depuis le
    * canal user que le canal agence).
+   * canal user que le canal agence) et afficher la bannière flottante in-app.
    */
   addLocalNotification(notification: Notification): void {
     const current = this.notificationsSubject.value;
     const updated = [notification, ...current];
     this.notificationsSubject.next(updated);
     this.unreadCount$.next(updated.length);
+
+    // Déduplication avec les push natifs (évite d'afficher 2 bannières d'affilée)
+    const notifKey = `${notification.id || ''}:${notification.title || ''}`;
+    if (this.recentlyDisplayedIds.has(notifKey)) {
+      return;
+    }
+    this.recentlyDisplayedIds.add(notifKey);
+    setTimeout(() => {
+      this.recentlyDisplayedIds.delete(notifKey);
+    }, 4000);
+
+    // Si on est sur le web/PWA ou si l'app est au premier plan, afficher le toast style WhatsApp
+    this.uiNotificationService.showInAppPushBanner({
+      title: notification.title || 'Transito',
+      body: notification.content || '',
+      category: notification.category,
+      onClick: () => this.handleNotificationNavigation(notification),
+    });
+  }
+
+  /**
+   * Navigue vers la ressource associée à la notification
+   */
+  private handleNotificationNavigation(notification: Notification): void {
+    const category = notification.category?.toUpperCase();
+    const payload = notification.payload;
+
+    switch (category) {
+      case 'BOOKING':
+      case 'TICKET':
+        if (payload?.reservationId || payload?.ticketId) {
+          this.router.navigate([
+            '/ticket',
+            payload.reservationId || payload.ticketId,
+          ]);
+        } else {
+          this.router.navigate(['/tabs/reservation']);
+        }
+        break;
+      case 'PAYMENT':
+        this.router.navigate(['/tabs/reservation']);
+        break;
+      case 'TRIP':
+        this.router.navigate(['/tabs/home']);
+        break;
+      default:
+        this.router.navigate(['/notifications']);
+    }
   }
 }

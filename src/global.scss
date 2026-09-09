@@ -152,6 +152,98 @@
     font-size: 18px;
   }
 
+  /* ==========================================================================
+     WHATSAPP / HEADS-UP STYLE TOAST (Bannière flottante en haut de l'écran)
+  ========================================================================== */
+  .whatsapp-notification-toast {
+    --background: #ffffff;
+    --color: #0f172a;
+    --border-width: 0;
+    --border-style: none;
+    --border-radius: 16px;
+    --box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
+    --width: calc(100% - 20px);
+    --start: 10px;
+    --end: 10px;
+    --min-height: 64px;
+    --white-space: normal;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    user-select: none;
+    animation: whatsappToastSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .whatsapp-notification-toast::part(container) {
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    padding: 10px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .whatsapp-notification-toast::part(header) {
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.01em !important;
+    margin-bottom: 2px !important;
+  }
+
+  .whatsapp-notification-toast::part(message) {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+    line-height: 1.35 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .whatsapp-notification-toast::part(icon) {
+    font-size: 24px !important;
+    color: #059669 !important;
+    background: #ecfdf5 !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+    margin-inline-end: 12px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .whatsapp-notification-toast::part(button) {
+    color: #059669 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    text-transform: none !important;
+    background: #ecfdf5 !important;
+    border-radius: 9999px !important;
+    padding: 6px 14px !important;
+    margin-inline-start: 8px !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .whatsapp-notification-toast::part(button):hover {
+    background: #d1fae5 !important;
+    color: #047857 !important;
+  }
+
+  .whatsapp-notification-toast::part(button):active {
+    transform: scale(0.95) !important;
+  }
+
+  @keyframes whatsappToastSlideDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
   @keyframes toastSlideIn {
     from {
       transform: translateY(100%);

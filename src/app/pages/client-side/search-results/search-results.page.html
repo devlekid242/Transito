@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <div
-    class="bg-surface-container-lowest px-5 py-3.5 shadow-sm max-w-[480px] mx-auto sticky top-0 z-40 border-b border-outline-variant/20"
+    class="bg-surface-container-lowest px-5 py-3.5 pt-4 shadow-sm max-w-[480px] mx-auto sticky top-0 z-40 border-b border-outline-variant/20"
   >
     <div class="flex items-center justify-between mb-3">
       <button
@@ -72,41 +72,6 @@
         <i class="fa-solid fa-phone text-[10px] text-tertiary"></i>
         {{ searchSummary.passengerPhone }}
       </span>
-    </div>
-
-    <div class="flex overflow-x-auto no-scrollbar gap-2.5 pb-1">
-      <button
-        (click)="applyFilter('earliest')"
-        [ngClass]="activeFilter === 'earliest' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
-        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
-      >
-        <i class="fa-solid fa-clock text-[11px]"></i>
-        <span>Départ le plus tôt</span>
-      </button>
-      <button
-        (click)="applyFilter('cheapest')"
-        [ngClass]="activeFilter === 'cheapest' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
-        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
-      >
-        <i class="fa-solid fa-arrow-down-1-9 text-[11px]"></i>
-        <span>Moins cher</span>
-      </button>
-      <button
-        (click)="applyFilter('vip')"
-        [ngClass]="activeFilter === 'vip' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
-        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
-      >
-        <i class="fa-solid fa-crown text-[11px]"></i>
-        <span>Agences VIP</span>
-      </button>
-      <button
-        (click)="modifySearch()"
-        [ngClass]="advancedFilterCount > 0 ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/30 text-on-surface-variant/80 bg-surface-container-low/40'"
-        class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold hover:bg-surface-container transition-all whitespace-nowrap flex items-center gap-1.5 active:scale-95"
-      >
-        <i class="fa-solid fa-filter text-[11px]"></i>
-        <span>Filtres avancés</span>
-      </button>
     </div>
   </div>
 </ion-header>
@@ -389,40 +354,64 @@
         <!-- Trajet -->
         <section class="flex flex-col gap-3">
           <h3 class="label-heading">Trajet</h3>
-          <div class="bento-card rounded-2xl p-4 flex flex-col gap-3 relative">
-            <label class="filter-field">
-              <span class="filter-field__label">
-                <i class="fa-solid fa-circle-dot text-primary text-[10px]"></i>
-                Ville de départ
-              </span>
-              <input
-                [(ngModel)]="filterDraft.departureCity"
-                type="text"
-                class="filter-field__input"
-                placeholder="Ex : Pointe-Noire"
-              />
-            </label>
+          <div class="bento-card rounded-2xl p-4 flex flex-col gap-4 relative">
+            <div class="relative">
+              <label
+                class="text-[10px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1"
+                >Ville de départ</label
+              >
+              <div class="relative flex items-center mt-1.5">
+                <span class="absolute left-4 text-primary z-10">
+                  <i class="fa-solid fa-location-dot text-sm"></i>
+                </span>
+                <select
+                  [(ngModel)]="filterDraft.departureCity"
+                  class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-10 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">Sélectionner le départ</option>
+                  <option *ngFor="let city of departureCities" [value]="city">
+                    {{ city }}
+                  </option>
+                </select>
+                <i
+                  class="fa-solid fa-chevron-down absolute right-4 text-on-surface-variant/40 text-xs pointer-events-none"
+                ></i>
+              </div>
+            </div>
 
-            <button
-              (click)="swapDepartureArrival()"
-              aria-label="Inverser le départ et l'arrivée"
-              class="swap-btn"
-            >
-              <i class="fa-solid fa-arrow-up-arrow-down"></i>
-            </button>
+            <div class="flex justify-center -my-2 z-20">
+              <button
+                (click)="swapDepartureArrival()"
+                aria-label="Inverser le départ et l'arrivée"
+                class="w-9 h-9 bg-primary text-on-primary rounded-xl flex items-center justify-center shadow-md active:scale-90 hover:brightness-105 transition-all border-2 border-surface-container-lowest"
+              >
+                <i class="fa-solid fa-arrows-rotate text-xs"></i>
+              </button>
+            </div>
 
-            <label class="filter-field">
-              <span class="filter-field__label">
-                <i class="fa-solid fa-location-dot text-primary text-[10px]"></i>
-                Ville d'arrivée
-              </span>
-              <input
-                [(ngModel)]="filterDraft.arrivalCity"
-                type="text"
-                class="filter-field__input"
-                placeholder="Ex : Brazzaville"
-              />
-            </label>
+            <div class="relative">
+              <label
+                class="text-[10px] font-bold text-on-surface-variant/70 uppercase tracking-wider ml-1"
+                >Ville d'arrivée</label
+              >
+              <div class="relative flex items-center mt-1.5">
+                <span class="absolute left-4 text-secondary z-10">
+                  <i class="fa-solid fa-location-crosshairs text-sm"></i>
+                </span>
+                <select
+                  [(ngModel)]="filterDraft.arrivalCity"
+                  class="w-full bg-surface-container-low border border-outline-variant/30 rounded-2xl pl-11 pr-10 py-3.5 text-sm text-on-surface font-semibold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">Sélectionner la destination</option>
+                  <option *ngFor="let city of arrivalCities" [value]="city">
+                    {{ city }}
+                  </option>
+                </select>
+                <i
+                  class="fa-solid fa-chevron-down absolute right-4 text-on-surface-variant/40 text-xs pointer-events-none"
+                ></i>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -436,6 +425,7 @@
               </span>
               <input
                 [(ngModel)]="filterDraft.departureDate"
+                [min]="minDate"
                 type="date"
                 class="filter-field__input"
               />

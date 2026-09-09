@@ -25,7 +25,7 @@ export class PaymentHistoryPage
   payments: PaymentLog[] = [];
   filteredPayments: PaymentLog[] = [];
   isLoading = false;
-  selectedFilter: 'all' | 'completed' | 'failed' | 'refunded' = 'all';
+  selectedFilter: 'all' | 'completed' | 'pending' | 'failed' | 'refunded' = 'all';
   totalSpent: number = 0;
 
   constructor(
@@ -103,12 +103,12 @@ export class PaymentHistoryPage
         break;
       case 'failed':
         this.filteredPayments = this.payments.filter(
-          (p) => p.status === 'Échoué',
+          (p) => p.status === 'FAILED',
         );
         break;
       case 'refunded':
         this.filteredPayments = this.payments.filter(
-          (p) => p.status === 'Remboursé',
+          (p) => p.status === 'REFUNDED' || p.status === 'REFUND_PENDING' || p.status === 'REFUNDED_COMPLETED',
         );
         break;
       default:
@@ -123,13 +123,15 @@ export class PaymentHistoryPage
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'Complété':
+      case 'SUCCESS':
         return 'success';
-      case 'Échoué':
+      case 'FAILED':
         return 'error';
-      case 'Remboursé':
+      case 'REFUNDED':
+      case 'REFUND_PENDING':
+      case 'REFUNDED_COMPLETED':
         return 'warning';
-      case 'Initié':
+      case 'PENDING':
         return 'medium';
       default:
         return 'secondary';
@@ -141,14 +143,33 @@ export class PaymentHistoryPage
       case 'Complété':
       case 'SUCCESS':
         return 'fa-solid fa-circle-check';
-      case 'Échoué':
+      case 'FAILED':
         return 'fa-solid fa-circle-xmark';
-      case 'Remboursé':
+      case 'REFUNDED':
+      case 'REFUND_PENDING':
+      case 'REFUNDED_COMPLETED':
         return 'fa-solid fa-rotate-left';
-      case 'Initié':
+      case 'PENDING':
         return 'fa-solid fa-clock';
       default:
         return 'fa-solid fa-circle-info';
+    }
+  }
+
+  getStatusText(status: string): string {
+    switch (status) {
+      case 'SUCCESS':
+        return 'Complété';
+      case 'FAILED':
+        return 'Échoué';
+      case 'REFUNDED':
+      case 'REFUND_PENDING':
+      case 'REFUNDED_COMPLETED':
+        return 'Remboursé';
+      case 'PENDING':
+        return 'Initié';
+      default:
+        return 'Inconnu';
     }
   }
 

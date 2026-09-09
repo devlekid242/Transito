@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { AlertController, AlertOptions, AlertButton, ToastController, ToastOptions } from '@ionic/angular';
+import { Capacitor } from '@capacitor/core';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 /**
  * Type de notification
@@ -38,6 +40,83 @@ export class UiNotificationService {
   // ============================================================================
   // TOASTS - Pour les notifications rapides et non bloquantes
   // ============================================================================
+
+  /**
+   * Affiche une bannière de notification in-app flottante en haut de l'écran
+   * (style WhatsApp / Heads-up) avec icône thématique, retour haptique
+   * et navigation immédiate lors d'un clic ou sur le bouton "Voir".
+   */
+  async showInAppPushBanner(options: {
+    title: string;
+    body: string;
+    category?: string;
+    onClick?: () => void;
+    duration?: number;
+  }): Promise<void> {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await Haptics.impact({ style: ImpactStyle.Medium });
+      }
+    } catch {
+      // Ignorer si haptics non disponible
+    }
+
+    const icon = this.getCategoryIcon(options.category);
+
+    const toast = await this.toastController.create({
+      header: options.title || 'Transito',
+      message: options.body || '',
+      position: 'top',
+      duration: options.duration ?? 5000,
+      icon,
+      cssClass: 'whatsapp-notification-toast',
+      buttons: [
+        {
+          text: 'Voir',
+          role: 'info',
+          handler: () => {
+            options.onClick?.();
+          },
+        },
+        {
+          icon: 'close-outline',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    // Permet également de taper n'importe où sur la carte du toast pour ouvrir
+    toast.addEventListener('click', (event: any) => {
+      const isCloseBtn = event.target?.closest('.toast-button-cancel') || event.target?.closest('ion-icon[name="close-outline"]');
+      if (!isCloseBtn) {
+        options.onClick?.();
+        toast.dismiss();
+      }
+    });
+
+    await toast.present();
+  }
+
+  /**
+   * Retourne l'icône appropriée selon la catégorie de la notification
+   */
+  private getCategoryIcon(category?: string): string {
+    switch (category?.toUpperCase()) {
+      case 'BOOKING':
+      case 'TICKET':
+        return 'ticket-outline';
+      case 'PAYMENT':
+        return 'card-outline';
+      case 'TRIP':
+        return 'bus-outline';
+      case 'PROMO':
+        return 'pricetag-outline';
+      case 'ANNOUNCEMENT':
+        return 'megaphone-outline';
+      default:
+        return 'notifications-outline';
+    }
+  }
 
   /**
    * Affiche un toast de succès

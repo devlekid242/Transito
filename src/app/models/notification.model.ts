@@ -1,13 +1,18 @@
 export interface Notification {
   id: number;
-  userId: number;
+  userId?: number;
+  recipientType?: string;
+  recipientId?: number;
   title: string;
-  message: string;
-  type: 'Réservation' | 'Paiement' | 'Voyage' | 'Système' | 'Promotion';
+  message?: string;
+  content?: string;
+  type?: 'Réservation' | 'Paiement' | 'Voyage' | 'Système' | 'Promotion' | string;
+  category?: string;
+  payload?: any;
   relatedId?: number;
   isRead: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface NotificationResponse {

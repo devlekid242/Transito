@@ -15,6 +15,8 @@ import { NotificationService } from '../../services/notification.service';
 })
 export class SharedHeaderComponent implements OnInit, OnDestroy {
   @Input() title: string = '';
+  @Input() pageTitle: string = '';
+  @Input() isScrolled: boolean = false;
   @Input() showLogo: boolean = true;
   @Input() showNotifications: boolean = true;
   @Input() showProfile: boolean = true;

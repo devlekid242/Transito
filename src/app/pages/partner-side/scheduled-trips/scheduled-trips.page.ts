@@ -45,8 +45,9 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
   // Filtre d'onglet actif : 'all' | 'planifie' | 'active' | 'termine'
   activeFilter: TripFilter = 'all';
 
-  // Filtres complémentaires pour recherche et date
-  searchTerm: string = '';
+  // Filtres complémentaires pour départ, destination et date
+  selectedDepartureCity: string = '';
+  selectedArrivalCity: string = '';
   selectedDate: string = '';
 
   // Liste globale des voyages planifiés (chargée depuis API)
@@ -153,9 +154,11 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
     date?: string,
     status?: 'all' | 'scheduled' | 'active' | 'completed',
     search?: string,
+    departureCity?: string,
+    arrivalCity?: string,
   ): void {
     this.loading = true;
-    this.apiService.getTrips(date, status, search).subscribe(
+    this.apiService.getTrips(date, status, search, departureCity, arrivalCity).subscribe(
       (trips: any[]) => {
         this.trips = trips.map((trip) => ({
           id: trip.id,
@@ -191,6 +194,22 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
     this.applyFilters();
   }
 
+  get departureCities(): string[] {
+    return [...new Set(this.trips.map((trip) => trip.origin).filter(Boolean))].sort();
+  }
+
+  get arrivalCities(): string[] {
+    return [...new Set(this.trips.map((trip) => trip.destination).filter(Boolean))].sort();
+  }
+
+  swapCities(): void {
+    [this.selectedDepartureCity, this.selectedArrivalCity] = [
+      this.selectedArrivalCity,
+      this.selectedDepartureCity,
+    ];
+    this.applyFilters();
+  }
+
   applyFilters(): void {
     const statusMap: Record<TripFilter, 'all' | 'scheduled' | 'active' | 'completed'> = {
       all: 'all',
@@ -201,9 +220,10 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
 
     const date = this.selectedDate || undefined;
     const status = statusMap[this.activeFilter];
-    const search = this.searchTerm || undefined;
+    const departureCity = this.selectedDepartureCity || undefined;
+    const arrivalCity = this.selectedArrivalCity || undefined;
 
-    this.loadTrips(date, status, search);
+    this.loadTrips(date, status, undefined, departureCity, arrivalCity);
   }
 
   private getTripDateValue(trip: ScheduledTrip): number {
@@ -216,7 +236,8 @@ export class ScheduledTripsPage implements ViewWillEnter, ViewWillLeave {
 
   // Réinitialiser les filtres depuis l'état vide
   resetFilters(): void {
-    this.searchTerm = '';
+    this.selectedDepartureCity = '';
+    this.selectedArrivalCity = '';
     this.selectedDate = '';
     this.applyTabFilter('all');
   }

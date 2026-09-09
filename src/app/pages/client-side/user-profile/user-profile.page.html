@@ -1,11 +1,16 @@
-<ion-content [fullscreen]="true" class="bg-background">
+<ion-content [scrollEvents]="true" (ionScroll)="onScroll($event)" class="bg-background">
   <div
     id="profile"
     class="w-full max-w-[480px] bg-surface min-h-screen relative pb-7 mx-auto shadow-sm"
   >
-    <!-- En-tête (hero-gradient, cohérent avec home / my-bookings / agences) -->
+    <!-- Header Général Fixe & Animé au Scroll -->
+    <div class="sticky top-0 z-50 w-full">
+      <app-shared-header [isScrolled]="isScrolled" [pageTitle]="'Mon profil'"></app-shared-header>
+    </div>
+
+    <!-- En-tête -->
     <header
-      class="hero-gradient text-on-primary px-6 pt-10 pb-24 rounded-b-[3rem] relative overflow-hidden shadow-lg"
+      class="hero-gradient text-on-primary px-6 -mt-18 pt-22 pb-24 rounded-b-[3rem] relative overflow-hidden shadow-lg"
     >
       <div
         class="absolute -right-10 -top-10 w-48 h-48 bg-white/5 rounded-full blur-3xl"
@@ -14,9 +19,7 @@
         class="absolute -left-10 -bottom-10 w-48 h-48 bg-primary-container/10 rounded-full blur-3xl"
       ></div>
 
-      <app-shared-header></app-shared-header>
-
-      <div class="mt-6 z-10 relative px-1">
+      <div class="mt-2 z-10 relative px-1">
         <h1 class="text-xl font-display-lg font-bold text-white tracking-tight">
           Mon profil
         </h1>

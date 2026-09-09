@@ -66,6 +66,11 @@ export class MyBookingsPage
   // État
   isLoading = true;
   noBookings = false;
+  isScrolled = false;
+
+  onScroll(event: any) {
+    this.isScrolled = (event?.detail?.scrollTop || 0) > 35;
+  }
 
   // Subject
   private destroy$ = new Subject<void>();

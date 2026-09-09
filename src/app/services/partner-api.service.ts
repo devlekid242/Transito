@@ -195,7 +195,9 @@ export class PartnerApiService {
   getTrips(
     date?: string | null,
     status?: 'active' | 'scheduled' | 'completed' | 'all' | null,
-    search?: string | null
+    search?: string | null,
+    departureCity?: string | null,
+    arrivalCity?: string | null,
   ): Observable<Trip[]> {
     let params = new HttpParams();
 
@@ -209,6 +211,14 @@ export class PartnerApiService {
 
     if (search && search.trim()) {
       params = params.set('search', search.trim());
+    }
+
+    if (departureCity && departureCity.trim()) {
+      params = params.set('departure_city', departureCity.trim());
+    }
+
+    if (arrivalCity && arrivalCity.trim()) {
+      params = params.set('arrival_city', arrivalCity.trim());
     }
 
     return this.http
