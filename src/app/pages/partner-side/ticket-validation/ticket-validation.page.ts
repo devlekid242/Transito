@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 import { PartnerPermissionService } from '../../../services/partner-permission.service';
 import {
   PartnerApiService,
+  Trip,
   TicketValidationResponse,
 } from '../../../services/partner-api.service';
 import { SkeletonLoaderComponent } from '../../../components/skeleton-loader/skeleton-loader.component';
@@ -66,6 +67,10 @@ export class TicketValidationPage
   scanState: 'idle' | 'scanning' | 'success' | 'error' = 'idle';
   qrCodeInput = '';
   errorMessage = '';
+  trips: Trip[] = [];
+  selectedTripId: number | null = null;
+  tripsErrorMessage = '';
+  private tripsSub?: Subscription;
   private validationSub?: Subscription;
   loading: boolean = true;
 
@@ -85,12 +90,14 @@ export class TicketValidationPage
 
   ionViewWillEnter(): void {
     this.loadPermissions();
-    this.loading = false;
+    this.loadTrips();
   }
 
   ionViewWillLeave(): void {
     this.validationSub?.unsubscribe();
     this.validationSub = undefined;
+    this.tripsSub?.unsubscribe();
+    this.tripsSub = undefined;
     this.resetScanner();
     this.loading = false;
   }
@@ -105,11 +112,39 @@ export class TicketValidationPage
     this.isWharfAgent = this.permissionService.isWharfAgent();
   }
 
+  private loadTrips(): void {
+    this.loading = true;
+    const now = new Date();
+    const today = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+    ].join('-');
+    this.tripsSub?.unsubscribe();
+    this.tripsSub = this.apiService.getTrips(today, 'all').subscribe({
+      next: (trips) => {
+        this.trips = trips;
+        this.tripsErrorMessage = trips.length
+          ? ''
+          : "Aucun trajet disponible aujourd'hui pour votre agence.";
+        this.loading = false;
+      },
+      error: () => {
+        this.trips = [];
+        this.tripsErrorMessage = 'Impossible de charger les trajets. Réessayez avant de scanner.';
+        this.loading = false;
+      },
+    });
+  }
+
   async startScan(): Promise<void> {
     if (!this.canValidateTickets) {
       this.scanState = 'error';
       this.errorMessage =
         "Vous n'avez pas la permission de valider des billets.";
+      return;
+    }
+    if (!this.requireSelectedTrip()) {
       return;
     }
 
@@ -147,31 +182,41 @@ export class TicketValidationPage
       return;
     }
 
-    const qr = qrCode?.trim();
-    const ticketCode = this.qrCodeInput?.trim();
-    if (!qr && !ticketCode) {
+    if (!this.requireSelectedTrip()) {
+      return;
+    }
+    const selectedTripId = this.selectedTripId;
+    if (selectedTripId === null) {
+      return;
+    }
+
+    const identifier = qrCode ?? this.qrCodeInput;
+    if (!identifier.trim()) {
       this.scanState = 'error';
       this.errorMessage =
         'Veuillez scanner un QR code ou saisir le numéro du billet.';
       return;
     }
+    const identifierFields = /^TKT-\d+$/i.test(identifier.trim())
+      ? { ticketCode: identifier }
+      : { qrCodeToken: identifier };
 
     this.scanState = 'scanning';
     this.validationSub?.unsubscribe();
     this.validationSub = this.apiService
-      .validateTicket(String(qr), ticketCode)
+      .validateTicket(identifierFields, selectedTripId)
       .subscribe({
         next: (response: TicketValidationResponse) => {
           if (!response.success) {
             this.scanState = 'error';
-            this.errorMessage = response.message || 'Billet non valide.';
+            this.errorMessage = this.getRefusalMessage(response.boardingStatus, response.message);
             return;
           }
 
           this.validatedTicket = {
             passengerName: response.passengerName || 'N/A',
             passengerPhone: response.passengerPhone || '',
-            ticketNumber: response.ticketNumber || ticketCode || 'N/A',
+            ticketNumber: response.ticketNumber || identifier,
             boardingStatusLabel: this.getBoardingStatusLabel(
               response.boardingStatus,
             ),
@@ -191,11 +236,35 @@ export class TicketValidationPage
         },
         error: (error: any) => {
           this.scanState = 'error';
-          this.errorMessage =
-            error?.error?.message ||
-            'Billet invalide ou déjà utilisé. Veuillez vérifier le code.';
+          const refusal = error?.error?.boardingStatus;
+          this.errorMessage = this.getRefusalMessage(refusal, error?.error?.message);
         },
       });
+  }
+
+  private requireSelectedTrip(): boolean {
+    if (this.selectedTripId !== null) {
+      return true;
+    }
+    this.scanState = 'error';
+    this.errorMessage = 'Sélectionnez le trajet à contrôler avant de scanner un billet.';
+    return false;
+  }
+
+  private getRefusalMessage(status?: string, fallback?: string): string {
+    const messages: Record<string, string> = {
+      PAYMENT_NOT_CONFIRMED: 'Paiement non confirmé : ce billet ne peut pas être embarqué.',
+      ALREADY_BOARDED: 'Ce billet a déjà été validé à l’embarquement.',
+      CANCELLED: 'Ce billet ou cette réservation a été annulé(e).',
+      WRONG_TRIP: 'Ce billet appartient à un autre trajet que celui sélectionné.',
+      WRONG_AGENCY: 'Ce billet n’appartient pas à votre agence.',
+      TRIP_REQUIRED: 'Sélectionnez le trajet à contrôler avant de valider le billet.',
+      FINANCIAL_ERROR: 'Erreur financière : le billet n’a pas été validé. Contactez le support.',
+      EXPIRED: 'Ce billet ou le délai de paiement est expiré.',
+      INVALID_TICKET_STATUS: 'Le statut de ce billet ne permet pas son embarquement.',
+      NOT_FOUND: 'Aucun billet ne correspond au QR code ou au code saisi.',
+    };
+    return (status && messages[status]) || fallback || 'La validation du billet a échoué.';
   }
 
   getBoardingStatusLabel(

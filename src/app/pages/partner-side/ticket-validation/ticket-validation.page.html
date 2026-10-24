@@ -19,6 +19,32 @@
     class="max-w-[480px] mx-auto min-h-screen relative pb-24"
   >
     <main class="px-container-padding py-6 flex flex-col items-center gap-6">
+      <section class="w-full">
+        <label
+          for="boarding-trip"
+          class="text-[10px] uppercase tracking-[0.22em] text-on-surface-variant font-semibold"
+        >
+          Trajet à contrôler
+        </label>
+        <select
+          id="boarding-trip"
+          [(ngModel)]="selectedTripId"
+          class="mt-2 w-full rounded-xl border border-surface-variant bg-surface-container-lowest px-4 py-3 text-body-md text-on-surface"
+        >
+          <option [ngValue]="null">Sélectionner un trajet</option>
+          <option *ngFor="let trip of trips" [ngValue]="trip.id">
+            {{ trip.departureCity }} → {{ trip.arrivalCity }} ·
+            {{ trip.departureTime | date: 'shortTime' }}
+          </option>
+        </select>
+        <p *ngIf="tripsErrorMessage" class="mt-2 text-sm text-error">
+          {{ tripsErrorMessage }}
+        </p>
+        <p *ngIf="!selectedTripId && !tripsErrorMessage" class="mt-2 text-sm text-on-surface-variant">
+          Sélectionnez le trajet avant de lancer le scan.
+        </p>
+      </section>
+
       <!-- Cadre de visée -->
       <section class="w-full flex flex-col items-center gap-4 pt-2">
         <div class="relative w-52 h-52">
@@ -51,7 +77,7 @@
       <!-- Action de scan -->
       <button
         (click)="startScan()"
-        [disabled]="scanState === 'scanning'"
+        [disabled]="scanState === 'scanning' || !selectedTripId"
         class="w-full h-14 rounded-full bg-primary text-on-primary font-bold text-body-lg shadow-md hover:bg-primary/90 active-scale transition-all flex items-center justify-center gap-2 disabled:opacity-60"
       >
         <i
@@ -89,7 +115,7 @@
         />
         <button
           (click)="validateTicket()"
-          [disabled]="scanState === 'scanning'"
+          [disabled]="scanState === 'scanning' || !selectedTripId"
           class="mt-3 w-full h-12 rounded-xl bg-secondary text-on-secondary font-semibold text-body-md hover:bg-secondary/90 active-scale transition-all disabled:opacity-50"
         >
           Valider le billet

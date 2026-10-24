@@ -393,6 +393,20 @@
           <div
             class="relative border-t-2 border-dashed border-slate-200 bg-slate-50 p-6 flex flex-col items-center justify-center"
           >
+            <div
+              *ngIf="qrTickets.length > 1"
+              class="w-full flex gap-2 overflow-x-auto mb-4 no-print"
+            >
+              <button
+                *ngFor="let qrTicket of qrTickets; let index = index"
+                (click)="selectedQrTicketIndex = index"
+                [class.bg-primary]="selectedQrTicketIndex === index"
+                [class.text-white]="selectedQrTicketIndex === index"
+                class="rounded-lg border border-slate-300 px-3 py-2 text-xs whitespace-nowrap"
+              >
+                {{ qrTicket.passengerName || qrTicket.ticketNumber }} · Siège {{ qrTicket.seatNumber }}
+              </button>
+            </div>
             <!-- Encoches latérales décoratives -->
             <div
               class="absolute -left-3 -top-3 w-6 h-6 bg-background rounded-full no-print"
@@ -405,8 +419,8 @@
               class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-3"
             >
               <qrcode
-                *ngIf="!isPaymentPending"
-                [qrdata]="qrValue"
+                *ngIf="isQrAvailable"
+                [qrdata]="selectedQrTicket.qrCodeToken!"
                 [width]="256"
                 [errorCorrectionLevel]="'M'"
                 [margin]="0"
@@ -414,21 +428,19 @@
               ></qrcode>
 
               <div
-                *ngIf="isPaymentPending"
+                *ngIf="!isQrAvailable"
                 class="w-64 h-64 flex flex-col items-center justify-center gap-2 text-center px-4 bg-slate-50 rounded-xl"
               >
                 <i class="fa-solid fa-lock text-2xl text-slate-300"></i>
                 <span
                   class="text-xs font-bold text-slate-400 uppercase tracking-wide"
-                  >QR code verrouillé</span
+                  >QR indisponible</span
                 >
-                <span class="text-[11px] text-slate-400"
-                  >Disponible après confirmation du paiement</span
-                >
+                <span class="text-[11px] text-slate-400">{{ getQrUnavailableMessage() }}</span>
               </div>
             </div>
             <p
-              *ngIf="!isPaymentPending"
+              *ngIf="isQrAvailable"
               class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center max-w-[220px]"
             >
               Présentez ce QR Code et une pièce d'identité valide lors de

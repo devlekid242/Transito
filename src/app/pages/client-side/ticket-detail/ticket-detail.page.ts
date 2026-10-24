@@ -81,7 +81,14 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     canCancel: false,
   };
   isLoading = true;
-  qrValue: string = '';
+  qrTickets: Array<{
+    ticketNumber: string;
+    seatNumber: number | string;
+    passengerName: string;
+    qrCodeToken: string | null;
+    status: string;
+  }> = [];
+  selectedQrTicketIndex = 0;
   isCancelling = false;
 
   ticketId: number | null = null;
@@ -136,7 +143,9 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     return (
       this.ticket.status === 'Annulé' ||
       this.ticket.status === 'Remboursé' ||
-      this.ticket.paymentStatus === 'Remboursé'
+      this.ticket.status === 'Expiré' ||
+      this.ticket.paymentStatus === 'Remboursé' ||
+      this.ticket.paymentStatus === 'Expiré'
     );
   }
 
@@ -156,7 +165,18 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
 
   /** QR code et impression indisponibles tant que le paiement n'est pas confirmé. */
   get isLocked(): boolean {
-    return this.isCancelled || this.isPaymentPending;
+    return !this.isQrAvailable;
+  }
+
+  get isQrAvailable(): boolean {
+    return this.ticket.paymentStatus === 'Confirmé'
+      && this.selectedQrTicket?.status === 'En attente'
+      && !!this.selectedQrTicket?.qrCodeToken?.trim()
+      && !this.ticket.refund;
+  }
+
+  get selectedQrTicket() {
+    return this.qrTickets[this.selectedQrTicketIndex];
   }
 
   /**
@@ -182,7 +202,6 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     this.bookingService.getBookingDetail(itemId).subscribe({
       next: (booking) => {
         this.mapBookingAsTicket(booking);
-        this.qrValue = this.ticket.qrCode ? String(this.ticket.qrCode) : '';
         this.isLoading = false;
       },
       error: async (err) => {
@@ -245,6 +264,14 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
         status !== 'Utilisé' &&
         this.isCancellableFromRawDeparture(ticket.departureTime),
     };
+    this.qrTickets = [{
+      ticketNumber: ticket.ticketNumber,
+      seatNumber: ticket.seatNumber,
+      passengerName: ticket.passengerName || '',
+      qrCodeToken: isCancelled ? null : ticket.qrCode || null,
+      status: ticket.status,
+    }];
+    this.selectedQrTicketIndex = 0;
   }
 
   private mapBookingAsTicket(booking: any) {
@@ -320,6 +347,14 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
         (booking.canCancel ??
           this.isCancellableFromRawDeparture(rawDepartureTime)),
     };
+    this.qrTickets = (booking.tickets || []).map((ticket: any) => ({
+      ticketNumber: ticket.ticketNumber,
+      seatNumber: ticket.seatNumber,
+      passengerName: ticket.passengerName || '',
+      qrCodeToken: ticket.qrCodeToken || null,
+      status: ticket.status,
+    }));
+    this.selectedQrTicketIndex = 0;
   }
 
   /**
@@ -397,18 +432,22 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
   }
 
   async showQr() {
-    // Verrou défensif : un billet annulé, remboursé ou pas encore payé ne
-    // doit jamais pouvoir afficher son QR (il ne peut pas encore servir à
-    // l'embarquement).
-    if (this.isLocked) return;
+    if (!this.isQrAvailable) {
+      await this.notificationService.showInfoAlert(
+        this.getQrUnavailableMessage(),
+        'QR indisponible',
+      );
+      return;
+    }
 
-    const qrValue = this.ticket.qrCode;
     const modal = await this.modalCtrl.create({
       component: QrTicketModalComponent,
       componentProps: {
-        bookingId: this.ticket.ticketNumber,
-        qrCodeData: qrValue,
-        qrCodeUrl: qrValue,
+        tickets: [{
+          ...this.selectedQrTicket,
+        }],
+        reservationStatus: this.ticket.paymentStatus,
+        hasRefund: !!this.ticket.refund,
         ticketDetails: {
           departureCity: this.ticket.origin,
           departureTime: this.ticket.departureTime,
@@ -425,8 +464,23 @@ export class TicketDetailPage implements OnInit, ViewWillEnter, ViewWillLeave {
     await modal.present();
   }
 
-  private buildQrCodeUrl(value: string): string {
-    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(value)}`;
+  getQrUnavailableMessage(): string {
+    if (this.ticket.paymentStatus === 'En attente' || this.ticket.paymentStatus === 'En cours') {
+      return `Paiement ${this.getPaymentStatusLabel().toLowerCase()} : aucun QR disponible.`;
+    }
+    if (this.ticket.status === 'Annulé' || this.ticket.paymentStatus === 'Annulé') {
+      return 'Billet annulé : aucun QR disponible.';
+    }
+    if (this.ticket.status === 'Remboursé' || this.ticket.paymentStatus === 'Remboursé' || this.ticket.refund) {
+      return 'Billet remboursé : aucun QR disponible.';
+    }
+    if (this.ticket.status === 'Expiré' || this.ticket.paymentStatus === 'Expiré') {
+      return 'Billet expiré : aucun QR disponible.';
+    }
+    if (!this.selectedQrTicket?.qrCodeToken?.trim()) {
+      return 'Billet indisponible, actualisez ou contactez le support.';
+    }
+    return `État du billet : ${this.selectedQrTicket?.status || 'inconnu'}. Aucun QR disponible.`;
   }
 
   /** Libellé humain pour le bandeau/bloc de statut de paiement. */

@@ -104,10 +104,12 @@ export class BookingFormPage implements OnInit, OnDestroy {
   tickets: Array<{
     ticketNumber: string;
     seat: number | string;
-    qr: string;
+    qr: string | null;
     passengerName: string;
     passengerPhone: string;
+    status: string;
   }> = [];
+  bookingStatus = '';
   private rawBookingTickets: any[] = [];
 
   isLoading = false;
@@ -575,42 +577,53 @@ export class BookingFormPage implements OnInit, OnDestroy {
       .subscribe({
         next: (confirmResponse) => {
           this.paymentStep = 'confirmed';
-
-          // Paiement confirmé, afficher le(s) ticket(s)
-          setTimeout(() => {
-            this.isPaymentLoading = false;
-            this.generatedTicket = {
-              ticketNumber: `TKT-${this.bookingId}`,
-              ticketClass: this.trip?.category,
-              transactionId: this.transactionId,
-              paymentStatus: confirmResponse?.status,
+          this.generatedTicket = {
+            ticketNumber: `TKT-${this.bookingId}`,
+            ticketClass: this.trip?.category,
+            transactionId: this.transactionId,
+            paymentStatus: confirmResponse?.status || 'UNKNOWN',
+          };
+          this.tickets = this.passengers.map((passenger, index) => {
+            const backendTicket = this.rawBookingTickets[index];
+            return {
+              ticketNumber: backendTicket?.ticketNumber || '',
+              seat: backendTicket?.seat ?? '',
+              qr: typeof backendTicket?.qr === 'string' && backendTicket.qr.trim()
+                ? backendTicket.qr
+                : null,
+              passengerName: passenger.fullName,
+              passengerPhone: passenger.phoneNumber,
+              status: '',
             };
+          });
 
-            // Un billet par passager : on associe la donnée backend (siège, QR, n° billet)
-            // à la donnée locale (nom, téléphone) via le n° CNI en priorité, sinon par ordre.
-            this.tickets = this.passengers.map((passenger, index) => {
-              const backendTicket =
-                this.rawBookingTickets.find(
-                  (t) =>
-                    t.passengerCni &&
-                    t.passengerCni === passenger.identityNumber,
-                ) || this.rawBookingTickets[index];
-
-              return {
-                ticketNumber:
-                  backendTicket?.ticketNumber ||
-                  `TKT-${this.bookingId}-${index + 1}`,
-                seat: backendTicket?.seat ?? index + 1,
-                qr: String(backendTicket?.qr),
-                passengerName: passenger.fullName,
-                passengerPhone: passenger.phoneNumber,
-              };
-            });
-
-            // Générer les codes QR pour chaque ticket
-
-            this.stepNumber = 3; // Navigation vers le ticket
-          }, 1000);
+          if (confirmResponse?.status === 'SUCCESS' && this.bookingId) {
+            this.bookingService
+              .getBookingDetail(Number(this.bookingId))
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: (booking) => {
+                  this.bookingStatus = booking.status;
+                  this.tickets = (booking.tickets || []).map((ticket) => ({
+                    ticketNumber: ticket.ticketNumber,
+                    seat: ticket.seatNumber,
+                    qr: ticket.qrCodeToken?.trim() ? ticket.qrCodeToken : null,
+                    passengerName: ticket.passengerName,
+                    passengerPhone: ticket.passengerPhone,
+                    status: ticket.status,
+                  }));
+                  this.isPaymentLoading = false;
+                  this.stepNumber = 3;
+                },
+                error: () => {
+                  this.isPaymentLoading = false;
+                  this.stepNumber = 3;
+                },
+              });
+          } else {
+            this.isPaymentLoading = false;
+            this.stepNumber = 3;
+          }
         },
         error: async (err) => {
           this.isPaymentLoading = false;

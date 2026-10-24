@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, shareReplay, tap } from 'rxjs/operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 export interface MomoOperatorPublicConfig {
   id: string;
@@ -54,23 +54,29 @@ export class PaymentConfigService {
   getConfig(): Observable<PaymentConfig> {
     if (!this.cached$) {
       this.cached$ = this.http
-        .get<PaymentConfigResponse>(`${environment.apiUrl}/public/payment-config`)
+        .get<PaymentConfigResponse>(
+          `${environment.apiUrl}/public/payment-config`
+        )
         .pipe(
           map((response) =>
-            response?.success && response.data ? response.data : FALLBACK_CONFIG,
+            response?.success && response.data ? response.data : FALLBACK_CONFIG
           ),
           catchError((error) => {
             console.error('Failed to load payment config:', error);
             return of(FALLBACK_CONFIG);
           }),
-          shareReplay(1),
+          shareReplay(1)
         );
     }
     return this.cached$;
   }
 
   /** Calcule le frais momo pour un opérateur donné sur une base donnée (billet + frais app). */
-  computeMomoFee(config: PaymentConfig, operatorId: string | null, baseAmount: number): number {
+  computeMomoFee(
+    config: PaymentConfig,
+    operatorId: string | null,
+    baseAmount: number
+  ): number {
     if (!operatorId) {
       return 0;
     }

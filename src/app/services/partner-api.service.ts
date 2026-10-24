@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, catchError, of, forkJoin } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 import { unwrapCollection } from '../shared/rxjs-operators';
 
 // export interface Trip {
@@ -74,10 +74,21 @@ export interface Passenger {
 
 export interface TicketValidationResponse {
   success: boolean;
-  ticketNumber: string;
-  passengerName: string;
+  ticketNumber?: string;
+  passengerName?: string;
   passengerPhone?: string;
-  boardingStatus: 'VALID' | 'ALREADY_BOARDED' | 'NOT_FOUND' | 'CANCELLED';
+  boardingStatus:
+    | 'VALID'
+    | 'ALREADY_BOARDED'
+    | 'NOT_FOUND'
+    | 'CANCELLED'
+    | 'EXPIRED'
+    | 'INVALID_TICKET_STATUS'
+    | 'PAYMENT_NOT_CONFIRMED'
+    | 'WRONG_TRIP'
+    | 'WRONG_AGENCY'
+    | 'TRIP_REQUIRED'
+    | 'FINANCIAL_ERROR';
   message: string;
   boardingTime?: string;
   // Champs enrichis renvoyés par TicketController::mapTicket() côté serveur.
@@ -197,7 +208,7 @@ export class PartnerApiService {
     status?: 'active' | 'scheduled' | 'completed' | 'all' | null,
     search?: string | null,
     departureCity?: string | null,
-    arrivalCity?: string | null,
+    arrivalCity?: string | null
   ): Observable<Trip[]> {
     let params = new HttpParams();
 
@@ -266,12 +277,12 @@ export class PartnerApiService {
    * Valide un ticket via QR code
    */
   validateTicket(
-    qrCode: string,
-    TicketCode?: string
+    identifier: { qrCodeToken?: string; ticketCode?: string },
+    tripId: number
   ): Observable<TicketValidationResponse> {
     return this.http.patch<TicketValidationResponse>(
       `${this.apiUrl}/tickets/validate`,
-      { qrCodeToken: qrCode, ticketCode: TicketCode }
+      { ...identifier, tripId }
     );
   }
 

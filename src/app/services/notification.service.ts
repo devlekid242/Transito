@@ -7,7 +7,7 @@ import { Capacitor } from '@capacitor/core';
 import Pusher, { Channel } from 'pusher-js';
 import { Notification } from '../models';
 import { unwrapCollection } from '../shared/rxjs-operators';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 import { UiNotificationService } from './ui-notification.service';
 
 @Injectable({

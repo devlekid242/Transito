@@ -371,30 +371,31 @@ export class MyBookingsPage
   async openQrModal(bookingId: number | string) {
     const booking = this.bookings.find((item) => item.id === Number(bookingId));
 
-    if (booking && this.isCancelled(booking)) {
-      await this.notificationService.showInfoAlert(
-        'Ce billet a été annulé et ne peut plus être scanné.',
-        'Billet annulé',
-      );
+    if (!booking) {
+      await this.showQrUnavailable();
       return;
     }
 
-    const qrValue = booking?.id ? `booking-${booking.id}` : String(bookingId);
     const modal = await this.modalCtrl.create({
       component: QrTicketModalComponent,
       componentProps: {
-        bookingId: String(bookingId),
-        qrCodeData: qrValue,
-        qrCodeUrl: this.buildQrCodeUrl(qrValue),
+        tickets: (booking.tickets || []).map((ticket) => ({
+          ticketNumber: ticket.ticketNumber,
+          seatNumber: ticket.seatNumber,
+          passengerName: ticket.passengerName,
+          qrCodeToken: ticket.qrCodeToken,
+          status: ticket.status,
+        })),
+        reservationStatus: booking.status,
+        hasRefund: !!booking.refund,
         ticketDetails: {
-          departureCity: booking?.trip?.departureCity || '',
-          departureTime: booking?.trip?.departureTime || '',
+          departureCity: booking.trip?.departureCity || '',
+          departureTime: booking.trip?.departureTime || '',
           duration: '',
-          arrivalCity: booking?.trip?.arrivalCity || '',
-          arrivalTime: booking?.trip?.arrivalTime || '',
+          arrivalCity: booking.trip?.arrivalCity || '',
+          arrivalTime: booking.trip?.arrivalTime || '',
           passengerName: '',
-          seatNumber: booking?.seatNumber || '',
-          travelDate: booking?.trip?.departureDate || '',
+          travelDate: booking.trip?.departureDate || '',
         },
       },
     });
@@ -407,8 +408,11 @@ export class MyBookingsPage
     await modal.present();
   }
 
-  private buildQrCodeUrl(value: string): string {
-    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(value)}`;
+  private async showQrUnavailable(): Promise<void> {
+    await this.notificationService.showInfoAlert(
+      'Billet indisponible, actualisez ou contactez le support.',
+      'QR indisponible',
+    );
   }
 
   /**

@@ -16,39 +16,42 @@
 
 <ion-content class="bg-background">
   <div class="w-full bg-surface min-h-screen mx-auto pt-24">
-    <div *ngIf="isLoading" class="flex flex-col gap-stack-lg py-2">
-      <section
-        class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-surface-variant flex flex-col items-center"
+    <div *ngIf="tickets.length > 1" class="px-5 mb-5 flex gap-2 overflow-x-auto">
+      <button
+        *ngFor="let ticket of tickets; let index = index"
+        (click)="selectedTicketIndex = index"
+        [class.bg-primary]="selectedTicketIndex === index"
+        [class.text-white]="selectedTicketIndex === index"
+        class="rounded-xl border border-outline-variant px-4 py-2 text-sm whitespace-nowrap"
       >
-        <div
-          class="h-5 w-36 bg-surface-container rounded animate-pulse mb-4"
-        ></div>
-        <div
-          class="w-64 h-64 bg-surface-container rounded-xl animate-pulse mb-4"
-        ></div>
-        <div class="h-3 w-48 bg-surface-container rounded animate-pulse"></div>
-      </section>
+        {{ ticket.passengerName || ticket.ticketNumber }} · Siège {{ ticket.seatNumber }}
+      </button>
     </div>
 
-    <!-- QR Code Section -->
-    <div
-      *ngIf="!isLoading && ticketDetails"
-      class="flex flex-col justify-center items-center gap-stack-lg py-2"
-    >
-      <!-- Code QR -->
+    <div *ngIf="selectedTicket as ticket" class="flex flex-col items-center gap-4 px-5">
+      <p class="font-semibold text-on-surface">
+        {{ ticket.passengerName }} · Siège {{ ticket.seatNumber }}
+      </p>
       <div
+        *ngIf="canShowSelectedQr"
         class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-3"
       >
-        <!-- booking-form.page.html -->
         <qrcode
-          [qrdata]="qrCodeUrl || 'N/A'"
+          [qrdata]="ticket.qrCodeToken!"
           [width]="256"
           elementType="canvas"
         ></qrcode>
       </div>
-      <p class="text-sm text-on-surface-variant text-center">
+      <p *ngIf="canShowSelectedQr" class="text-sm text-on-surface-variant text-center">
         Présentez ce code à l'embarquement
       </p>
+      <p *ngIf="!canShowSelectedQr" class="text-sm text-on-surface-variant text-center">
+        {{ selectedTicketUnavailableMessage }}
+      </p>
     </div>
+
+    <p *ngIf="tickets.length === 0" class="px-6 text-center text-on-surface-variant">
+      {{ emptyTicketsMessage }}
+    </p>
   </div>
 </ion-content>

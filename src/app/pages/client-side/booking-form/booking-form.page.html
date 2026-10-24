@@ -970,7 +970,7 @@
                   >Statut Paiement</span
                 >
                 <span class="text-sm font-black text-green-600"
-                  >{{ generatedTicket?.paymentStatus || 'Confirmé' }}</span
+                  >{{ generatedTicket?.paymentStatus || 'Inconnu' }}</span
                 >
               </div>
               <div>
@@ -1007,15 +1007,35 @@
             </div>
 
             <div
+              *ngIf="generatedTicket?.paymentStatus === 'SUCCESS'
+                && bookingStatus === 'Confirmé'
+                && ticket.status === 'En attente'
+                && ticket.qr"
               class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-3"
             >
-              <!-- booking-form.page.html -->
               <qrcode
-                [qrdata]="ticket.qr || 'N/A'"
+                [qrdata]="ticket.qr"
                 [width]="256"
                 elementType="canvas"
               ></qrcode>
             </div>
+            <p
+              *ngIf="generatedTicket?.paymentStatus !== 'SUCCESS'
+                || bookingStatus !== 'Confirmé'
+                || ticket.status !== 'En attente'
+                || !ticket.qr"
+              class="text-sm text-center text-slate-500 mb-3"
+            >
+              {{ generatedTicket?.paymentStatus === 'PENDING'
+                ? 'Paiement en attente : aucun QR disponible.'
+                : generatedTicket?.paymentStatus === 'FAILED'
+                  ? 'Paiement échoué : aucun QR disponible.'
+                  : bookingStatus && bookingStatus !== 'Confirmé'
+                    ? 'État de la réservation : ' + bookingStatus + '. Aucun QR disponible.'
+                    : ticket.status && ticket.status !== 'En attente'
+                      ? 'État du billet : ' + ticket.status + '. Aucun QR disponible.'
+                      : 'Billet indisponible, actualisez ou contactez le support.' }}
+            </p>
             <p
               class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center max-w-[200px]"
             >

@@ -12,7 +12,7 @@ import {
   LocalNotifications,
   ActionPerformed as LocalActionPerformed,
 } from '@capacitor/local-notifications';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 import { UiNotificationService } from './ui-notification.service';
 
 /**
@@ -85,7 +85,7 @@ export class NativePushService {
           id: this.BOOKING_ACTION_TYPE,
           actions: [
             { id: 'view', title: 'Voir' },
-            { id: 'dismiss', title: "Je ne suis pas intéressé·e" },
+            { id: 'dismiss', title: 'Je ne suis pas intéressé·e' },
           ],
         },
       ],
@@ -142,7 +142,10 @@ export class NativePushService {
             ],
           });
         } catch (e) {
-          console.warn('Erreur lors de la planification de la notification locale', e);
+          console.warn(
+            'Erreur lors de la planification de la notification locale',
+            e
+          );
         }
 
         // 2. Bannière in-app flottante WhatsApp en haut de l'écran
