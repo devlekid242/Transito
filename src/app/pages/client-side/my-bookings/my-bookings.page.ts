@@ -12,8 +12,14 @@ import {
 } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Reservation } from '../../../models';
+import {
+  PaymentConfirmationStatus,
+  PaymentLog,
+  PaymentRequest,
+  Reservation,
+} from '../../../models';
 import { BookingService } from '../../../services';
+import { PaymentService } from '../../../services/payment.service';
 import { UiNotificationService } from '../../../services/ui-notification.service';
 import { QrTicketModalComponent } from '../../../components/qr-ticket-modal/qr-ticket-modal.component';
 import { SharedHeaderComponent } from 'src/app/components/shared-header/shared-header.component';
@@ -52,6 +58,11 @@ export class MyBookingsPage
   // Filtrage par segment (onglets)
   filterType: BookingFilterType = 'all';
   displayedBookings: Reservation[] = [];
+  pendingPayments = new Map<number, PaymentLog>();
+  failedPayments = new Map<number, PaymentLog>();
+  paymentResumeStatus = new Map<number, PaymentConfirmationStatus | 'offline'>();
+  paymentSecondsRemaining = new Map<number, number>();
+  retryingBookingId: number | null = null;
 
   readonly tabs: { value: BookingFilterType; label: string; icon: string }[] = [
     { value: 'all', label: 'Tous', icon: 'fa-layer-group' },
@@ -74,33 +85,51 @@ export class MyBookingsPage
 
   // Subject
   private destroy$ = new Subject<void>();
+  private isPageActive = false;
+  resumePaymentId: number | null = null;
+  private pollTimeout: ReturnType<typeof setTimeout> | null = null;
+  private countdownInterval: ReturnType<typeof setInterval> | null = null;
+  private pollAttempt = 0;
+  private checkInProgress = false;
+  private expirationFinalCheckStarted = false;
+  private readonly visibilityChangeHandler = () => this.handleVisibilityChange();
 
   constructor(
     private navCtrl: NavController,
     private bookingService: BookingService,
+    private paymentService: PaymentService,
     private notificationService: UiNotificationService,
     private modalCtrl: ModalController,
   ) {}
 
   ngOnInit() {
+    document.addEventListener('visibilitychange', this.visibilityChangeHandler);
     this.loadBookings();
   }
 
   ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+    this.clearPaymentTimers();
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   ionViewWillEnter() {
+    this.isPageActive = true;
     // Se déclenche à CHAQUE fois que la page redevient active :
     // premier chargement, retour depuis /search-results, changement d'onglet...
     this.loadBookings();
+    if (this.resumePaymentId !== null) {
+      this.checkResumedPayment();
+    }
   }
 
   ionViewWillLeave() {
     // Optionnel : remettre l'UI dans un état propre en quittant,
     // pour éviter de voir un vieux spinner clignoter au retour.
     this.isLoading = false;
+    this.isPageActive = false;
+    this.clearPaymentTimers();
   }
 
   /**
@@ -119,6 +148,7 @@ export class MyBookingsPage
           this.activeTicket = this.activeBookings;
           this.isLoading = false;
           this.noBookings = this.bookings.length === 0;
+          this.loadPendingPayments();
         },
         error: async (err) => {
           console.error('Erreur chargement réservations:', err);
@@ -129,6 +159,213 @@ export class MyBookingsPage
           );
         },
       });
+  }
+
+  private loadPendingPayments() {
+    this.paymentService
+      .getPaymentHistory()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (payments) => {
+          this.pendingPayments = new Map(
+            payments
+              .filter((payment) => payment.status === 'PENDING')
+              .map((payment): [number, PaymentLog] => [payment.reservationId, payment]),
+          );
+          this.failedPayments = new Map(
+            payments
+              .filter((payment) => payment.status === 'FAILED')
+              .map((payment): [number, PaymentLog] => [payment.reservationId, payment]),
+          );
+        },
+        error: (error) => {
+          console.error('Erreur chargement des paiements en attente:', error);
+          this.pendingPayments.clear();
+          this.failedPayments.clear();
+        },
+      });
+  }
+
+  hasPendingPayment(booking: Reservation): boolean {
+    return this.pendingPayments.has(booking.id);
+  }
+
+  hasFailedPayment(booking: Reservation): boolean {
+    return this.failedPayments.has(booking.id);
+  }
+
+  retryFailedPayment(booking: Reservation) {
+    const previousPayment = this.failedPayments.get(booking.id);
+    if (!previousPayment || this.retryingBookingId !== null) {
+      return;
+    }
+    this.retryingBookingId = booking.id;
+    this.paymentService
+      .initiatePayment({
+        reservationId: booking.id,
+        amount: booking.totalPrice,
+        paymentMethod: previousPayment.paymentMethod as PaymentRequest['paymentMethod'],
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.retryingBookingId = null;
+          const payment: PaymentLog = {
+            ...previousPayment,
+            id: response.paymentLogId ?? previousPayment.id,
+            reference: response.transactionId,
+            status: 'PENDING',
+          };
+          this.pendingPayments.set(booking.id, payment);
+          this.failedPayments.delete(booking.id);
+          this.resumePaymentId = booking.id;
+          this.pollAttempt = 0;
+          this.expirationFinalCheckStarted = false;
+          this.paymentResumeStatus.set(booking.id, 'pending');
+          this.checkResumedPayment();
+          this.loadBookings();
+        },
+        error: async (error) => {
+          this.retryingBookingId = null;
+          if (error?.status === 409) {
+            await this.notificationService.showInfoAlert(
+              'Cette réservation ne peut plus être relancée. Recherchez un nouveau trajet pour réserver à nouveau.',
+              'Nouvelle réservation nécessaire',
+            );
+            return;
+          }
+          await this.notificationService.showErrorAlert(
+            'Impossible de vérifier si une nouvelle tentative est possible. Aucun statut de paiement n’a été modifié.',
+            'Vérification indisponible',
+          );
+        },
+      });
+  }
+
+  resumePayment(booking: Reservation) {
+    if (this.resumePaymentId !== null) {
+      return;
+    }
+    if (booking.status !== 'En attente') {
+      return;
+    }
+    this.resumePaymentId = booking.id;
+    this.pollAttempt = 0;
+    this.expirationFinalCheckStarted = false;
+    this.paymentResumeStatus.set(booking.id, 'pending');
+    this.checkResumedPayment();
+  }
+
+  private checkResumedPayment() {
+    if (
+      this.resumePaymentId === null ||
+      this.checkInProgress ||
+      !this.isPageActive ||
+      document.hidden
+    ) {
+      return;
+    }
+    const bookingId = this.resumePaymentId;
+    const payment = this.pendingPayments.get(bookingId);
+    if (!payment) {
+      this.resumePaymentId = null;
+      this.paymentResumeStatus.delete(bookingId);
+      return;
+    }
+
+    this.checkInProgress = true;
+    this.paymentService
+      .confirmPayment(payment.reference)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.checkInProgress = false;
+          this.paymentResumeStatus.set(bookingId, result.status);
+          this.paymentSecondsRemaining.set(
+            bookingId,
+            Math.max(0, result.secondsUntilExpiration),
+          );
+          this.startPaymentCountdown(bookingId);
+          if (result.status !== 'pending') {
+            this.resumePaymentId = null;
+            this.clearPaymentTimers();
+            this.loadBookings();
+            this.loadPendingPayments();
+            return;
+          }
+          this.schedulePaymentCheck(
+            Math.max(result.nextCheckInSeconds, this.nextPaymentPollDelay()),
+          );
+        },
+        error: () => {
+          this.checkInProgress = false;
+          this.paymentResumeStatus.set(
+            bookingId,
+            navigator.onLine ? 'pending' : 'offline',
+          );
+          this.schedulePaymentCheck(this.nextPaymentPollDelay());
+        },
+      });
+  }
+
+  private nextPaymentPollDelay(): number {
+    const delays = [4, 5, 8, 12, 15];
+    const delay = delays[Math.min(this.pollAttempt, delays.length - 1)];
+    this.pollAttempt++;
+    return delay;
+  }
+
+  private schedulePaymentCheck(seconds: number) {
+    if (this.pollTimeout !== null || !this.isPageActive || document.hidden) {
+      return;
+    }
+    this.pollTimeout = setTimeout(() => {
+      this.pollTimeout = null;
+      this.checkResumedPayment();
+    }, Math.max(1, seconds) * 1000);
+  }
+
+  private startPaymentCountdown(bookingId: number) {
+    if (this.countdownInterval !== null) {
+      clearInterval(this.countdownInterval);
+    }
+    this.countdownInterval = setInterval(() => {
+      const seconds = this.paymentSecondsRemaining.get(bookingId) ?? 0;
+      if (seconds > 0) {
+        this.paymentSecondsRemaining.set(bookingId, seconds - 1);
+      }
+      if (
+        seconds <= 1 &&
+        !this.expirationFinalCheckStarted &&
+        this.resumePaymentId === bookingId
+      ) {
+        this.expirationFinalCheckStarted = true;
+        if (this.pollTimeout !== null) {
+          clearTimeout(this.pollTimeout);
+          this.pollTimeout = null;
+        }
+        this.checkResumedPayment();
+      }
+    }, 1000);
+  }
+
+  private handleVisibilityChange() {
+    if (document.hidden) {
+      this.clearPaymentTimers();
+    } else if (this.isPageActive && this.resumePaymentId !== null) {
+      this.checkResumedPayment();
+    }
+  }
+
+  private clearPaymentTimers() {
+    if (this.pollTimeout !== null) {
+      clearTimeout(this.pollTimeout);
+      this.pollTimeout = null;
+    }
+    if (this.countdownInterval !== null) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
   }
 
   /**

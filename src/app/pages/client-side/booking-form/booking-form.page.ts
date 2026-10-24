@@ -17,6 +17,7 @@ import {
   Baggage,
   BookingRequest,
   PaymentRequest,
+  PaymentConfirmationStatus,
   User,
 } from '../../../models';
 import { TicketPdfService } from '../../../services/ticket-pdf.service';
@@ -110,11 +111,27 @@ export class BookingFormPage implements OnInit, OnDestroy {
     status: string;
   }> = [];
   bookingStatus = '';
-  private rawBookingTickets: any[] = [];
 
   isLoading = false;
   isPaymentLoading = false;
-  paymentStep: 'initiate' | 'confirming' | 'confirmed' = 'initiate';
+  paymentStep:
+    | 'initiate'
+    | 'confirming'
+    | 'confirmed'
+    | 'failure'
+    | 'expired'
+    | 'refund_pending' = 'initiate';
+  paymentResultStatus: PaymentConfirmationStatus | null = null;
+  paymentSecondsRemaining = 0;
+  paymentConnectionLost = false;
+  private paymentPollTimeout: ReturnType<typeof setTimeout> | null = null;
+  private paymentCountdownInterval: ReturnType<typeof setInterval> | null = null;
+  private paymentPollAttempt = 0;
+  private paymentCheckInProgress = false;
+  private expirationFinalCheckStarted = false;
+  private bookingPageActive = true;
+  retryUnavailable = false;
+  private readonly visibilityChangeHandler = () => this.handleVisibilityChange();
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -131,12 +148,27 @@ export class BookingFormPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    document.addEventListener('visibilitychange', this.visibilityChangeHandler);
     this.loadData();
   }
 
   ngOnDestroy() {
+    document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+    this.clearPaymentTimers();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  ionViewWillEnter() {
+    this.bookingPageActive = true;
+    if (this.paymentStep === 'confirming') {
+      this.confirmPaymentTransaction();
+    }
+  }
+
+  ionViewWillLeave() {
+    this.bookingPageActive = false;
+    this.clearPaymentTimers();
   }
 
   private loadData() {
@@ -481,9 +513,6 @@ export class BookingFormPage implements OnInit, OnDestroy {
           next: (bookingResponse) => {
             this.bookingId =
               bookingResponse.reservationId || bookingResponse.id;
-            // Le backend renvoie un ticket par passager (nom, téléphone, siège, QR, n° billet)
-            this.rawBookingTickets = bookingResponse.tickets || [];
-
             // Étape 2 : Initier le paiement
             const paymentRequest: PaymentRequest = {
               reservationId: Number(this.bookingId),
@@ -502,13 +531,8 @@ export class BookingFormPage implements OnInit, OnDestroy {
                   this.transactionId = paymentResponse.transactionId;
                   this.paymentLogId = Number(paymentResponse.paymentLogId);
                   this.paymentStep = 'confirming';
-
-                  // Étape 3 : Confirmer le paiement
-                  // En production, cela viendrait d'un webhooks de l'opérateur GSM
-                  // Pour la démo, on le confirme après un délai
-                  setTimeout(() => {
-                    this.confirmPaymentTransaction();
-                  }, 2000);
+                  this.paymentPollAttempt = 0;
+                  this.startPaymentConfirmation();
                 },
                 error: async (err) => {
                   this.isPaymentLoading = false;
@@ -562,87 +586,195 @@ export class BookingFormPage implements OnInit, OnDestroy {
     }
   }
 
+  private startPaymentConfirmation() {
+    this.paymentStep = 'confirming';
+    this.paymentResultStatus = 'pending';
+    this.paymentConnectionLost = false;
+    this.isPaymentLoading = true;
+    this.confirmPaymentTransaction();
+  }
+
   private confirmPaymentTransaction() {
-    if (!this.transactionId) {
-      this.notificationService.showErrorAlert(
-        'ID de transaction manquant',
-        'Erreur',
-      );
+    if (
+      !this.transactionId ||
+      this.paymentCheckInProgress ||
+      document.hidden ||
+      !this.bookingPageActive
+    ) {
       return;
     }
 
+    this.paymentCheckInProgress = true;
     this.paymentService
       .confirmPayment(this.transactionId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (confirmResponse) => {
-          this.paymentStep = 'confirmed';
-          this.generatedTicket = {
-            ticketNumber: `TKT-${this.bookingId}`,
-            ticketClass: this.trip?.category,
-            transactionId: this.transactionId,
-            paymentStatus: confirmResponse?.status || 'UNKNOWN',
-          };
-          this.tickets = this.passengers.map((passenger, index) => {
-            const backendTicket = this.rawBookingTickets[index];
-            return {
-              ticketNumber: backendTicket?.ticketNumber || '',
-              seat: backendTicket?.seat ?? '',
-              qr: typeof backendTicket?.qr === 'string' && backendTicket.qr.trim()
-                ? backendTicket.qr
-                : null,
-              passengerName: passenger.fullName,
-              passengerPhone: passenger.phoneNumber,
-              status: '',
-            };
-          });
+          this.paymentCheckInProgress = false;
+          this.paymentConnectionLost = false;
+          this.paymentSecondsRemaining = Math.max(0, confirmResponse.secondsUntilExpiration);
+          this.startPaymentCountdown();
+          this.paymentResultStatus = confirmResponse.status;
 
-          if (confirmResponse?.status === 'SUCCESS' && this.bookingId) {
-            this.bookingService
-              .getBookingDetail(Number(this.bookingId))
-              .pipe(takeUntil(this.destroy$))
-              .subscribe({
-                next: (booking) => {
-                  this.bookingStatus = booking.status;
-                  this.tickets = (booking.tickets || []).map((ticket) => ({
-                    ticketNumber: ticket.ticketNumber,
-                    seat: ticket.seatNumber,
-                    qr: ticket.qrCodeToken?.trim() ? ticket.qrCodeToken : null,
-                    passengerName: ticket.passengerName,
-                    passengerPhone: ticket.passengerPhone,
-                    status: ticket.status,
-                  }));
-                  this.isPaymentLoading = false;
-                  this.stepNumber = 3;
-                },
-                error: () => {
-                  this.isPaymentLoading = false;
-                  this.stepNumber = 3;
-                },
-              });
-          } else {
-            this.isPaymentLoading = false;
-            this.stepNumber = 3;
+          switch (confirmResponse.status) {
+            case 'confirmed':
+              this.paymentStep = 'confirmed';
+              this.loadConfirmedTickets();
+              return;
+            case 'failure':
+            case 'expired':
+            case 'refund_pending':
+              this.paymentStep = confirmResponse.status;
+              this.isPaymentLoading = false;
+              this.stepNumber = 3;
+              this.clearPaymentTimers();
+              return;
+            default:
+              this.paymentStep = 'confirming';
+              this.schedulePaymentConfirmation(
+                Math.max(
+                  confirmResponse.nextCheckInSeconds,
+                  this.nextPaymentPollDelay(),
+                ),
+              );
           }
         },
-        error: async (err) => {
-          this.isPaymentLoading = false;
-          // Si la confirmation échoue, l'utilisateur peut réessayer ou se rembourser
-          const shouldRetry = await this.notificationService.showConfirmAlert(
-            'Confirmer',
-            "Le paiement n'a pas pu être confirmé. Voulez-vous réessayer ?",
-            () => undefined,
-            undefined,
-            'Confirmation de paiement',
-          );
+        error: () => {
+          this.paymentCheckInProgress = false;
+          this.paymentConnectionLost = !navigator.onLine;
+          this.paymentStep = 'confirming';
+          this.schedulePaymentConfirmation(this.nextPaymentPollDelay());
+        },
+      });
+  }
 
-          if (shouldRetry) {
-            this.confirmPaymentTransaction();
+  private loadConfirmedTickets() {
+    this.generatedTicket = {
+      ticketNumber: `TKT-${this.bookingId}`,
+      ticketClass: this.trip?.category,
+      transactionId: this.transactionId,
+      paymentStatus: 'SUCCESS',
+    };
+    this.tickets = [];
+    if (!this.bookingId) {
+      this.isPaymentLoading = false;
+      this.stepNumber = 3;
+      return;
+    }
+
+    this.bookingService
+      .getBookingDetail(Number(this.bookingId))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (booking) => {
+          this.bookingStatus = booking.status;
+          this.tickets = (booking.tickets || []).map((ticket) => ({
+            ticketNumber: ticket.ticketNumber,
+            seat: ticket.seatNumber,
+            qr: ticket.qrCodeToken?.trim() ? ticket.qrCodeToken : null,
+            passengerName: ticket.passengerName,
+            passengerPhone: ticket.passengerPhone,
+            status: ticket.status,
+          }));
+          this.isPaymentLoading = false;
+          this.stepNumber = 3;
+        },
+        error: () => {
+          this.isPaymentLoading = false;
+          this.stepNumber = 3;
+          this.notificationService.showErrorAlert(
+            'Paiement confirmé, mais les billets ne sont pas encore disponibles. Retrouvez-les dans Mes réservations.',
+            'Paiement confirmé',
+          );
+        },
+      });
+  }
+
+  private nextPaymentPollDelay(): number {
+    const delays = [4, 5, 8, 12, 15];
+    const delay = delays[Math.min(this.paymentPollAttempt, delays.length - 1)];
+    this.paymentPollAttempt++;
+    return delay;
+  }
+
+  private schedulePaymentConfirmation(seconds: number) {
+    if (this.paymentPollTimeout !== null || document.hidden || !this.bookingPageActive) {
+      return;
+    }
+    this.paymentPollTimeout = setTimeout(() => {
+      this.paymentPollTimeout = null;
+      this.confirmPaymentTransaction();
+    }, Math.max(1, seconds) * 1000);
+  }
+
+  private startPaymentCountdown() {
+    if (this.paymentCountdownInterval !== null) {
+      clearInterval(this.paymentCountdownInterval);
+    }
+    this.paymentCountdownInterval = setInterval(() => {
+      if (this.paymentSecondsRemaining > 0) {
+        this.paymentSecondsRemaining--;
+      }
+      if (this.paymentSecondsRemaining === 0 && !this.expirationFinalCheckStarted) {
+        this.expirationFinalCheckStarted = true;
+        if (this.paymentPollTimeout !== null) {
+          clearTimeout(this.paymentPollTimeout);
+          this.paymentPollTimeout = null;
+        }
+        this.confirmPaymentTransaction();
+      }
+    }, 1000);
+  }
+
+  private handleVisibilityChange() {
+    if (document.hidden) {
+      this.clearPaymentTimers();
+    } else if (this.bookingPageActive && this.paymentStep === 'confirming') {
+      this.confirmPaymentTransaction();
+    }
+  }
+
+  private clearPaymentTimers() {
+    if (this.paymentPollTimeout !== null) {
+      clearTimeout(this.paymentPollTimeout);
+      this.paymentPollTimeout = null;
+    }
+    if (this.paymentCountdownInterval !== null) {
+      clearInterval(this.paymentCountdownInterval);
+      this.paymentCountdownInterval = null;
+    }
+  }
+
+  async retryPayment() {
+    if (!this.bookingId || this.paymentSecondsRemaining <= 0) {
+      this.paymentStep = 'expired';
+      this.paymentResultStatus = 'expired';
+      return;
+    }
+
+    this.isPaymentLoading = true;
+    this.retryUnavailable = false;
+    this.paymentService
+      .initiatePayment({
+        reservationId: this.bookingId,
+        amount: this.totalAmountToPay,
+        paymentMethod: this.selectedOperator as PaymentRequest['paymentMethod'],
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.transactionId = response.transactionId;
+          this.paymentLogId = Number(response.paymentLogId);
+          this.paymentPollAttempt = 0;
+          this.expirationFinalCheckStarted = false;
+          this.startPaymentConfirmation();
+        },
+        error: (error) => {
+          this.isPaymentLoading = false;
+          if (error?.status === 409) {
+            this.retryUnavailable = true;
           } else {
-            await this.notificationService.showInfoAlert(
-              'Votre paiement sera remboursé dans 24-48h.',
-              'Remboursement',
-            );
+            this.paymentConnectionLost = !navigator.onLine;
           }
         },
       });

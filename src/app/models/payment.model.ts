@@ -47,3 +47,19 @@ export interface PaymentResponse {
   status: string;
   message?: string;
 }
+
+export type PaymentConfirmationStatus =
+  | 'confirmed'
+  | 'pending'
+  | 'failure'
+  | 'expired'
+  | 'refund_pending';
+
+export interface PaymentConfirmationResponse {
+  success: boolean;
+  transactionId: string;
+  status: PaymentConfirmationStatus;
+  secondsUntilExpiration: number;
+  nextCheckInSeconds: number;
+  message: string | null;
+}

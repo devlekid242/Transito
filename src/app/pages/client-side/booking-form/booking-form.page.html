@@ -14,7 +14,7 @@
       class="text-base font-black text-on-surface text-center flex-1 tracking-tight"
     >
       {{ stepNumber === 1 ? 'Détails du voyage' : (stepNumber === 2 ? 'Paiement'
-      : 'Billet Confirmé') }}
+      : (paymentStep === 'confirmed' ? 'Billet confirmé' : 'Statut du paiement')) }}
     </div>
     <div class="w-10"></div>
   </div>
@@ -770,6 +770,23 @@
             {{ transactionId ? 'ID de transaction: ' + transactionId : 'Veuillez
             patienter...' }}
           </p>
+          <div
+            *ngIf="paymentStep === 'confirming'"
+            class="mt-4 rounded-xl bg-amber-50 border border-amber-200 p-3 text-center"
+          >
+            <p class="text-xs font-black text-amber-900">
+              En attente de confirmation
+              <span *ngIf="paymentSecondsRemaining > 0">
+                • {{ paymentSecondsRemaining }} s
+              </span>
+            </p>
+            <p class="text-[11px] text-amber-800 mt-1">
+              Validez la demande sur votre téléphone en saisissant votre code secret Mobile Money.
+            </p>
+            <p *ngIf="paymentConnectionLost" class="text-[11px] font-bold text-rose-700 mt-2">
+              Connexion perdue. La vérification reprendra automatiquement dès le retour du réseau.
+            </p>
+          </div>
         </div>
       </section>
     </div>
@@ -778,6 +795,7 @@
       *ngIf="stepNumber === 3"
       class="flex flex-col gap-6 animate-[fadeIn_0.5s_ease-out]"
     >
+      <ng-container *ngIf="paymentStep === 'confirmed'; else paymentNotConfirmed">
       <div class="text-center space-y-2 no-print">
         <div
           class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2"
@@ -788,8 +806,9 @@
           Réservation confirmée
         </h2>
         <p class="text-sm font-medium text-on-surface-variant/70">
-          {{ tickets.length > 1 ? tickets.length + ' e-billets ont été générés
-          avec succès.' : 'Votre e-billet a été généré avec succès.' }}
+          {{ tickets.length > 0
+            ? (tickets.length > 1 ? tickets.length + ' e-billets ont été générés avec succès.' : 'Votre e-billet a été généré avec succès.')
+            : 'Paiement confirmé. Vos billets sont disponibles dans Mes réservations.' }}
         </p>
       </div>
 
@@ -1044,6 +1063,46 @@
           </div>
         </div>
       </div>
+      </ng-container>
+      <ng-template #paymentNotConfirmed>
+        <div class="text-center space-y-3 rounded-[2rem] bg-surface-container-lowest border border-outline-variant/20 p-6 shadow-sm">
+          <div
+            class="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+            [ngClass]="paymentStep === 'refund_pending' ? 'bg-amber-100 text-amber-700' : (paymentStep === 'failure' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600')"
+          >
+            <i class="fa-solid text-2xl" [ngClass]="paymentStep === 'refund_pending' ? 'fa-hourglass-half' : (paymentStep === 'failure' ? 'fa-xmark' : 'fa-clock')"></i>
+          </div>
+          <h2 class="text-xl font-black text-on-surface">
+            {{ paymentStep === 'refund_pending' ? 'Remboursement en cours' : (paymentStep === 'failure' ? 'Paiement refusé' : 'Délai de paiement dépassé') }}
+          </h2>
+          <p class="text-sm text-on-surface-variant" *ngIf="paymentStep === 'refund_pending'">
+            Le paiement est arrivé après l’expiration de la réservation. Le remboursement est en cours. Aucun billet n’a été émis.
+          </p>
+          <p class="text-sm text-on-surface-variant" *ngIf="paymentStep === 'failure'">
+            Le fournisseur a refusé le paiement. Aucun billet n’a été émis.
+          </p>
+          <p class="text-sm text-on-surface-variant" *ngIf="paymentStep === 'expired'">
+            Délai dépassé ; si vous avez été débité, vous serez remboursé. Aucun billet n’a été émis.
+          </p>
+          <button
+            *ngIf="paymentStep === 'failure' && paymentSecondsRemaining > 0 && !retryUnavailable"
+            (click)="retryPayment()"
+            [disabled]="isPaymentLoading"
+            class="w-full bg-primary text-on-primary text-sm font-black py-3 rounded-xl disabled:opacity-50"
+          >
+            Réessayer le paiement
+          </button>
+          <p *ngIf="paymentStep === 'failure' && (paymentSecondsRemaining <= 0 || retryUnavailable)" class="text-xs text-on-surface-variant">
+            Cette réservation ne peut pas être relancée. Recherchez un nouveau trajet pour réserver à nouveau.
+          </p>
+          <button
+            (click)="finishBooking()"
+            class="w-full bg-surface-container-low text-on-surface font-bold text-sm py-3 rounded-xl"
+          >
+            Rechercher un autre trajet
+          </button>
+        </div>
+      </ng-template>
     </div>
   </main>
 </ion-content>

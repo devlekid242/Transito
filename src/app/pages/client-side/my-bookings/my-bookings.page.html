@@ -289,25 +289,19 @@
                 </div>
               </div>
 
-              <!-- Section d'accès au QR Code -->
+              <!-- Aucun billet ou QR n'est exposé tant que le paiement n'est pas confirmé. -->
               <div
+                *ngIf="booking.status === 'Confirmé'"
                 class="p-5 bg-surface-container-low/60 flex items-center justify-between border-t border-surface-variant/40"
               >
                 <div class="flex items-center gap-3">
-                  <div
-                    class="w-12 h-12 bg-surface-container-lowest rounded-xl shadow-sm flex items-center justify-center border border-outline-variant/20"
-                  >
-                    <div
-                      class="w-full h-full qr-gradient rounded-lg flex items-center justify-center"
-                    >
+                  <div class="w-12 h-12 bg-surface-container-lowest rounded-xl shadow-sm flex items-center justify-center border border-outline-variant/20">
+                    <div class="w-full h-full qr-gradient rounded-lg flex items-center justify-center">
                       <i class="fa-solid fa-qrcode text-on-primary text-lg"></i>
                     </div>
                   </div>
-                  <p
-                    class="text-[11px] font-semibold text-on-surface-variant/70 leading-tight"
-                  >
-                    Scanner pour <br />
-                    embarquer
+                  <p class="text-[11px] font-semibold text-on-surface-variant/70 leading-tight">
+                    Scanner pour <br /> embarquer
                   </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -325,6 +319,34 @@
                     Détails
                   </button>
                 </div>
+              </div>
+              <div
+                *ngIf="booking.status === 'En attente'"
+                class="mx-5 mb-5 rounded-xl bg-amber-50 border border-amber-200 p-4"
+              >
+                <p class="text-xs font-black text-amber-900">
+                  {{ hasPendingPayment(booking) ? 'Paiement en attente de confirmation' : 'Paiement en attente' }}
+                  <span *ngIf="paymentSecondsRemaining.has(booking.id)">
+                    • {{ paymentSecondsRemaining.get(booking.id) }} s
+                  </span>
+                </p>
+                <p class="text-[11px] text-amber-800 mt-1">
+                  Validez la demande sur votre téléphone avec votre code secret Mobile Money. Aucun billet ni QR code n’est disponible avant confirmation.
+                </p>
+                <p *ngIf="paymentResumeStatus.get(booking.id) === 'offline'" class="text-[11px] font-bold text-rose-700 mt-2">
+                  Connexion perdue. La vérification reprendra automatiquement au retour du réseau.
+                </p>
+                <p *ngIf="paymentResumeStatus.get(booking.id) === 'refund_pending'" class="text-[11px] font-bold text-amber-900 mt-2">
+                  Le paiement est arrivé après expiration ; le remboursement est en cours.
+                </p>
+                <button
+                  *ngIf="hasPendingPayment(booking) && paymentResumeStatus.get(booking.id) !== 'refund_pending'"
+                  (click)="resumePayment(booking)"
+                  [disabled]="resumePaymentId !== null"
+                  class="mt-3 w-full bg-primary text-on-primary text-xs font-black py-2.5 rounded-lg disabled:opacity-50"
+                >
+                  {{ resumePaymentId === booking.id ? 'Vérification en cours…' : 'Reprendre la confirmation' }}
+                </button>
               </div>
             </div>
 
@@ -471,6 +493,16 @@
                   </div>
                 </div>
                 <button
+                  *ngIf="hasFailedPayment(booking)"
+                  (click)="retryFailedPayment(booking)"
+                  [disabled]="retryingBookingId !== null"
+                  class="text-[11px] font-bold text-primary border border-primary/20 rounded-xl px-4 py-2 bg-primary-container/30 hover:bg-primary-container/50 transition-colors active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <i class="fa-solid fa-rotate-right text-[10px]"></i>
+                  {{ retryingBookingId === booking.id ? 'Vérification…' : 'Réessayer le paiement' }}
+                </button>
+                <button
+                  *ngIf="!hasFailedPayment(booking)"
                   (click)="rebookTrip(booking)"
                   class="text-[11px] font-bold text-primary border border-primary/20 rounded-xl px-4 py-2 bg-primary-container/30 hover:bg-primary-container/50 transition-colors active:scale-95 flex items-center gap-1.5"
                 >

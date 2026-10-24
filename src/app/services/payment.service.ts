@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PaymentLog, PaymentRequest, PaymentResponse } from '../models';
+import {
+  PaymentConfirmationResponse,
+  PaymentLog,
+  PaymentRequest,
+  PaymentResponse,
+} from '../models';
 import { unwrapCollection } from 'src/app/shared/rxjs-operators';
 import { environment } from 'src/environments/environment.prod';
 import { IdempotencyService } from 'src/app/services/idempotency.service';
@@ -32,13 +37,9 @@ export class PaymentService {
   /**
    * Confirmer un paiement
    */
-  confirmPayment(
-    transactionId: string,
-    otp?: string
-  ): Observable<PaymentResponse> {
-    return this.http.post<PaymentResponse>(`${this.apiUrl}/confirm`, {
+  confirmPayment(transactionId: string): Observable<PaymentConfirmationResponse> {
+    return this.http.post<PaymentConfirmationResponse>(`${this.apiUrl}/confirm`, {
       transaction_id: transactionId,
-      otp,
     });
   }
 
